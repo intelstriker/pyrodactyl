@@ -9,7 +9,7 @@ import Field from '@/components/elements/Field';
 
 import CaptchaManager from '@/lib/captcha';
 
-import requestPasswordResetEmail from '@/api/auth/requestPasswordResetEmail';
+import http from '@/api/http';
 
 import useFlash from '@/plugins/useFlash';
 
@@ -39,7 +39,7 @@ function ForgotPasswordContainer() {
             }
         }
 
-        requestPasswordResetEmail(requestData.email, requestData)
+        http.post('/auth/password', requestData)
             .then(() => {
                 resetForm();
                 addFlash({
@@ -50,7 +50,7 @@ function ForgotPasswordContainer() {
             })
             .catch((error: any) => {
                 console.error(error);
-                clearAndAddHttpError(error);
+                clearAndAddHttpError({ error });
             })
             .then(() => setSubmitting(false));
     };
