@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { object, ref, string } from 'yup';
 
+import obsidianLogo from '@/assets/images/obsidianhostlogo.svg';
+
 import Button from '@/components/elements/Button';
 import Field from '@/components/elements/Field';
 
@@ -48,7 +50,7 @@ function ResetPasswordContainer() {
             .catch((error: any) => {
                 console.error(error);
                 setSubmitting(false);
-                clearAndAddHttpError(error);
+                clearAndAddHttpError({ error });
             });
     };
 
@@ -98,15 +100,15 @@ function ResetPasswordContainer() {
                 <div className='absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/40' />
 
                 <div className='relative z-10 flex flex-col items-center text-center px-10'>
-                    <div className='mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-700 to-fuchsia-600 shadow-[0_0_40px_rgba(168,85,247,0.5)] rotate-3'>
-                        <span className='text-4xl font-black tracking-tight'>O</span>
+                    <div className='mb-6 flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-700/80 to-fuchsia-600/80 shadow-[0_0_50px_rgba(168,85,247,0.55)] rotate-3 animate-float-slow p-3'>
+                        <img src={obsidianLogo} alt='ObsidianHost' className='h-full w-full object-contain drop-shadow-[0_0_12px_rgba(216,180,254,0.6)]' />
                     </div>
                     <h1 className='text-4xl font-extrabold tracking-tight'>
                         Obsidian<span className='text-purple-400'>Host</span>
                     </h1>
                     <p className='mt-3 max-w-sm text-sm text-zinc-400'>
-                        Forge worlds that never sleep. Power, performance, and pure obsidian-grade hosting for your
-                        Minecraft servers.
+                        Premium Minecraft server hosting — instant setup, blazing-fast NVMe performance, and a
+                        rock-solid network forged for your community.
                     </p>
                 </div>
             </div>
@@ -171,9 +173,7 @@ function ResetPasswordContainer() {
                         )}
                     </Formik>
 
-                    <p className='mt-8 text-center text-xs text-zinc-600'>
-                        Protected by ObsidianHost &middot; v1.0
-                    </p>
+                    <p className='mt-8 text-center text-xs text-zinc-600'>&copy; ObsidianHost 2026</p>
                 </div>
             </div>
 
@@ -202,6 +202,12 @@ function ResetPasswordContainer() {
                     50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.15) rotate(8deg); }
                 }
                 .animate-pulse-slower { animation: pulse-slower 9s ease-in-out infinite; }
+
+                @keyframes float-slow {
+                    0%, 100% { transform: translateY(0) rotate(3deg); }
+                    50% { transform: translateY(-10px) rotate(-3deg); }
+                }
+                .animate-float-slow { animation: float-slow 6s ease-in-out infinite; }
             `}</style>
         </div>
     );
