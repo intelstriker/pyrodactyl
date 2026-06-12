@@ -4,6 +4,8 @@ import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { object, string } from 'yup';
 
+import obsidianLogo from '@/assets/images/obsidianhostlogo.svg';
+
 import Button from '@/components/elements/Button';
 import Captcha, { getCaptchaResponse } from '@/components/elements/Captcha';
 import Field from '@/components/elements/Field';
@@ -72,11 +74,38 @@ function LoginContainer() {
             {/* LEFT PANEL — Animated Obsidian / Minecraft scene */}
             <div className='hidden lg:flex relative w-1/2 items-center justify-center overflow-hidden border-r border-purple-900/40'>
                 {/* Base gradient */}
-                <div className='absolute inset-0 bg-gradient-to-br from-[#120016] via-[#1a0a2e] to-[#05010a]' />
+                <div className='absolute inset-0 bg-gradient-to-br from-[#0d0014] via-[#1a0a2e] to-[#000005]' />
+
+                {/* Obsidian shard accents */}
+                <svg
+                    className='absolute -left-24 -top-16 w-[420px] h-[420px] opacity-60 animate-spin-slow'
+                    viewBox='0 0 200 200'
+                >
+                    <polygon points='100,10 180,60 160,150 60,180 20,90' fill='url(#obsidianGrad)' />
+                    <defs>
+                        <linearGradient id='obsidianGrad' x1='0' y1='0' x2='1' y2='1'>
+                            <stop offset='0%' stopColor='#3b0764' stopOpacity='0.5' />
+                            <stop offset='100%' stopColor='#000000' stopOpacity='0.1' />
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <svg
+                    className='absolute right-[-100px] bottom-[-80px] w-[360px] h-[360px] opacity-50 animate-spin-slower'
+                    viewBox='0 0 200 200'
+                >
+                    <polygon points='100,0 200,80 150,200 30,190 0,70' fill='url(#obsidianGrad2)' />
+                    <defs>
+                        <linearGradient id='obsidianGrad2' x1='0' y1='1' x2='1' y2='0'>
+                            <stop offset='0%' stopColor='#a855f7' stopOpacity='0.35' />
+                            <stop offset='100%' stopColor='#000000' stopOpacity='0.05' />
+                        </linearGradient>
+                    </defs>
+                </svg>
 
                 {/* Animated portal glow */}
                 <div className='absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[460px] h-[460px] rounded-full bg-purple-600/30 blur-[100px] animate-pulse-slow' />
                 <div className='absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[260px] h-[320px] rounded-[40%] bg-fuchsia-500/40 blur-3xl animate-pulse-slower' />
+                <div className='absolute left-1/3 top-2/3 w-[200px] h-[200px] rounded-full bg-violet-700/30 blur-2xl animate-drift' />
 
                 {/* Floating obsidian blocks (CSS cubes) */}
                 <div className='absolute inset-0'>
@@ -117,29 +146,57 @@ function LoginContainer() {
                 {/* Vignette */}
                 <div className='absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/40' />
 
+                {/* Top nav links */}
+                <div className='absolute top-6 right-6 z-20 flex gap-2'>
+                    <a
+                        href='https://obsidianhost.net'
+                        target='_blank'
+                        rel='noreferrer'
+                        className='rounded-full border border-purple-500/30 bg-white/5 px-4 py-1.5 text-xs font-semibold text-zinc-300 no-underline backdrop-blur-sm transition hover:border-purple-400/60 hover:bg-purple-500/10 hover:text-white'
+                    >
+                        Website
+                    </a>
+                    <a
+                        href='https://discord.gg/obsidianhost'
+                        target='_blank'
+                        rel='noreferrer'
+                        className='rounded-full border border-purple-500/30 bg-white/5 px-4 py-1.5 text-xs font-semibold text-zinc-300 no-underline backdrop-blur-sm transition hover:border-purple-400/60 hover:bg-purple-500/10 hover:text-white'
+                    >
+                        Discord
+                    </a>
+                    <a
+                        href='https://status.obsidianhost.net'
+                        target='_blank'
+                        rel='noreferrer'
+                        className='rounded-full border border-purple-500/30 bg-white/5 px-4 py-1.5 text-xs font-semibold text-zinc-300 no-underline backdrop-blur-sm transition hover:border-purple-400/60 hover:bg-purple-500/10 hover:text-white'
+                    >
+                        Status
+                    </a>
+                </div>
+
                 {/* Branding overlay */}
                 <div className='relative z-10 flex flex-col items-center text-center px-10'>
-                    <div className='mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-700 to-fuchsia-600 shadow-[0_0_40px_rgba(168,85,247,0.5)] rotate-3'>
-                        <span className='text-4xl font-black tracking-tight'>O</span>
+                    <div className='mb-6 flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-700/80 to-fuchsia-600/80 shadow-[0_0_50px_rgba(168,85,247,0.55)] rotate-3 animate-float-slow p-3'>
+                        <img src={obsidianLogo} alt='ObsidianHost' className='h-full w-full object-contain drop-shadow-[0_0_12px_rgba(216,180,254,0.6)]' />
                     </div>
                     <h1 className='text-4xl font-extrabold tracking-tight'>
                         Obsidian<span className='text-purple-400'>Host</span>
                     </h1>
                     <p className='mt-3 max-w-sm text-sm text-zinc-400'>
-                        Forge worlds that never sleep. Power, performance, and pure obsidian-grade hosting for your
-                        Minecraft servers.
+                        Premium Minecraft server hosting — instant setup, blazing-fast NVMe performance, and a
+                        rock-solid network forged for your community.
                     </p>
 
                     <div className='mt-10 grid grid-cols-3 gap-4 text-xs text-zinc-400'>
-                        <div className='rounded-lg border border-purple-500/20 bg-white/5 px-4 py-3 backdrop-blur-sm'>
+                        <div className='rounded-lg border border-purple-500/20 bg-white/5 px-4 py-3 backdrop-blur-sm transition hover:border-purple-400/50 hover:bg-purple-500/10'>
                             <p className='text-lg font-bold text-purple-300'>99.9%</p>
                             Uptime
                         </div>
-                        <div className='rounded-lg border border-purple-500/20 bg-white/5 px-4 py-3 backdrop-blur-sm'>
+                        <div className='rounded-lg border border-purple-500/20 bg-white/5 px-4 py-3 backdrop-blur-sm transition hover:border-purple-400/50 hover:bg-purple-500/10'>
                             <p className='text-lg font-bold text-purple-300'>NVMe</p>
                             Storage
                         </div>
-                        <div className='rounded-lg border border-purple-500/20 bg-white/5 px-4 py-3 backdrop-blur-sm'>
+                        <div className='rounded-lg border border-purple-500/20 bg-white/5 px-4 py-3 backdrop-blur-sm transition hover:border-purple-400/50 hover:bg-purple-500/10'>
                             <p className='text-lg font-bold text-purple-300'>24/7</p>
                             Support
                         </div>
@@ -223,9 +280,7 @@ function LoginContainer() {
                         )}
                     </Formik>
 
-                    <p className='mt-8 text-center text-xs text-zinc-600'>
-                        Protected by ObsidianHost &middot; v1.0
-                    </p>
+                    <p className='mt-8 text-center text-xs text-zinc-600'>&copy; ObsidianHost 2026</p>
                 </div>
             </div>
 
@@ -255,6 +310,25 @@ function LoginContainer() {
                     50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.15) rotate(8deg); }
                 }
                 .animate-pulse-slower { animation: pulse-slower 9s ease-in-out infinite; }
+
+                @keyframes drift {
+                    0%, 100% { transform: translate(0, 0) scale(1); }
+                    50% { transform: translate(40px, -30px) scale(1.2); }
+                }
+                .animate-drift { animation: drift 14s ease-in-out infinite; }
+
+                @keyframes spin-slow {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+                .animate-spin-slow { animation: spin-slow 60s linear infinite; }
+                .animate-spin-slower { animation: spin-slow 90s linear infinite reverse; }
+
+                @keyframes float-slow {
+                    0%, 100% { transform: translateY(0) rotate(3deg); }
+                    50% { transform: translateY(-10px) rotate(-3deg); }
+                }
+                .animate-float-slow { animation: float-slow 6s ease-in-out infinite; }
             `}</style>
         </div>
     );
