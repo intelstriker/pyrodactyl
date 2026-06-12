@@ -9,6 +9,7 @@ RUN if [ "$DEV" = "false" ]; then \
     apk add --no-cache git \
     && npm install -g corepack@latest turbo \
     && corepack enable \
+    && corepack prepare pnpm@latest --activate \
     && echo "Building frontend"; \
     fi
 COPY pnpm-lock.yaml package.json ./
