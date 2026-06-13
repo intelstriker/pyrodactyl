@@ -11,9 +11,6 @@ interface ServerSidebarNavItemProps {
     onClick?: () => void;
 }
 
-/**
- * Enhanced Server Sidebar Navigation Item - ObsidianHost Theme
- */
 const ServerSidebarNavItem = forwardRef<HTMLAnchorElement, ServerSidebarNavItemProps>(
     ({ route, serverId, onClick }, ref) => {
         const { icon: Icon, name, path, permission, featureLimit, end } = route;
@@ -23,7 +20,6 @@ const ServerSidebarNavItem = forwardRef<HTMLAnchorElement, ServerSidebarNavItemP
 
         const [subdomainSupported, setSubdomainSupported] = useState(false);
 
-        // Subdomain check for Network feature
         useEffect(() => {
             if (featureLimit !== 'network' || !uuid) return;
 
@@ -65,24 +61,25 @@ const ServerSidebarNavItem = forwardRef<HTMLAnchorElement, ServerSidebarNavItemP
                     end={end}
                     onClick={onClick}
                     className={({ isActive }) =>
-                        `group flex items-center gap-3 px-4 py-3 mx-2 rounded-xl transition-all duration-200 text-sm font-medium
+                        `flex flex-row items-center gap-[8px] py-[16px] px-0 font-semibold text-[14px] min-h-[56px] transition-all duration-200 select-none
                          ${isActive
-                            ? 'bg-purple-600/20 text-purple-200 border-l-4 border-purple-500 shadow-sm'
-                            : 'hover:bg-white/5 text-gray-300 hover:text-white'
+                            ? 'text-[#d8b4fe]'
+                            : 'text-[rgba(216,180,254,0.5)] hover:text-[rgba(216,180,254,0.9)]'
                          }`
                     }
                 >
                     {Icon && (
                         <Icon
-                            className="w-5 h-5 transition-transform group-hover:scale-110"
-                            fill="currentColor"
+                            width={22}
+                            height={22}
+                            fill='currentColor'
                         />
                     )}
-                    <span>{name}</span>
+                    <p>{name}</p>
                 </NavLink>
             </Can>
         );
-    }
+    },
 );
 
 ServerSidebarNavItem.displayName = 'ServerSidebarNavItem';
