@@ -10,16 +10,14 @@ interface ServerRowProps {
     className?: string;
 }
 
-// Obsidian Host Premium Server Card
 const ServerCard = styled(Link)<{ 
     $status: ServerPowerState; 
     $suspended: boolean;
-    $background?: string;
 }>`
-    background: linear-gradient(145deg, #0f0f0f 0%, #1a1a1a 100%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
-    padding: 1.75rem 2rem;
+    background: linear-gradient(145deg, #1a1428 0%, #2a1f3d 100%);
+    border: 1px solid rgba(167, 139, 250, 0.15);
+    border-radius: 16px;
+    padding: 1.25rem 1.75rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -28,111 +26,70 @@ const ServerCard = styled(Link)<{
     color: inherit;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.3);
 
+    /* Subtle diagonal stripe pattern */
     &::before {
         content: '';
         position: absolute;
         inset: 0;
-        background: ${({ $background }) => 
-            $background 
-                ? `url(${$background}) center/cover no-repeat` 
-                : 'linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(59, 130, 246, 0.06) 100%)'};
-        opacity: 0.6;
-        transition: opacity 280ms ease;
-        z-index: 1;
-        mix-blend-mode: overlay;
-    }
-
-    &::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-            180deg,
-            rgba(255,255,255,0.03) 0%,
-            transparent 40%,
-            transparent 60%,
-            rgba(255,255,255,0.02) 100%
+        background: repeating-linear-gradient(
+            135deg,
+            transparent,
+            transparent 20px,
+            rgba(167, 139, 250, 0.03) 20px,
+            rgba(167, 139, 250, 0.03) 40px
         );
-        z-index: 2;
         pointer-events: none;
+        z-index: 1;
     }
 
     &:hover {
-        border-color: rgba(167, 139, 250, 0.3);
-        background: linear-gradient(145deg, #1a1a1a 0%, #242424 100%);
-        transform: translateY(-4px) scale(1.01);
-        box-shadow: 
-            0 20px 25px -5px rgb(0 0 0 / 0.2),
-            0 8px 10px -6px rgb(0 0 0 / 0.2),
-            0 0 0 1px rgba(167, 139, 250, 0.2) inset;
+        border-color: rgba(167, 139, 250, 0.4);
+        transform: translateY(-3px);
+        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 0 0 1px rgba(167, 139, 250, 0.3) inset;
     }
 
     .status-dot {
-        width: 14px;
-        height: 14px;
+        width: 13px;
+        height: 13px;
         border-radius: 9999px;
-        transition: all 300ms cubic-bezier(0.23, 1, 0.32, 1);
-        box-shadow: 0 0 0 4px rgba(255,255,255,0.08);
-        position: relative;
-        z-index: 3;
+        transition: all 300ms ease;
+        box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.2);
+        flex-shrink: 0;
+        z-index: 2;
     }
 
     ${({ $status, $suspended }) => {
         if ($suspended) {
-            return `
-                .status-dot {
-                    background: #ef4444;
-                    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2), 0 0 20px 4px #ef4444;
-                }
-            `;
+            return `.status-dot { background: #ef4444; box-shadow: 0 0 15px #ef4444; }`;
         }
         if (!$status || $status === 'offline') {
-            return `
-                .status-dot {
-                    background: #ef4444;
-                    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15), 0 0 18px 3px #ef4444;
-                }
-            `;
+            return `.status-dot { background: #ef4444; box-shadow: 0 0 12px #ef4444; }`;
         }
         if ($status === 'running') {
-            return `
-                .status-dot {
-                    background: #22c55e;
-                    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.2), 0 0 22px 6px #22c55e;
-                }
-            `;
+            return `.status-dot { background: #22c55e; box-shadow: 0 0 15px #22c55e; }`;
         }
         if ($status === 'installing') {
             return `
-                .status-dot {
-                    background: #3b82f6;
-                    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2), 0 0 20px 4px #3b82f6;
+                .status-dot { 
+                    background: #a855f7; 
+                    box-shadow: 0 0 15px #a855f7;
                     animation: pulse 2s infinite;
                 }
-                @keyframes pulse {
-                    0%, 100% { opacity: 1; }
-                    50% { opacity: 0.6; }
-                }
+                @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
             `;
         }
-        return `
-            .status-dot {
-                background: #eab308;
-                box-shadow: 0 0 0 4px rgba(234, 179, 8, 0.2), 0 0 18px 3px #eab308;
-            }
-        `;
+        return `.status-dot { background: #eab308; box-shadow: 0 0 12px #eab308; }`;
     }}
 `;
 
-const ResourceBar = styled.div`
+const ResourceItem = styled.div`
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 0.75rem;
-    font-size: 0.875rem;
-    color: #a1a1aa;
-    transition: all 200ms ease;
+    min-width: 70px;
+    font-size: 0.8rem;
 `;
 
 const ServerRow = ({ server, className }: ServerRowProps) => {
@@ -155,122 +112,97 @@ const ServerRow = ({ server, className }: ServerRowProps) => {
     useEffect(() => {
         if (isSuspended) return;
         getStats();
-        interval.current = setInterval(getStats, 25000); // Slightly faster refresh
+        interval.current = setInterval(getStats, 25000);
         return () => {
             if (interval.current) clearInterval(interval.current);
         };
     }, [isSuspended, server.uuid]);
 
     const defaultAllocation = server.allocations.find(a => a.isDefault);
-    
+
     const cpuAlarm = stats && server.limits.cpu > 0 && stats.cpuUsagePercent >= server.limits.cpu * 0.9;
     const memAlarm = stats && isAlarmState(stats.memoryUsageInBytes, server.limits.memory);
     const diskAlarm = stats && server.limits.disk > 0 && isAlarmState(stats.diskUsageInBytes, server.limits.disk);
-
-    // Example custom background support - extend Server type if needed
-    // For now: subtle per-status or random/seed-based for demo
-    const getBackground = () => {
-        if (isSuspended) return undefined;
-        if (stats?.status === 'running') {
-            // You can map server.game or server.id to real image URLs
-            return `https://picsum.photos/id/${(server.id || 1) % 100 + 10}/800/600`; // Placeholder
-        }
-        return undefined;
-    };
 
     return (
         <ServerCard
             to={`/server/${server.id}`}
             className={className}
-            $status={stats?.status || server.status as ServerPowerState}
+            $status={stats?.status || (server.status as ServerPowerState)}
             $suspended={isSuspended}
-            $background={getBackground()}
         >
-            <div className="flex items-center gap-5 flex-1 min-w-0 relative z-10">
-                {/* Status Indicator */}
-                <div className="status-dot flex-shrink-0" />
+            <div className="flex items-center gap-4 flex-1 min-w-0 relative z-10">
+                {/* Status Dot */}
+                <div className="status-dot" />
 
                 {/* Server Info */}
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-3">
-                        <p className="text-xl font-semibold text-white tracking-[-0.02em] truncate">
+                        <p className="text-lg font-semibold text-white tracking-tight truncate">
                             {server.name}
                         </p>
                         {isSuspended && (
-                            <span className="px-3 py-1 text-xs font-semibold bg-red-500/10 text-red-400 rounded-xl border border-red-500/30 backdrop-blur-sm">
+                            <span className="px-3 py-0.5 text-xs font-medium bg-red-500/20 text-red-400 rounded-full border border-red-500/30">
                                 SUSPENDED
                             </span>
                         )}
-                        {isInstalling && (
-                            <span className="px-3 py-1 text-xs font-medium bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/30 animate-pulse">
-                                INSTALLING
-                            </span>
-                        )}
                     </div>
-                    
+
                     {defaultAllocation && (
-                        <p className="text-sm text-zinc-400 mt-1.5 font-mono tracking-tight">
+                        <p className="text-sm text-purple-300/70 font-mono mt-0.5">
                             {defaultAllocation.alias || ip(defaultAllocation.ip)}:{defaultAllocation.port}
                         </p>
                     )}
 
-                    {/* Optional: Server type / game icon */}
-                    {server.description && (
-                        <p className="text-xs text-zinc-500 mt-1 line-clamp-1">
-                            {server.description}
+                    {/* Optional short ID / hash like in your screenshot */}
+                    {server.id && (
+                        <p className="text-[10px] text-purple-400/50 font-mono mt-1 tracking-widest">
+                            {server.id.slice(0, 8)}
                         </p>
                     )}
                 </div>
             </div>
 
-            {/* Resource Usage - Desktop */}
-            <div className="hidden md:flex items-center gap-10 text-sm relative z-10">
+            {/* Resources - Compact like second screenshot */}
+            <div className="hidden md:flex items-center gap-6 relative z-10">
                 {!stats || isSuspended || isInstalling ? (
-                    <div className="text-zinc-400 text-sm italic px-4 py-2 bg-black/40 rounded-2xl border border-white/5 backdrop-blur-md">
-                        {isSuspended 
-                            ? 'Server Suspended' 
-                            : isInstalling 
-                                ? 'Installing...' 
-                                : 'No Data'}
+                    <div className="text-purple-400/60 text-sm italic px-4">
+                        {isSuspended ? 'Suspended' : isInstalling ? 'Installing...' : 'No Data'}
                     </div>
                 ) : (
-                    <div className="flex items-center gap-8">
-                        <ResourceBar>
-                            <span className="font-medium text-violet-400">CPU</span>
-                            <span className={`tabular-nums transition-colors ${cpuAlarm ? 'text-orange-400 font-semibold' : 'text-white'}`}>
+                    <>
+                        <ResourceItem>
+                            <span className="text-purple-400 text-xs font-medium tracking-widest">CPU</span>
+                            <span className={`font-semibold tabular-nums ${cpuAlarm ? 'text-orange-400' : 'text-white'}`}>
                                 {stats.cpuUsagePercent.toFixed(1)}%
                             </span>
-                        </ResourceBar>
+                        </ResourceItem>
 
-                        <ResourceBar>
-                            <span className="font-medium text-violet-400">RAM</span>
-                            <span className={`tabular-nums transition-colors ${memAlarm ? 'text-orange-400 font-semibold' : 'text-white'}`}>
+                        <ResourceItem>
+                            <span className="text-purple-400 text-xs font-medium tracking-widest">RAM</span>
+                            <span className={`font-semibold tabular-nums ${memAlarm ? 'text-orange-400' : 'text-white'}`}>
                                 {bytesToString(stats.memoryUsageInBytes)}
                             </span>
-                        </ResourceBar>
+                        </ResourceItem>
 
-                        <ResourceBar>
-                            <span className="font-medium text-violet-400">DISK</span>
-                            <span className={`tabular-nums transition-colors ${diskAlarm ? 'text-orange-400 font-semibold' : 'text-white'}`}>
+                        <ResourceItem>
+                            <span className="text-purple-400 text-xs font-medium tracking-widest">DISK</span>
+                            <span className={`font-semibold tabular-nums ${diskAlarm ? 'text-orange-400' : 'text-white'}`}>
                                 {bytesToString(stats.diskUsageInBytes)}
                             </span>
-                        </ResourceBar>
-                    </div>
+                        </ResourceItem>
+                    </>
                 )}
             </div>
 
-            {/* Mobile Status */}
-            <div className="md:hidden text-xs uppercase tracking-widest text-zinc-500 font-mono relative z-10">
+            {/* Mobile fallback */}
+            <div className="md:hidden text-xs text-purple-400/70 font-mono">
                 {stats?.status || server.status}
             </div>
-
-            {/* Subtle glow accent on hover */}
-            <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-violet-500/10 rounded-full blur-3xl opacity-0 group-hover:opacity-60 transition-opacity pointer-events-none" />
         </ServerCard>
     );
 };
 
-// Helper
 const isAlarmState = (current: number, limit: number): boolean =>
     limit > 0 && current / (limit * 1024 * 1024) >= 0.9;
 
