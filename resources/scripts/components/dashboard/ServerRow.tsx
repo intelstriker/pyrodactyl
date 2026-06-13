@@ -10,8 +10,8 @@ interface ServerRowProps {
     className?: string;
 }
 
-const ServerCard = styled(Link)<{ 
-    $status: ServerPowerState; 
+const ServerCard = styled(Link)<{
+    $status: ServerPowerState;
     $suspended: boolean;
 }>`
     background: #0a0612;
@@ -33,19 +33,18 @@ const ServerCard = styled(Link)<{
         content: '';
         position: absolute;
         inset: 0;
-        background: 
+        background:
             radial-gradient(circle at 25% 35%, rgba(168, 85, 247, 0.18) 0%, transparent 60%),
             radial-gradient(circle at 75% 65%, rgba(192, 132, 252, 0.14) 0%, transparent 60%);
         animation: nebulaDrift 40s ease-in-out infinite alternate;
         z-index: 1;
     }
 
-    /* Wavy animated layer */
     &::after {
         content: '';
         position: absolute;
         inset: 0;
-        background: 
+        background:
             linear-gradient(transparent, rgba(147, 51, 234, 0.06), transparent),
             repeating-linear-gradient(
                 45deg,
@@ -60,11 +59,10 @@ const ServerCard = styled(Link)<{
         mix-blend-mode: screen;
     }
 
-    /* Triangle travelers / geometric particles */
     .geometric {
         position: absolute;
         inset: 0;
-        background-image: 
+        background-image:
             radial-gradient(circle, rgba(192, 132, 252, 0.4) 0.8px, transparent 1px),
             linear-gradient(transparent 50%, rgba(147, 51, 234, 0.08) 50%);
         background-size: 60px 60px;
@@ -76,10 +74,9 @@ const ServerCard = styled(Link)<{
 
     &:hover {
         border-color: rgba(192, 132, 252, 0.65);
-        box-shadow: 
+        box-shadow:
             0 20px 35px -10px rgb(147 51 234 / 0.4),
             inset 0 0 90px rgba(192, 132, 252, 0.25);
-        /* Pure glow, no scale */
     }
 
     .status-dot {
@@ -104,8 +101,8 @@ const ServerCard = styled(Link)<{
         }
         if ($status === 'installing') {
             return `
-                .status-dot { 
-                    background: #c084fc; 
+                .status-dot {
+                    background: #c084fc;
                     box-shadow: 0 0 25px #c084fc;
                     animation: installingPulse 1.5s infinite;
                 }
@@ -115,17 +112,17 @@ const ServerCard = styled(Link)<{
     }}
 
     @keyframes nebulaDrift {
-        0%   { transform: translate(0, 0) scale(1); }
+        0% { transform: translate(0, 0) scale(1); }
         100% { transform: translate(18px, -12px) scale(1.04); }
     }
 
     @keyframes wavyFlow {
-        0%   { background-position: 0 0; }
+        0% { background-position: 0 0; }
         100% { background-position: 140px 90px; }
     }
 
     @keyframes triTravel {
-        0%   { background-position: 0 0; }
+        0% { background-position: 0 0; }
         100% { background-position: 180px 120px; }
     }
 
@@ -137,7 +134,7 @@ const ServerCard = styled(Link)<{
 
 const ResourceRing = styled.div`
     position: relative;
-    width: 88px;
+    width: 110px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -145,8 +142,8 @@ const ResourceRing = styled.div`
 
 const RingContainer = styled.div`
     position: relative;
-    width: 74px;
-    height: 74px;
+    width: 92px;
+    height: 92px;
 `;
 
 const Svg = styled.svg`
@@ -156,13 +153,13 @@ const Svg = styled.svg`
 const CircleBg = styled.circle`
     fill: none;
     stroke: rgba(147, 51, 234, 0.22);
-    stroke-width: 7;
+    stroke-width: 8.5;
 `;
 
 const CircleProgress = styled.circle<{ $alarm?: boolean }>`
     fill: none;
     stroke: ${({ $alarm }) => ($alarm ? '#fb923c' : '#c084fc')};
-    stroke-width: 7;
+    stroke-width: 8.5;
     stroke-linecap: round;
     transition: stroke-dashoffset 700ms cubic-bezier(0.4, 0, 0.2, 1);
 `;
@@ -178,7 +175,7 @@ const RingContent = styled.div`
 `;
 
 const RingLabel = styled.div`
-    font-size: 9.5px;
+    font-size: 11px;
     font-weight: 700;
     color: #e0bbff;
     letter-spacing: 1px;
@@ -186,7 +183,7 @@ const RingLabel = styled.div`
 `;
 
 const RingValue = styled.div<{ $alarm?: boolean }>`
-    font-size: 14.5px;
+    font-size: 16px;
     font-weight: 700;
     color: ${({ $alarm }) => ($alarm ? '#fb923c' : '#f3e8ff')};
     line-height: 1.05;
@@ -221,18 +218,18 @@ const ServerRow = ({ server, className }: ServerRowProps) => {
     const defaultAllocation = server.allocations.find(a => a.isDefault);
 
     const cpuPercent = stats ? Math.min(Math.max(stats.cpuUsagePercent, 0), 100) : 0;
-    const memPercent = stats && server.limits.memory > 0 
-        ? Math.min((stats.memoryUsageInBytes / (server.limits.memory * 1024 * 1024)) * 100, 100) 
+    const memPercent = stats && server.limits.memory > 0
+        ? Math.min((stats.memoryUsageInBytes / (server.limits.memory * 1024 * 1024)) * 100, 100)
         : 0;
-    const diskPercent = stats && server.limits.disk > 0 
-        ? Math.min((stats.diskUsageInBytes / (server.limits.disk * 1024 * 1024)) * 100, 100) 
+    const diskPercent = stats && server.limits.disk > 0
+        ? Math.min((stats.diskUsageInBytes / (server.limits.disk * 1024 * 1024)) * 100, 100)
         : 0;
 
     const cpuAlarm = cpuPercent >= 90;
     const memAlarm = memPercent >= 90;
     const diskAlarm = diskPercent >= 90;
 
-    const circumference = 2 * Math.PI * 31; // bigger radius
+    const circumference = 2 * Math.PI * 39; // Increased radius
 
     return (
         <ServerCard
@@ -266,15 +263,11 @@ const ServerRow = ({ server, className }: ServerRowProps) => {
                             {defaultAllocation.alias || ip(defaultAllocation.ip)}:{defaultAllocation.port}
                         </p>
                     )}
-
-                    <p className="text-[10px] text-purple-400/60 font-mono mt-1.5 tracking-[1.5px]">
-                        {server.id ? server.id.slice(0, 8) : ''}
-                    </p>
                 </div>
             </div>
 
             {/* Bigger Resource Rings */}
-            <div className="hidden md:flex items-center gap-6 relative z-10">
+            <div className="hidden md:flex items-center gap-8 relative z-10">
                 {!stats || isSuspended || isInstalling ? (
                     <div className="text-purple-400/70 text-sm italic pr-10">
                         {isSuspended ? 'Suspended' : isInstalling ? 'Installing...' : 'No data'}
@@ -283,11 +276,11 @@ const ServerRow = ({ server, className }: ServerRowProps) => {
                     <>
                         <ResourceRing>
                             <RingContainer>
-                                <Svg width="74" height="74" viewBox="0 0 74 74">
-                                    <CircleBg cx="37" cy="37" r="31" />
-                                    <CircleProgress 
-                                        cx="37" cy="37" r="31"
-                                        strokeDasharray={circumference} 
+                                <Svg width="92" height="92" viewBox="0 0 92 92">
+                                    <CircleBg cx="46" cy="46" r="39" />
+                                    <CircleProgress
+                                        cx="46" cy="46" r="39"
+                                        strokeDasharray={circumference}
                                         strokeDashoffset={circumference - (cpuPercent / 100) * circumference}
                                         $alarm={cpuAlarm}
                                     />
@@ -301,11 +294,11 @@ const ServerRow = ({ server, className }: ServerRowProps) => {
 
                         <ResourceRing>
                             <RingContainer>
-                                <Svg width="74" height="74" viewBox="0 0 74 74">
-                                    <CircleBg cx="37" cy="37" r="31" />
-                                    <CircleProgress 
-                                        cx="37" cy="37" r="31"
-                                        strokeDasharray={circumference} 
+                                <Svg width="92" height="92" viewBox="0 0 92 92">
+                                    <CircleBg cx="46" cy="46" r="39" />
+                                    <CircleProgress
+                                        cx="46" cy="46" r="39"
+                                        strokeDasharray={circumference}
                                         strokeDashoffset={circumference - (memPercent / 100) * circumference}
                                         $alarm={memAlarm}
                                     />
@@ -319,11 +312,11 @@ const ServerRow = ({ server, className }: ServerRowProps) => {
 
                         <ResourceRing>
                             <RingContainer>
-                                <Svg width="74" height="74" viewBox="0 0 74 74">
-                                    <CircleBg cx="37" cy="37" r="31" />
-                                    <CircleProgress 
-                                        cx="37" cy="37" r="31"
-                                        strokeDasharray={circumference} 
+                                <Svg width="92" height="92" viewBox="0 0 92 92">
+                                    <CircleBg cx="46" cy="46" r="39" />
+                                    <CircleProgress
+                                        cx="46" cy="46" r="39"
+                                        strokeDasharray={circumference}
                                         strokeDashoffset={circumference - (diskPercent / 100) * circumference}
                                         $alarm={diskAlarm}
                                     />
