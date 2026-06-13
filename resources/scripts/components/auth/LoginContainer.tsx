@@ -247,8 +247,8 @@ function LoginContainer() {
                         Obsidian<span className='text-purple-400'>Host</span>
                     </h1>
                     <p className='mt-3 max-w-sm text-sm text-zinc-400'>
-                        Lag-free Minecraft hosting carved from pure obsidian — instant deploys, NVMe-backed worlds,
-                        and a network built to keep your community online.
+                        Lag-free Minecraft hosting carved from pure obsidian, 
+                        instant deploys and a network built to keep your community online.
                     </p>
 
                     <div className='mt-10 grid grid-cols-3 gap-4 text-xs font-semibold text-zinc-300'>
