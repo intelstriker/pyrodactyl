@@ -350,63 +350,6 @@ const StartupContainer = () => {
                                 can be used to customize server behavior and settings.
                             </p>
                         </div>
-
-                        <div className='bg-linear-to-b from-[#ffffff04] to-[#ffffff02] border border-[#ffffff08] rounded-xl p-4'>
-                            <div className='space-y-3'>
-                                <h4 className='text-sm font-medium text-neutral-300'>Global Server Variables</h4>
-                                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs'>
-                                    <div className='flex justify-between items-center gap-2 py-2 px-3 bg-[#ffffff06] rounded border border-[#ffffff08]'>
-                                        <span className='font-mono text-neutral-400'>{'SERVER_MEMORY'}</span>
-                                        <CopyOnClick text={server?.limits?.memory || 'null'}>
-                                            <span className='text-neutral-300 font-mono'>
-                                                {server?.limits?.memory || 'null'}
-                                            </span>
-                                        </CopyOnClick>
-                                    </div>
-                                    <div className='flex justify-between items-center gap-2 py-2 px-3 bg-[#ffffff06] rounded border border-[#ffffff08]'>
-                                        <span className='font-mono text-neutral-400'>{'SERVER_IP'}</span>
-                                        <CopyOnClick text={server?.allocations?.find((a) => a.isDefault)?.ip || 'null'}>
-                                            <span className='text-neutral-300 font-mono'>
-                                                {server?.allocations?.find((a) => a.isDefault)?.ip || 'null'}
-                                            </span>
-                                        </CopyOnClick>
-                                    </div>
-                                    <div className='flex justify-between items-center gap-2 py-2 px-3 bg-[#ffffff06] rounded border border-[#ffffff08]'>
-                                        <span className='font-mono text-neutral-400'>{'SERVER_PORT'}</span>
-                                        <CopyOnClick
-                                            text={server?.allocations?.find((a) => a.isDefault)?.port || 'null'}
-                                        >
-                                            <span className='text-neutral-300 font-mono'>
-                                                {server?.allocations?.find((a) => a.isDefault)?.port || 'null'}
-                                            </span>
-                                        </CopyOnClick>
-                                    </div>
-                                    <div className='flex justify-between items-center gap-2 py-2 px-3 bg-[#ffffff06] rounded border border-[#ffffff08]'>
-                                        <span className='font-mono text-neutral-400'>{'SERVER_UUID'}</span>
-                                        <CopyOnClick text={uuid}>
-                                            <span className='text-neutral-300 font-mono text-xs truncate'>{uuid}</span>
-                                        </CopyOnClick>
-                                    </div>
-                                    <div className='flex justify-between items-center gap-2 py-2 px-3 bg-[#ffffff06] rounded border border-[#ffffff08]'>
-                                        <span className='font-mono text-neutral-400'>{'SERVER_NAME'}</span>
-                                        <CopyOnClick text={server?.name || 'null'}>
-                                            <span className='text-neutral-300 font-mono truncate'>
-                                                {server?.name || 'null'}
-                                            </span>
-                                        </CopyOnClick>
-                                    </div>
-                                    <div className='flex justify-between items-center gap-2 py-2 px-3 bg-[#ffffff06] rounded border border-[#ffffff08]'>
-                                        <span className='font-mono text-neutral-400'>{'SERVER_CPU'}</span>
-                                        <CopyOnClick text={server?.limits?.cpu || 'null'}>
-                                            <span className='text-neutral-300 font-mono'>
-                                                {server?.limits?.cpu || 'null'}
-                                            </span>
-                                        </CopyOnClick>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         <div className='min-h-[40svh] flex flex-col justify-between'>
                             <div className='grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3'>
                                 {paginatedVariables.map((variable) => (
