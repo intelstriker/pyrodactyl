@@ -401,8 +401,3 @@ const ServerRouter = () => {
 };
 
 export default ServerRouter;
-
-    );
-};
-
-export default ServerRouter;
