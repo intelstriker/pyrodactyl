@@ -9,9 +9,12 @@ const PageListContainer = ({ className, children }: Props) => {
     return (
         <div
             style={{
-                background: 'radial-gradient(124.75% 124.75% at 50.01% -10.55%, rgb(16, 16, 16) 0%, rgb(4, 4, 4) 100%)',
+                background:
+                    'radial-gradient(124.75% 124.75% at 50.01% -10.55%, #150a22 0%, #06010d 100%), ' +
+                    'repeating-linear-gradient(135deg, rgba(168,85,247,0.05) 0px, rgba(168,85,247,0.05) 1px, transparent 1px, transparent 26px)',
+                border: '1px solid rgba(168,85,247,0.12)',
             }}
-            className={clsx(className, 'p-2 border-[1px] border-[#ffffff12] rounded-xl')}
+            className={clsx(className, 'p-2 rounded-xl')}
         >
             <div className='flex h-full w-full flex-col gap-3 overflow-hidden rounded-lg'>{children}</div>
         </div>
@@ -34,3 +37,4 @@ const PageListItem = ({ className, children }: Props) => {
 PageListItem.displayName = 'PageListItem';
 
 export { PageListContainer, PageListItem };
+
