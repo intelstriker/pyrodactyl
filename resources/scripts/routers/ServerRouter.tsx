@@ -1,9 +1,10 @@
+'use client';
+
+import { Ellipsis } from '@gravity-ui/icons';
+import { useStoreState } from 'easy-peasy';
 import { Fragment, Suspense, createRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { NavLink, Route, Routes, useLocation, useParams } from 'react-router-dom';
-import { useStoreState } from 'easy-peasy';
-
 import routes, { type ServerRouteDefinition, getServerNavRoutes } from '@/routers/routes';
-
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -17,22 +18,17 @@ import MainWrapper from '@/components/elements/MainWrapper';
 import { ServerMobileMenu } from '@/components/elements/MobileFullScreenMenu';
 import MobileTopBar from '@/components/elements/MobileTopBar';
 import PermissionRoute from '@/components/elements/PermissionRoute';
-import { NotFound, ServerError } from '@/components/elements/ScreenBlock';
-
 import obsidianLogo from '@/assets/images/obsidianhostlogo.svg';
-
+import { NotFound, ServerError } from '@/components/elements/ScreenBlock';
 import CommandMenu from '@/components/elements/commandk/CmdK';
 import ConflictStateRenderer from '@/components/server/ConflictStateRenderer';
 import InstallListener from '@/components/server/InstallListener';
 import ServerSidebarNavItem from '@/components/server/ServerSidebarNavItem';
 import TransferListener from '@/components/server/TransferListener';
 import WebsocketHandler from '@/components/server/WebsocketHandler';
-import StatBlock from '@/components/server/console/StatBlock';
-
 import { httpErrorToHuman } from '@/api/http';
 import http from '@/api/http';
 import { getSubdomainInfo } from '@/api/server/network/subdomain';
-
 import { ServerContext } from '@/state/server';
 
 const ServerRouter = () => {
@@ -99,12 +95,10 @@ const ServerRouter = () => {
     useEffect(() => {
         setError('');
         if (!params.id) return;
-
         getServer(params.id).catch((err) => {
             console.error(err);
             setError(httpErrorToHuman(err));
         });
-
         return () => clearServerState();
     }, [params.id, getServer, clearServerState]);
 
@@ -119,15 +113,12 @@ const ServerRouter = () => {
                 setSubdomainSupported(false);
             }
         };
-
         if (uuid) checkSubdomainSupport();
     }, [uuid]);
 
-    // ... (rest of your highlight logic remains the same)
     const calculateTop = (pathname: string): string | number => {
         if (!id) return '0';
         const HighlightOffset = 8;
-
         for (const route of navRoutes) {
             const key = route.path || 'home';
             const ref = navRefs[key];
@@ -138,7 +129,6 @@ const ServerRouter = () => {
             if (route.end && pathname === basePath) {
                 return ref.current.offsetTop + HighlightOffset;
             }
-
             if (route.highlightPatterns) {
                 for (const pattern of route.highlightPatterns) {
                     if (pattern.test(pathname)) {
@@ -146,7 +136,6 @@ const ServerRouter = () => {
                     }
                 }
             }
-
             if (!route.end && pathname.startsWith(basePath)) {
                 return ref.current.offsetTop + HighlightOffset;
             }
@@ -177,9 +166,7 @@ const ServerRouter = () => {
 
     useEffect(() => {
         measureContainer();
-        const handleResize = () => {
-            setTimeout(measureContainer, 150);
-        };
+        const handleResize = () => setTimeout(measureContainer, 150);
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, [id, uuid, measureContainer]);
@@ -189,14 +176,11 @@ const ServerRouter = () => {
     const isHighlightVisible = useMemo(() => {
         if (typeof top !== 'number' || top === 0) return false;
         if (containerHeight === 0) return true;
-
         const itemHeight = 40;
         const itemTopRelativeToContainer = top - containerTop;
         const itemBottomRelativeToContainer = itemTopRelativeToContainer + itemHeight;
-
         const visibleTop = scrollOffset;
         const visibleBottom = scrollOffset + containerHeight;
-
         return itemBottomRelativeToContainer > visibleTop && itemTopRelativeToContainer < visibleBottom;
     }, [top, scrollOffset, containerHeight, containerTop]);
 
@@ -219,7 +203,6 @@ const ServerRouter = () => {
                         onSelectAdminPanel={onSelectManageServer}
                         rootAdmin={rootAdmin}
                     />
-
                     <ServerMobileMenu
                         isVisible={isMobileMenuVisible}
                         onClose={closeMobileMenu}
@@ -229,7 +212,6 @@ const ServerRouter = () => {
                         allocationLimit={allocationLimit}
                         subdomainSupported={subdomainSupported}
                     />
-
                     <div className="flex flex-row w-full lg:pt-0 pt-16">
                         <MainSidebar className="hidden lg:flex lg:relative lg:shrink-0 w-[300px] flex flex-col h-full">
                             {/* Logo + Dropdown */}
@@ -311,7 +293,6 @@ const ServerRouter = () => {
                             <InstallListener />
                             <TransferListener />
                             <WebsocketHandler />
-
                             <main className="relative inset-[1px] w-full h-full overflow-y-auto overflow-x-hidden rounded-md bg-[#08080875]">
                                 {inConflictState &&
                                 (!rootAdmin || (rootAdmin && !location.pathname.endsWith(`/server/${id}`))) ? (
