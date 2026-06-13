@@ -1,4 +1,4 @@
-<a href="http://"></a>import { Ellipsis, Gear, House, Key, Lock } from '@gravity-ui/icons';
+import { Ellipsis, Gear, House, Key, Lock } from '@gravity-ui/icons';
 import { useStoreState } from 'easy-peasy';
 import { Fragment, Suspense, useEffect, useRef, useState } from 'react';
 import { NavLink, Route, Routes, useLocation } from 'react-router-dom';
@@ -40,25 +40,34 @@ const DashboardRouter = () => {
     };
 
     const onSelectAdminPanel = () => {
-        window.open(`/admin`);
+        window.open('/admin');
     };
 
-    const NavigationHome = useRef(null);
-    const NavigationSettings = useRef(null);
-    const NavigationApi = useRef(null);
-    const NavigationSSH = useRef(null);
+    const NavigationHome = useRef<HTMLAnchorElement>(null);
+    const NavigationSettings = useRef<HTMLAnchorElement>(null);
+    const NavigationApi = useRef<HTMLAnchorElement>(null);
+    const NavigationSSH = useRef<HTMLAnchorElement>(null);
 
     const calculateTop = (pathname: string) => {
         const ButtonHome = NavigationHome.current;
         const ButtonSettings = NavigationSettings.current;
         const ButtonApi = NavigationApi.current;
         const ButtonSSH = NavigationSSH.current;
+
         const HighlightOffset: number = 8;
-        if (pathname.endsWith(`/`) && ButtonHome != null) return (ButtonHome as any).offsetTop + HighlightOffset;
-        if (pathname.endsWith(`/account`) && ButtonSettings != null)
+
+        if (pathname.endsWith('/') && ButtonHome) {
+            return (ButtonHome as any).offsetTop + HighlightOffset;
+        }
+        if (pathname.endsWith('/account') && ButtonSettings) {
             return (ButtonSettings as any).offsetTop + HighlightOffset;
-        if (pathname.endsWith('/api') && ButtonApi != null) return (ButtonApi as any).offsetTop + HighlightOffset;
-        if (pathname.endsWith('/ssh') && ButtonSSH != null) return (ButtonSSH as any).offsetTop + HighlightOffset;
+        }
+        if (pathname.endsWith('/api') && ButtonApi) {
+            return (ButtonApi as any).offsetTop + HighlightOffset;
+        }
+        if (pathname.endsWith('/ssh') && ButtonSSH) {
+            return (ButtonSSH as any).offsetTop + HighlightOffset;
+        }
         return '0';
     };
 
@@ -79,14 +88,15 @@ const DashboardRouter = () => {
                 onSelectAdminPanel={onSelectAdminPanel}
                 rootAdmin={rootAdmin}
             />
+
             <DashboardMobileMenu isVisible={isMobileMenuVisible} onClose={closeMobileMenu} />
 
-            <div className='flex flex-row w-full lg:pt-0 pt-16'>
+            <div className="flex flex-row w-full lg:pt-0 pt-16">
                 {/* Desktop Sidebar */}
-                <MainSidebar className='hidden lg:flex lg:relative lg:shrink-0 w-[300px]'>
+                <MainSidebar className="hidden lg:flex lg:relative lg:shrink-0 w-[300px]">
                     {/* Active nav highlight bar */}
                     <div
-                        className='absolute w-[3px] h-10 left-0 rounded-full pointer-events-none'
+                        className="absolute w-[3px] h-10 left-0 rounded-full pointer-events-none"
                         style={{
                             top,
                             height,
@@ -96,50 +106,38 @@ const DashboardRouter = () => {
                                 'linear(0,0.006,0.025 2.8%,0.101 6.1%,0.539 18.9%,0.721 25.3%,0.849 31.5%,0.937 38.1%,0.968 41.8%,0.991 45.7%,1.006 50.1%,1.015 55%,1.017 63.9%,1.001) 390ms',
                         }}
                     />
-                    <div
-                        className='absolute w-12 h-10 blur-2xl left-0 rounded-full pointer-events-none'
-                        style={{
-                            top,
-                            background: 'rgba(168,85,247,0.4)',
-                            opacity: top === '0' ? 0 : 0.5,
-                            transition:
-                                'top linear(0,0.006,0.025 2.8%,0.101 6.1%,0.539 18.9%,0.721 25.3%,0.849 31.5%,0.937 38.1%,0.968 41.8%,0.991 45.7%,1.006 50.1%,1.015 55%,1.017 63.9%,1.001) 390ms',
-                        }}
-                    />
 
                     {/* Logo area */}
-                    <div className='relative flex flex-row items-center justify-between mb-2'>
-                        <NavLink to={'/'} className='flex flex-col items-center w-full py-2 group'>
+                    <div className="relative flex flex-row items-center justify-between mb-2">
+                        <NavLink to="/" className="flex flex-col items-center w-full py-2 group">
                             <img
                                 src={ObsidianLogo}
-                                alt='ObsidianHost'
-                                className='w-24 h-24 object-contain drop-shadow-[0_0_18px_rgba(168,85,247,0.55)] group-hover:drop-shadow-[0_0_28px_rgba(168,85,247,0.85)] transition-all duration-300'
+                                alt="ObsidianHost"
+                                className="w-24 h-24 object-contain drop-shadow-[0_0_18px_rgba(168,85,247,0.55)] group-hover:drop-shadow-[0_0_28px_rgba(168,85,247,0.85)] transition-all duration-300"
                             />
                             <span
-                                className='mt-1 text-lg font-bold tracking-widest uppercase'
+                                className="mt-1 text-lg font-bold tracking-widest uppercase"
                                 style={{
                                     background: 'linear-gradient(135deg, #d8b4fe 0%, #a855f7 50%, #7e22ce 100%)',
                                     WebkitBackgroundClip: 'text',
                                     WebkitTextFillColor: 'transparent',
-                                    backgroundClip: 'text',
-                                    letterSpacing: '0.2em',
-                                    textShadow: 'none',
                                 }}
                             >
                                 ObsidianHost
                             </span>
                         </NavLink>
+
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <button className='absolute top-0 right-0 w-10 h-10 flex items-center justify-center rounded-md text-white hover:bg-white/10 p-2 cursor-pointer'>
-                                    <Ellipsis fill='currentColor' width={26} height={22} />
+                                <button className="absolute top-0 right-0 w-10 h-10 flex items-center justify-center rounded-md text-white hover:bg-white/10 p-2 cursor-pointer">
+                                    <Ellipsis fill="currentColor" width={26} height={22} />
                                 </button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent className='z-99999' sideOffset={8}>
+                            <DropdownMenuContent className="z-99999" sideOffset={8}>
                                 {rootAdmin && (
                                     <DropdownMenuItem onSelect={onSelectAdminPanel}>
                                         Admin Panel
-                                        <span className='ml-2 z-10 rounded-full bg-brand px-2 py-1 text-xs text-white'>
+                                        <span className="ml-2 z-10 rounded-full bg-brand px-2 py-1 text-xs text-white">
                                             Staff
                                         </span>
                                     </DropdownMenuItem>
@@ -150,37 +148,37 @@ const DashboardRouter = () => {
                         </DropdownMenu>
                     </div>
 
-                    <div aria-hidden className='mb-4 bg-[#a855f733] min-h-[1px] w-full'></div>
+                    <div aria-hidden className="mb-4 bg-[#a855f733] min-h-[1px] w-full" />
 
-                    <ul data-pyro-subnav-routes-wrapper='' className='pyro-subnav-routes-wrapper'>
-                        <NavLink to={'/'} end className='flex flex-row items-center' ref={NavigationHome}>
-                            <House width={22} height={22} fill='currentColor' />
+                    <ul data-pyro-subnav-routes-wrapper="" className="pyro-subnav-routes-wrapper">
+                        <NavLink to="/" end className="flex flex-row items-center" ref={NavigationHome}>
+                            <House width={22} height={22} fill="currentColor" />
                             <p>Servers</p>
                         </NavLink>
-                        <NavLink to={'/account/api'} end className='flex flex-row items-center' ref={NavigationApi}>
-                            <Lock width={22} height={22} fill='currentColor' />
+                        <NavLink to="/account/api" end className="flex flex-row items-center" ref={NavigationApi}>
+                            <Lock width={22} height={22} fill="currentColor" />
                             <p>API Keys</p>
                         </NavLink>
-                        <NavLink to={'/account/ssh'} end className='flex flex-row items-center' ref={NavigationSSH}>
-                            <Key width={22} height={22} fill='currentColor' />
+                        <NavLink to="/account/ssh" end className="flex flex-row items-center" ref={NavigationSSH}>
+                            <Key width={22} height={22} fill="currentColor" />
                             <p>SSH Keys</p>
                         </NavLink>
-                        <NavLink to={'/account'} end className='flex flex-row items-center' ref={NavigationSettings}>
-                            <Gear width={22} height={22} fill='currentColor' />
+                        <NavLink to="/account" end className="flex flex-row items-center" ref={NavigationSettings}>
+                            <Gear width={22} height={22} fill="currentColor" />
                             <p>Settings</p>
                         </NavLink>
                     </ul>
                 </MainSidebar>
 
-                <Suspense fallback={null}>
-                    <MainWrapper className='w-full'>
+                <MainWrapper className="w-full">
+                    <Suspense fallback={null}>
                         <main
-                            data-pyro-main=''
-                            data-pyro-transitionrouter=''
-                            className='relative inset-[1px] w-full h-full overflow-y-auto overflow-x-hidden rounded-md bg-[#08080875]'
+                            data-pyro-main=""
+                            data-pyro-transitionrouter=""
+                            className="relative inset-[1px] w-full h-full overflow-y-auto overflow-x-hidden rounded-md bg-[#08080875]"
                         >
                             <Routes>
-                                <Route path='' element={<DashboardContainer />} />
+                                <Route path="" element={<DashboardContainer />} />
                                 {routes.account.map(({ route, component: Component }) => (
                                     <Route
                                         key={route}
@@ -188,15 +186,14 @@ const DashboardRouter = () => {
                                         element={<Component />}
                                     />
                                 ))}
-                                <Route path='*' element={<NotFound />} />
+                                <Route path="*" element={<NotFound />} />
                             </Routes>
                         </main>
-                    </MainWrapper>
-                </Suspense>
+                    </Suspense>
+                </MainWrapper>
             </div>
         </Fragment>
     );
 };
 
 export default DashboardRouter;
-
