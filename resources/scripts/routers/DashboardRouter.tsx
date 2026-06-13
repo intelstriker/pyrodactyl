@@ -17,7 +17,7 @@ import MainSidebar from '@/components/elements/MainSidebar';
 import MainWrapper from '@/components/elements/MainWrapper';
 import { DashboardMobileMenu } from '@/components/elements/MobileFullScreenMenu';
 import MobileTopBar from '@/components/elements/MobileTopBar';
-import Logo from '@/components/elements/PyroLogo';
+import obsidianLogo from '@/assets/images/obsidianhostlogo.svg';
 import { NotFound } from '@/components/elements/ScreenBlock';
 
 import http from '@/api/http';
@@ -98,7 +98,7 @@ const DashboardRouter = () => {
 
             <div className='flex flex-row w-full lg:pt-0 pt-16'>
                 {/* Desktop Sidebar */}
-                <MainSidebar className='hidden lg:flex lg:relative lg:shrink-0 w-[300px] bg-[#1a1a1a]'>
+                <MainSidebar className='hidden lg:flex lg:relative lg:shrink-0 w-[300px]'>
                     <div
                         className='absolute bg-brand w-[3px] h-10 left-0 rounded-full pointer-events-none '
                         style={{
@@ -118,10 +118,16 @@ const DashboardRouter = () => {
                                 'top linear(0,0.006,0.025 2.8%,0.101 6.1%,0.539 18.9%,0.721 25.3%,0.849 31.5%,0.937 38.1%,0.968 41.8%,0.991 45.7%,1.006 50.1%,1.015 55%,1.017 63.9%,1.001) 390ms',
                         }}
                     />
-                    <div className='relative flex flex-row items-center justify-between h-8'>
-                        <NavLink to={'/'} className='flex shrink-0 h-8 w-fit'>
-                            <Logo uniqueId='desktop-sidebar' />
-                            {/* <h1 className='text-[35px] font-semibold leading-[98%] tracking-[-0.05rem] mb-8'>Panel</h1> */}
+                    <div className='relative flex flex-row items-center justify-between'>
+                        <NavLink to={'/'} className='flex shrink-0 items-center gap-3 py-2'>
+                            <img
+                                src={obsidianLogo}
+                                alt='ObsidianHost'
+                                className='h-12 w-12 object-contain drop-shadow-[0_0_10px_rgba(168,85,247,0.5)]'
+                            />
+                            <span className='text-xl font-extrabold leading-tight tracking-tight text-white'>
+                                Obsidian<span className='text-purple-400'>Host</span>
+                            </span>
                         </NavLink>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
