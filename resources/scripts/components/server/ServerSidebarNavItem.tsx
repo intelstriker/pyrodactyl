@@ -66,16 +66,16 @@ const ServerSidebarNavItem = forwardRef<HTMLAnchorElement, ServerSidebarNavItemP
                     onClick={onClick}
                     className={({ isActive }) =>
                         `group flex items-center gap-3 px-4 py-3 mx-2 rounded-xl transition-all duration-200 text-sm font-medium
-                         ${isActive 
-                            ? 'bg-purple-600/20 text-purple-200 border-l-4 border-purple-500' 
+                         ${isActive
+                            ? 'bg-purple-600/20 text-purple-200 border-l-4 border-purple-500 shadow-sm'
                             : 'hover:bg-white/5 text-gray-300 hover:text-white'
                          }`
                     }
                 >
                     {Icon && (
-                        <Icon 
-                            className="w-5 h-5 transition-transform group-hover:scale-110" 
-                            fill="currentColor" 
+                        <Icon
+                            className="w-5 h-5 transition-transform group-hover:scale-110"
+                            fill="currentColor"
                         />
                     )}
                     <span>{name}</span>
