@@ -14,130 +14,130 @@ const ServerCard = styled(Link)<{
     $status: ServerPowerState; 
     $suspended: boolean;
 }>`
-    background: #0c0814;
-    border: 1px solid rgba(147, 51, 234, 0.25);
+    background: #0a0612;
+    border: 1px solid rgba(147, 51, 234, 0.3);
     border-radius: 20px;
-    padding: 1.5rem 1.9rem;
+    padding: 1.6rem 2rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    transition: all 350ms cubic-bezier(0.23, 1, 0.32, 1);
+    transition: all 280ms cubic-bezier(0.23, 1, 0.32, 1);
     text-decoration: none;
     color: inherit;
     position: relative;
     overflow: hidden;
-    box-shadow: 
-        0 10px 20px -5px rgb(0 0 0 / 0.6),
-        inset 0 0 60px rgba(147, 51, 234, 0.08);
+    box-shadow: 0 10px 25px -8px rgb(0 0 0 / 0.65);
 
-    /* === PREMIUM OBSIDIAN ANIMATED BACKGROUND === */
+    /* === ULTRA PREMIUM OBSIDIAN BACKGROUND === */
     &::before {
         content: '';
         position: absolute;
         inset: 0;
         background: 
-            radial-gradient(circle at 20% 30%, rgba(168, 85, 247, 0.13) 0%, transparent 50%),
-            radial-gradient(circle at 80% 70%, rgba(192, 132, 252, 0.09) 0%, transparent 55%),
-            linear-gradient(145deg, rgba(30, 20, 50, 0.6) 0%, transparent 100%);
-        animation: nebulaDrift 35s ease-in-out infinite alternate;
+            radial-gradient(circle at 25% 35%, rgba(168, 85, 247, 0.18) 0%, transparent 60%),
+            radial-gradient(circle at 75% 65%, rgba(192, 132, 252, 0.14) 0%, transparent 60%);
+        animation: nebulaDrift 40s ease-in-out infinite alternate;
         z-index: 1;
-        opacity: 0.75;
     }
 
+    /* Wavy animated layer */
     &::after {
         content: '';
         position: absolute;
         inset: 0;
-        background-image: 
-            radial-gradient(circle, rgba(255,255,255,0.035) 1px, transparent 1px),
-            linear-gradient(135deg, rgba(147, 51, 234, 0.04) 0%, transparent 40%);
-        background-size: 80px 80px, cover;
-        animation: obsidianFlow 28s linear infinite;
+        background: 
+            linear-gradient(transparent, rgba(147, 51, 234, 0.06), transparent),
+            repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 35px,
+                rgba(192, 132, 252, 0.035) 35px,
+                rgba(192, 132, 252, 0.035) 70px
+            );
+        animation: wavyFlow 32s linear infinite;
         z-index: 2;
-        opacity: 0.6;
+        opacity: 0.7;
         mix-blend-mode: screen;
     }
 
-    /* Extra subtle crystal shine layer */
-    .shine {
+    /* Triangle travelers / geometric particles */
+    .geometric {
         position: absolute;
         inset: 0;
-        background: linear-gradient(
-            120deg,
-            transparent 30%,
-            rgba(255,255,255,0.08) 50%,
-            transparent 70%
-        );
-        animation: crystalShine 18s linear infinite;
+        background-image: 
+            radial-gradient(circle, rgba(192, 132, 252, 0.4) 0.8px, transparent 1px),
+            linear-gradient(transparent 50%, rgba(147, 51, 234, 0.08) 50%);
+        background-size: 60px 60px;
+        animation: triTravel 45s linear infinite;
         z-index: 3;
-        opacity: 0.4;
+        opacity: 0.35;
         pointer-events: none;
     }
 
     &:hover {
-        border-color: rgba(192, 132, 252, 0.5);
-        transform: translateY(-5px) scale(1.012);
+        border-color: rgba(192, 132, 252, 0.65);
         box-shadow: 
-            0 25px 35px -10px rgb(0 0 0 / 0.7),
-            inset 0 0 80px rgba(192, 132, 252, 0.18);
+            0 20px 35px -10px rgb(147 51 234 / 0.4),
+            inset 0 0 90px rgba(192, 132, 252, 0.25);
+        /* Pure glow, no scale */
     }
 
     .status-dot {
-        width: 14px;
-        height: 14px;
+        width: 15px;
+        height: 15px;
         border-radius: 9999px;
         transition: all 280ms ease;
-        box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.3);
+        box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.35);
         flex-shrink: 0;
         z-index: 5;
     }
 
     ${({ $status, $suspended }) => {
         if ($suspended) {
-            return `.status-dot { background: #f87171; box-shadow: 0 0 20px #f87171; }`;
+            return `.status-dot { background: #f87171; box-shadow: 0 0 22px #f87171; }`;
         }
         if (!$status || $status === 'offline') {
-            return `.status-dot { background: #ef4444; box-shadow: 0 0 18px #ef4444; }`;
+            return `.status-dot { background: #ef4444; box-shadow: 0 0 20px #ef4444; }`;
         }
         if ($status === 'running') {
-            return `.status-dot { background: #4ade80; box-shadow: 0 0 20px #4ade80; }`;
+            return `.status-dot { background: #4ade80; box-shadow: 0 0 22px #4ade80; }`;
         }
         if ($status === 'installing') {
             return `
                 .status-dot { 
                     background: #c084fc; 
-                    box-shadow: 0 0 22px #c084fc;
-                    animation: installingPulse 1.6s infinite;
+                    box-shadow: 0 0 25px #c084fc;
+                    animation: installingPulse 1.5s infinite;
                 }
             `;
         }
-        return `.status-dot { background: #fbbf24; box-shadow: 0 0 18px #fbbf24; }`;
+        return `.status-dot { background: #fbbf24; box-shadow: 0 0 20px #fbbf24; }`;
     }}
 
     @keyframes nebulaDrift {
         0%   { transform: translate(0, 0) scale(1); }
-        100% { transform: translate(12px, -8px) scale(1.03); }
+        100% { transform: translate(18px, -12px) scale(1.04); }
     }
 
-    @keyframes obsidianFlow {
+    @keyframes wavyFlow {
         0%   { background-position: 0 0; }
-        100% { background-position: 120px 80px; }
+        100% { background-position: 140px 90px; }
     }
 
-    @keyframes crystalShine {
-        0%   { transform: translateX(-150%); }
-        100% { transform: translateX(250%); }
+    @keyframes triTravel {
+        0%   { background-position: 0 0; }
+        100% { background-position: 180px 120px; }
     }
 
     @keyframes installingPulse {
-        0%, 100% { box-shadow: 0 0 22px #c084fc; }
-        50% { box-shadow: 0 0 35px #c084fc; }
+        0%, 100% { box-shadow: 0 0 25px #c084fc; }
+        50% { box-shadow: 0 0 40px #c084fc; }
     }
 `;
 
 const ResourceRing = styled.div`
     position: relative;
-    width: 74px;
+    width: 88px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -145,8 +145,8 @@ const ResourceRing = styled.div`
 
 const RingContainer = styled.div`
     position: relative;
-    width: 62px;
-    height: 62px;
+    width: 74px;
+    height: 74px;
 `;
 
 const Svg = styled.svg`
@@ -155,16 +155,16 @@ const Svg = styled.svg`
 
 const CircleBg = styled.circle`
     fill: none;
-    stroke: rgba(147, 51, 234, 0.18);
-    stroke-width: 6;
+    stroke: rgba(147, 51, 234, 0.22);
+    stroke-width: 7;
 `;
 
 const CircleProgress = styled.circle<{ $alarm?: boolean }>`
     fill: none;
     stroke: ${({ $alarm }) => ($alarm ? '#fb923c' : '#c084fc')};
-    stroke-width: 6;
+    stroke-width: 7;
     stroke-linecap: round;
-    transition: stroke-dashoffset 600ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: stroke-dashoffset 700ms cubic-bezier(0.4, 0, 0.2, 1);
 `;
 
 const RingContent = styled.div`
@@ -178,15 +178,15 @@ const RingContent = styled.div`
 `;
 
 const RingLabel = styled.div`
-    font-size: 9px;
-    font-weight: 600;
-    color: #d8b4fe;
-    letter-spacing: 0.8px;
+    font-size: 9.5px;
+    font-weight: 700;
+    color: #e0bbff;
+    letter-spacing: 1px;
     line-height: 1;
 `;
 
 const RingValue = styled.div<{ $alarm?: boolean }>`
-    font-size: 13.5px;
+    font-size: 14.5px;
     font-weight: 700;
     color: ${({ $alarm }) => ($alarm ? '#fb923c' : '#f3e8ff')};
     line-height: 1.05;
@@ -232,7 +232,7 @@ const ServerRow = ({ server, className }: ServerRowProps) => {
     const memAlarm = memPercent >= 90;
     const diskAlarm = diskPercent >= 90;
 
-    const circumference = 2 * Math.PI * 26;
+    const circumference = 2 * Math.PI * 31; // bigger radius
 
     return (
         <ServerCard
@@ -241,21 +241,21 @@ const ServerRow = ({ server, className }: ServerRowProps) => {
             $status={stats?.status || (server.status as ServerPowerState)}
             $suspended={isSuspended}
         >
-            <div className="flex items-center gap-4 flex-1 min-w-0 relative z-10">
+            <div className="flex items-center gap-5 flex-1 min-w-0 relative z-10">
                 <div className="status-dot" />
 
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-3">
-                        <p className="text-[17px] font-semibold text-white tracking-[-0.02em] truncate">
+                        <p className="text-[17.5px] font-semibold text-white tracking-[-0.02em] truncate">
                             {server.name}
                         </p>
                         {isSuspended && (
-                            <span className="px-3 py-1 text-xs font-semibold bg-red-500/20 text-red-400 rounded-xl border border-red-500/30">
+                            <span className="px-3.5 py-1 text-xs font-semibold bg-red-500/20 text-red-400 rounded-2xl border border-red-500/30">
                                 SUSPENDED
                             </span>
                         )}
                         {isInstalling && (
-                            <span className="px-3 py-1 text-xs font-medium bg-purple-500/20 text-purple-300 rounded-xl border border-purple-500/30 animate-pulse">
+                            <span className="px-3.5 py-1 text-xs font-medium bg-purple-500/20 text-purple-300 rounded-2xl border border-purple-500/30 animate-pulse">
                                 INSTALLING
                             </span>
                         )}
@@ -267,26 +267,26 @@ const ServerRow = ({ server, className }: ServerRowProps) => {
                         </p>
                     )}
 
-                    <p className="text-[10px] text-purple-400/60 font-mono mt-1.5 tracking-[1px]">
+                    <p className="text-[10px] text-purple-400/60 font-mono mt-1.5 tracking-[1.5px]">
                         {server.id ? server.id.slice(0, 8) : ''}
                     </p>
                 </div>
             </div>
 
-            {/* Circular Rings with Text Inside */}
-            <div className="hidden md:flex items-center gap-5 relative z-10">
+            {/* Bigger Resource Rings */}
+            <div className="hidden md:flex items-center gap-6 relative z-10">
                 {!stats || isSuspended || isInstalling ? (
-                    <div className="text-purple-400/70 text-sm italic pr-8">
+                    <div className="text-purple-400/70 text-sm italic pr-10">
                         {isSuspended ? 'Suspended' : isInstalling ? 'Installing...' : 'No data'}
                     </div>
                 ) : (
                     <>
                         <ResourceRing>
                             <RingContainer>
-                                <Svg width="62" height="62" viewBox="0 0 62 62">
-                                    <CircleBg cx="31" cy="31" r="26" />
+                                <Svg width="74" height="74" viewBox="0 0 74 74">
+                                    <CircleBg cx="37" cy="37" r="31" />
                                     <CircleProgress 
-                                        cx="31" cy="31" r="26" 
+                                        cx="37" cy="37" r="31"
                                         strokeDasharray={circumference} 
                                         strokeDashoffset={circumference - (cpuPercent / 100) * circumference}
                                         $alarm={cpuAlarm}
@@ -301,10 +301,10 @@ const ServerRow = ({ server, className }: ServerRowProps) => {
 
                         <ResourceRing>
                             <RingContainer>
-                                <Svg width="62" height="62" viewBox="0 0 62 62">
-                                    <CircleBg cx="31" cy="31" r="26" />
+                                <Svg width="74" height="74" viewBox="0 0 74 74">
+                                    <CircleBg cx="37" cy="37" r="31" />
                                     <CircleProgress 
-                                        cx="31" cy="31" r="26" 
+                                        cx="37" cy="37" r="31"
                                         strokeDasharray={circumference} 
                                         strokeDashoffset={circumference - (memPercent / 100) * circumference}
                                         $alarm={memAlarm}
@@ -319,10 +319,10 @@ const ServerRow = ({ server, className }: ServerRowProps) => {
 
                         <ResourceRing>
                             <RingContainer>
-                                <Svg width="62" height="62" viewBox="0 0 62 62">
-                                    <CircleBg cx="31" cy="31" r="26" />
+                                <Svg width="74" height="74" viewBox="0 0 74 74">
+                                    <CircleBg cx="37" cy="37" r="31" />
                                     <CircleProgress 
-                                        cx="31" cy="31" r="26" 
+                                        cx="37" cy="37" r="31"
                                         strokeDasharray={circumference} 
                                         strokeDashoffset={circumference - (diskPercent / 100) * circumference}
                                         $alarm={diskAlarm}
@@ -342,8 +342,7 @@ const ServerRow = ({ server, className }: ServerRowProps) => {
                 {stats?.status || server.status}
             </div>
 
-            {/* Extra shine layer */}
-            <div className="shine" />
+            <div className="geometric" />
         </ServerCard>
     );
 };
