@@ -1,27 +1,36 @@
+import { Plus } from '@gravity-ui/icons';
+import { Form, Formik, FormikHelpers } from 'formik';
 import { useState } from 'react';
-import { Formik, Form } from 'formik';
-import * as Yup from 'yup';
+import { object, string } from 'yup';
+import ActionButton from '@/components/elements/ActionButton';
+import FormikFieldWrapper from '@/components/elements/FormikFieldWrapper';
+import Input from '@/components/elements/Input';
+import SpinnerOverlay from '@/components/elements/SpinnerOverlay';
+import { Dialog } from '@/components/elements/dialog';
 import { createSSHKey } from '@/api/account/ssh-keys';
-import Button from '@/components/elements/Button';
-import Field from '@/components/elements/Field';
 import { useFlashKey } from '@/plugins/useFlash';
 
-const schema = Yup.object({
-    name: Yup.string().required('Name is required'),
-    public_key: Yup.string().required('Public key is required'),
+interface CreateValues {
+    name: string;
+    public_key: string;
+}
+
+const validationSchema = object().shape({
+    name: string().required('SSH Key Name is required'),
+    public_key: string().required('Public key is required'),
 });
 
 export default function CreateSSHKeyForm() {
     const [visible, setVisible] = useState(false);
-    const { clearFlashes, addError } = useFlashKey('account:ssh');
+    const { clearFlashes, addError } = useFlashKey('account:ssh-keys');
 
-    const handleSubmit = async (values: any, { setSubmitting, resetForm }: any) => {
+    const handleSubmit = async (values: CreateValues, { setSubmitting, resetForm }: FormikHelpers<CreateValues>) => {
         clearFlashes();
         try {
             await createSSHKey(values.name, values.public_key);
             resetForm();
             setVisible(false);
-            window.location.reload(); // Refresh list
+            window.location.reload();
         } catch (err) {
             addError(err);
         }
@@ -30,29 +39,68 @@ export default function CreateSSHKeyForm() {
 
     return (
         <>
-            <Button onClick={() => setVisible(true)} className="bg-purple-600 hover:bg-purple-700">+ Add SSH Key</Button>
+            {/* Add SSH Key Button */}
+            <ActionButton
+                variant="primary"
+                onClick={() => setVisible(true)}
+                className="flex items-center gap-2"
+            >
+                <Plus width={20} height={20} />
+                Add SSH Key
+            </ActionButton>
 
-            {visible && (
-                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100]">
-                    <div className="bg-[#111827] border border-purple-500/30 rounded-3xl p-8 w-full max-w-md">
-                        <h2 className="text-2xl font-bold text-white mb-6">Add SSH Key</h2>
+            {/* Create SSH Key Modal Dialog */}
+            <Dialog.Confirm
+                open={visible}
+                onClose={() => setVisible(false)}
+                title="Add SSH Key"
+                confirm="Add Key"
+                confirmButtonProps={{
+                    className: 'bg-purple-600 hover:bg-purple-700 border-purple-500 text-white font-medium',
+                }}
+                cancelButtonProps={{
+                    className: 'bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-300',
+                }}
+                className="!bg-[#0a0612] border border-purple-500/40 shadow-2xl"
+                overlayClassName="bg-black/80"
+            >
+                <Formik
+                    initialValues={{ name: '', public_key: '' }}
+                    validationSchema={validationSchema}
+                    onSubmit={handleSubmit}
+                >
+                    {({ isSubmitting }) => (
+                        <Form className="space-y-6">
+                            <SpinnerOverlay visible={isSubmitting} />
 
-                        <Formik initialValues={{ name: '', public_key: '' }} validationSchema={schema} onSubmit={handleSubmit}>
-                            {({ isSubmitting }) => (
-                                <Form className="space-y-6">
-                                    <Field name="name" label="SSH Key Name" description="A name to identify this SSH key." />
-                                    <Field name="public_key" label="Public Key" description="Enter your public SSH key." as="textarea" rows={6} />
+                            <FormikFieldWrapper
+                                label="SSH Key Name"
+                                name="name"
+                                description="A name to identify this SSH key."
+                            >
+                                <Input
+                                    name="name"
+                                    className="w-full bg-zinc-900 border-zinc-700 focus:border-purple-500 focus:ring-purple-500 text-white"
+                                    placeholder="My Laptop Key"
+                                />
+                            </FormikFieldWrapper>
 
-                                    <div className="flex gap-3 pt-4">
-                                        <Button type="button" onClick={() => setVisible(false)} className="flex-1 bg-zinc-700">Cancel</Button>
-                                        <Button type="submit" loading={isSubmitting} className="flex-1 bg-purple-600 hover:bg-purple-700">Add Key</Button>
-                                    </div>
-                                </Form>
-                            )}
-                        </Formik>
-                    </div>
-                </div>
-            )}
+                            <FormikFieldWrapper
+                                label="Public Key"
+                                name="public_key"
+                                description="Enter your public SSH key."
+                            >
+                                <Input
+                                    name="public_key"
+                                    className="w-full bg-zinc-900 border-zinc-700 focus:border-purple-500 focus:ring-purple-500 font-mono text-sm h-28 resize-y"
+                                    placeholder="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI..."
+                                    asTextarea
+                                />
+                            </FormikFieldWrapper>
+                        </Form>
+                    )}
+                </Formik>
+            </Dialog.Confirm>
         </>
     );
 }
