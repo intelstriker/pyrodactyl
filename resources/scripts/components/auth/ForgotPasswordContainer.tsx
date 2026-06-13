@@ -1,5 +1,6 @@
 import type { FormikHelpers } from 'formik';
 import { Formik } from 'formik';
+import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { object, string } from 'yup';
 
@@ -21,6 +22,33 @@ interface Values {
 
 function ForgotPasswordContainer() {
     const { clearFlashes, clearAndAddHttpError, addFlash } = useFlash();
+    const glowRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const panel = glowRef.current?.parentElement;
+        if (!panel) return;
+
+        const handleMove = (e: MouseEvent) => {
+            const rect = panel.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            if (glowRef.current) {
+                glowRef.current.style.transform = `translate(${x - 200}px, ${y - 200}px)`;
+                glowRef.current.style.opacity = '0.5';
+            }
+        };
+
+        const handleLeave = () => {
+            if (glowRef.current) glowRef.current.style.opacity = '0';
+        };
+
+        panel.addEventListener('mousemove', handleMove);
+        panel.addEventListener('mouseleave', handleLeave);
+        return () => {
+            panel.removeEventListener('mousemove', handleMove);
+            panel.removeEventListener('mouseleave', handleLeave);
+        };
+    }, []);
 
     const onSubmit = (values: Values, { setSubmitting, resetForm }: FormikHelpers<Values>) => {
         clearFlashes();
@@ -62,6 +90,12 @@ function ForgotPasswordContainer() {
             {/* LEFT PANEL — Animated Obsidian / Minecraft scene */}
             <div className='hidden lg:flex relative w-1/2 items-center justify-center overflow-hidden border-r border-purple-900/40'>
                 <div className='absolute inset-0 bg-gradient-to-br from-[#120016] via-[#1a0a2e] to-[#05010a]' />
+
+                <div
+                    ref={glowRef}
+                    className='pointer-events-none absolute left-0 top-0 h-[400px] w-[400px] rounded-full bg-purple-400/25 blur-[80px] opacity-0 transition-opacity duration-300 ease-out'
+                    style={{ willChange: 'transform' }}
+                />
 
                 <div className='absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[460px] h-[460px] rounded-full bg-purple-600/30 blur-[100px] animate-pulse-slow' />
                 <div className='absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[260px] h-[320px] rounded-[40%] bg-fuchsia-500/40 blur-3xl animate-pulse-slower' />
@@ -162,27 +196,35 @@ function ForgotPasswordContainer() {
                             href='https://obsidianhost.net/'
                             target='_blank'
                             rel='noreferrer'
-                            className='group rounded-lg border border-purple-500/20 bg-white/5 px-4 py-3 no-underline backdrop-blur-sm transition hover:-translate-y-1 hover:border-purple-400/60 hover:bg-purple-500/10 hover:shadow-[0_0_20px_rgba(168,85,247,0.35)]'
+                            className='group flex flex-col items-center gap-2 rounded-lg border border-purple-500/20 bg-white/5 px-4 py-3 no-underline backdrop-blur-sm transition-all duration-200 ease-out hover:-translate-y-1 hover:scale-105 hover:border-purple-400/60 hover:bg-purple-500/10 hover:shadow-[0_0_20px_rgba(168,85,247,0.35)] active:scale-95 active:translate-y-0'
                         >
-                            <p className='text-lg font-bold text-purple-300 transition group-hover:text-purple-200'>🌐</p>
+                            <svg viewBox='0 0 24 24' fill='none' className='h-6 w-6 text-purple-300 transition-transform duration-300 group-hover:text-purple-200 group-hover:rotate-[20deg] group-hover:scale-110'>
+                                <circle cx='12' cy='12' r='9' stroke='currentColor' strokeWidth='1.6' />
+                                <path d='M3 12h18M12 3a13 13 0 0 1 0 18M12 3a13 13 0 0 0 0 18' stroke='currentColor' strokeWidth='1.6' />
+                            </svg>
                             Website
                         </a>
                         <a
                             href='https://discord.gg/ubyvnNC4JP'
                             target='_blank'
                             rel='noreferrer'
-                            className='group rounded-lg border border-purple-500/20 bg-white/5 px-4 py-3 no-underline backdrop-blur-sm transition hover:-translate-y-1 hover:border-purple-400/60 hover:bg-purple-500/10 hover:shadow-[0_0_20px_rgba(168,85,247,0.35)]'
+                            className='group flex flex-col items-center gap-2 rounded-lg border border-purple-500/20 bg-white/5 px-4 py-3 no-underline backdrop-blur-sm transition-all duration-200 ease-out hover:-translate-y-1 hover:scale-105 hover:border-purple-400/60 hover:bg-purple-500/10 hover:shadow-[0_0_20px_rgba(168,85,247,0.35)] active:scale-95 active:translate-y-0'
                         >
-                            <p className='text-lg font-bold text-purple-300 transition group-hover:text-purple-200'>💬</p>
+                            <svg viewBox='0 0 24 24' fill='currentColor' className='h-6 w-6 text-purple-300 transition-transform duration-300 group-hover:text-purple-200 group-hover:-rotate-6 group-hover:scale-110'>
+                                <path d='M20.317 4.369A19.79 19.79 0 0 0 15.885 3c-.21.375-.444.875-.608 1.27a18.27 18.27 0 0 0-5.555 0A12.76 12.76 0 0 0 9.114 3a19.74 19.74 0 0 0-4.432 1.369C2.1 8.07 1.5 11.69 1.78 15.255a19.9 19.9 0 0 0 5.993 3.04c.483-.659.913-1.36 1.282-2.098a12.9 12.9 0 0 1-2.02-.973c.17-.125.336-.256.497-.392a14.2 14.2 0 0 0 12.93 0c.163.14.328.27.497.392-.643.382-1.32.71-2.02.974.37.737.8 1.438 1.282 2.097a19.87 19.87 0 0 0 5.994-3.04c.34-4.13-.59-7.72-2.898-10.886ZM8.68 13.06c-.81 0-1.47-.745-1.47-1.66 0-.916.65-1.66 1.47-1.66.83 0 1.49.754 1.47 1.66 0 .915-.65 1.66-1.47 1.66Zm6.64 0c-.81 0-1.47-.745-1.47-1.66 0-.916.65-1.66 1.47-1.66.83 0 1.49.754 1.47 1.66 0 .915-.64 1.66-1.47 1.66Z' />
+                            </svg>
                             Discord
                         </a>
                         <a
                             href='https://status.obsidianhost.net/'
                             target='_blank'
                             rel='noreferrer'
-                            className='group rounded-lg border border-purple-500/20 bg-white/5 px-4 py-3 no-underline backdrop-blur-sm transition hover:-translate-y-1 hover:border-purple-400/60 hover:bg-purple-500/10 hover:shadow-[0_0_20px_rgba(168,85,247,0.35)]'
+                            className='group flex flex-col items-center gap-2 rounded-lg border border-purple-500/20 bg-white/5 px-4 py-3 no-underline backdrop-blur-sm transition-all duration-200 ease-out hover:-translate-y-1 hover:scale-105 hover:border-purple-400/60 hover:bg-purple-500/10 hover:shadow-[0_0_20px_rgba(168,85,247,0.35)] active:scale-95 active:translate-y-0'
                         >
-                            <p className='text-lg font-bold text-purple-300 transition group-hover:text-purple-200'>📈</p>
+                            <svg viewBox='0 0 24 24' fill='none' className='h-6 w-6 text-purple-300 transition-transform duration-300 group-hover:text-purple-200 group-hover:scale-110'>
+                                <path d='M3 17 9 11l4 4 8-8' stroke='currentColor' strokeWidth='1.8' strokeLinecap='round' strokeLinejoin='round' className='transition-all duration-300 group-hover:[stroke-dasharray:30] group-hover:[stroke-dashoffset:0] [stroke-dasharray:30] [stroke-dashoffset:30]' />
+                                <circle cx='21' cy='7' r='1.6' fill='currentColor' className='transition-transform duration-300 group-hover:scale-125' />
+                            </svg>
                             Status
                         </a>
                     </div>
