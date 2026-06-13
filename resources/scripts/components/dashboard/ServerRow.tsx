@@ -5,53 +5,40 @@ import { bytesToString } from '@/lib/formatters';
 import { Server } from '@/api/server/getServer';
 import getServerResourceUsage, { ServerPowerState, ServerStats } from '@/api/server/getServerResourceUsage';
 
-const ObsidianServerCard = styled.div<{ $status?: ServerPowerState }>`
+const ServerCard = styled.div<{ $status: ServerPowerState }>`
     position: relative;
-    padding: 1.25rem 1.75rem;
-    border-radius: 20px;
-    border: 1px solid rgba(168, 85, 247, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 2rem;
+    margin-bottom: 12px;
+    border-radius: 16px;
     background: 
-        radial-gradient(ellipse at top right, rgba(168,85,247,0.22) 0%, transparent 70%),
-        linear-gradient(135deg, #1a1033 0%, #120a24 100%);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+        linear-gradient(145deg, #1a1033 0%, #120a24 100%);
+    border: 1px solid rgba(168, 85, 247, 0.3);
     overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
 
+    /* Diagonal stripe pattern */
     &::before {
         content: '';
         position: absolute;
         inset: 0;
         background: repeating-linear-gradient(
             135deg,
-            rgba(168,85,247,0.08) 0px,
-            transparent 2px,
-            transparent 30px
+            transparent,
+            transparent 8px,
+            rgba(168, 85, 247, 0.12) 8px,
+            rgba(168, 85, 247, 0.12) 16px
         );
         pointer-events: none;
     }
 
-    &::after {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 80%;
-        height: 80%;
-        background: radial-gradient(circle, rgba(168,85,247,0.15) 0%, transparent 70%);
-        animation: orb 15s ease-in-out infinite;
-        opacity: 0.7;
-    }
-
-    @keyframes orb {
-        0%, 100% { transform: translate(20%, 20%); }
-        50% { transform: translate(-20%, -20%); }
-    }
-
     &:hover {
-        transform: translateY(-6px) scale(1.02);
+        transform: translateY(-4px);
         border-color: rgba(168, 85, 247, 0.6);
-        box-shadow: 0 25px 50px rgba(168, 85, 247, 0.3);
+        box-shadow: 0 20px 40px rgba(168, 85, 247, 0.25);
     }
 `;
 
@@ -64,12 +51,12 @@ const ServerRow = ({ server }: { server: Server }) => {
                 const data = await getServerResourceUsage(server.uuid);
                 setStats(data);
             } catch (e) {
-                console.error(e);
+                console.error('Failed to fetch stats:', e);
             }
         };
 
         fetchStats();
-        const interval = setInterval(fetchStats, 30000);
+        const interval = setInterval(fetchStats, 20000); // Update every 20s
         return () => clearInterval(interval);
     }, [server.uuid]);
 
@@ -78,33 +65,43 @@ const ServerRow = ({ server }: { server: Server }) => {
     const memory = stats?.memory || 0;
     const disk = stats?.disk || 0;
 
+    const shortId = server.uuid.substring(0, 8);
+
     return (
         <Link to={`/server/${server.uuid}`} className="block">
-            <ObsidianServerCard $status={status}>
+            <ServerCard $status={status}>
                 <div className="flex items-center gap-4">
-                    <div className={`w-3 h-3 rounded-full flex-shrink-0 ${status === 'running' ? 'bg-green-500' : 'bg-red-500'} ring-2 ring-offset-2 ring-offset-[#120a24] ${status === 'running' ? 'ring-green-500/50' : 'ring-red-500/50'}`} />
-                    
+                    {/* Status Dot */}
+                    <div className={`w-3.5 h-3.5 rounded-full flex-shrink-0 ring-2 ring-offset-2 ring-offset-[#120a24]
+                        ${status === 'running' ? 'bg-emerald-500 ring-emerald-500/50' : 'bg-red-500 ring-red-500/50'}`} 
+                    />
+
                     <div>
-                        <div className="font-semibold text-lg text-white">{server.name}</div>
-                        <div className="text-xs text-zinc-400 font-mono">{server.uuid.slice(0, 8)}</div>
+                        <div className="text-white font-semibold text-xl tracking-tight">
+                            {server.name}
+                        </div>
+                        <div className="text-zinc-400 font-mono text-sm">
+                            {shortId}
+                        </div>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-8 text-sm">
-                    <div>
-                        <div className="text-zinc-400 text-xs">CPU</div>
+                {/* Resources Section */}
+                <div className="flex items-center gap-10 text-sm">
+                    <div className="text-center">
+                        <div className="text-purple-400 text-xs tracking-widest">CPU</div>
                         <div className="font-medium text-white">{cpu.toFixed(1)}%</div>
                     </div>
-                    <div>
-                        <div className="text-zinc-400 text-xs">RAM</div>
+                    <div className="text-center">
+                        <div className="text-purple-400 text-xs tracking-widest">RAM</div>
                         <div className="font-medium text-white">{bytesToString(memory)}</div>
                     </div>
-                    <div>
-                        <div className="text-zinc-400 text-xs">DISK</div>
+                    <div className="text-center">
+                        <div className="text-purple-400 text-xs tracking-widest">DISK</div>
                         <div className="font-medium text-white">{bytesToString(disk)}</div>
                     </div>
                 </div>
-            </ObsidianServerCard>
+            </ServerCard>
         </Link>
     );
 };
