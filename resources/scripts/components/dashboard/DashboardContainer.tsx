@@ -92,9 +92,7 @@ const DashboardContainer = () => {
                 {isAdmin ? 'No other servers found' : 'No servers yet'}
             </h3>
             <p className='text-sm text-zinc-500 max-w-xs text-center leading-relaxed'>
-                {isAdmin
-                    ? 'There are no other servers to display.'
-                    : 'Servers assigned to your account will appear here.'}
+                {isAdmin ? 'There are no other servers to display.' : 'Servers assigned to your account will appear here.'}
             </p>
         </div>
     );
@@ -119,7 +117,6 @@ const DashboardContainer = () => {
                     onValueChange={(value) => setDashboardDisplayOption(value)}
                     className='w-full'
                 >
-                    {/* Header */}
                     <div className='transform-gpu skeleton-anim-2 mb-4 sm:mb-6'>
                         <MainPageHeader
                             title={getTitle()}
@@ -141,92 +138,76 @@ const DashboardContainer = () => {
                                             </button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent className='flex flex-col gap-1 z-99999' sideOffset={8}>
-                                            <DropdownMenuItem
-                                                onSelect={() => setServerViewMode('owner')}
-                                                className={serverViewMode === 'owner' ? 'bg-accent/20' : ''}
-                                            >
+                                            <DropdownMenuItem onSelect={() => setServerViewMode('owner')}
+                                                className={serverViewMode === 'owner' ? 'bg-accent/20' : ''}>
                                                 Your Servers Only
                                             </DropdownMenuItem>
                                             {rootAdmin && (
-                                                <DropdownMenuItem
-                                                    onSelect={() => setServerViewMode('admin-all')}
-                                                    className={serverViewMode === 'admin-all' ? 'bg-accent/20' : ''}
-                                                >
+                                                <DropdownMenuItem onSelect={() => setServerViewMode('admin-all')}
+                                                    className={serverViewMode === 'admin-all' ? 'bg-accent/20' : ''}>
                                                     All Servers (Admin)
                                                 </DropdownMenuItem>
                                             )}
-                                            <DropdownMenuItem
-                                                onSelect={() => setServerViewMode('all')}
-                                                className={serverViewMode === 'all' ? 'bg-accent/20' : ''}
-                                            >
+                                            <DropdownMenuItem onSelect={() => setServerViewMode('all')}
+                                                className={serverViewMode === 'all' ? 'bg-accent/20' : ''}>
                                                 All Servers
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
 
                                     <TabsList>
-                                        <TabsTrigger aria-label='List layout' value='list'>
-                                            <Bars width={18} height={20} color='white' />
-                                        </TabsTrigger>
-                                        <TabsTrigger aria-label='Grid layout' value='grid'>
-                                            <LayoutCellsLarge width={20} height={20} color='white' />
-                                        </TabsTrigger>
+                                        <TabsTrigger value='list'><Bars width={18} height={20} color='white' /></TabsTrigger>
+                                        <TabsTrigger value='grid'><LayoutCellsLarge width={20} height={20} color='white' /></TabsTrigger>
                                     </TabsList>
                                 </div>
                             }
                         />
                     </div>
 
-                    {/* Server Content */}
                     {!servers ? (
                         <LoadingState />
                     ) : (
                         <>
                             <TabsContent value='list'>
                                 <Pagination data={servers} onPageSelect={setPage}>
-                                    {({ items }) =>
-                                        items.length > 0 ? (
-                                            <PageListContainer>
-                                                {items.map((server, index) => (
-                                                    <div
-                                                        key={server.uuid}
-                                                        className='transform-gpu skeleton-anim-2'
-                                                        style={{ animationDelay: `${index * 50 + 50}ms` }}
-                                                    >
-                                                        <ServerRow className='flex-row' key={server.uuid} server={server} />
-                                                    </div>
-                                                ))}
-                                            </PageListContainer>
-                                        ) : (
-                                            <EmptyState isAdmin={serverViewMode === 'admin-all'} />
-                                        )
-                                    }
+                                    {({ items }) => items.length > 0 ? (
+                                        <PageListContainer>
+                                            {items.map((server, index) => (
+                                                <div
+                                                    key={server.uuid}
+                                                    className='transform-gpu skeleton-anim-2'
+                                                    style={{ animationDelay: `${index * 50 + 50}ms` }}
+                                                >
+                                                    <ServerRow className='flex-row' server={server} />
+                                                </div>
+                                            ))}
+                                        </PageListContainer>
+                                    ) : (
+                                        <EmptyState isAdmin={serverViewMode === 'admin-all'} />
+                                    )}
                                 </Pagination>
                             </TabsContent>
 
                             <TabsContent value='grid'>
                                 <Pagination data={servers} onPageSelect={setPage}>
-                                    {({ items }) =>
-                                        items.length > 0 ? (
-                                            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                                                {items.map((server, index) => (
-                                                    <div
-                                                        key={server.uuid}
-                                                        className='transform-gpu skeleton-anim-2'
-                                                        style={{ animationDelay: `${index * 50 + 50}ms` }}
-                                                    >
-                                                        <ServerRow
-                                                            className='items-start! flex-col w-full gap-4 [&>div~div]:w-full'
-                                                            key={server.uuid}
-                                                            server={server}
-                                                        />
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <EmptyState isAdmin={serverViewMode === 'admin-all'} />
-                                        )
-                                    }
+                                    {({ items }) => items.length > 0 ? (
+                                        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                                            {items.map((server, index) => (
+                                                <div
+                                                    key={server.uuid}
+                                                    className='transform-gpu skeleton-anim-2'
+                                                    style={{ animationDelay: `${index * 50 + 50}ms` }}
+                                                >
+                                                    <ServerRow
+                                                        className='items-start! flex-col w-full gap-4 [&>div~div]:w-full'
+                                                        server={server}
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <EmptyState isAdmin={serverViewMode === 'admin-all'} />
+                                    )}
                                 </Pagination>
                             </TabsContent>
                         </>
