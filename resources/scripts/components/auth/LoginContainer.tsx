@@ -157,7 +157,7 @@ function LoginContainer() {
                         Website
                     </a>
                     <a
-                        href='https://discord.gg/obsidianhost'
+                        href='https://discord.gg/ubyvnNC4JP'
                         target='_blank'
                         rel='noreferrer'
                         className='rounded-full border border-purple-500/30 bg-white/5 px-4 py-1.5 text-xs font-semibold text-zinc-300 no-underline backdrop-blur-sm transition hover:border-purple-400/60 hover:bg-purple-500/10 hover:text-white'
