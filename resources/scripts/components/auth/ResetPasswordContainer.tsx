@@ -1,60 +1,57 @@
 import type { FormikHelpers } from 'formik';
 import { Formik } from 'formik';
-import { Link } from 'react-router-dom';
-import { object, string } from 'yup';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { object, ref, string } from 'yup';
 
 import obsidianLogo from '@/assets/images/obsidianhostlogo.svg';
 
 import Button from '@/components/elements/Button';
-import Captcha, { getCaptchaResponse } from '@/components/elements/Captcha';
 import Field from '@/components/elements/Field';
 
-import CaptchaManager from '@/lib/captcha';
-
-import http from '@/api/http';
+import performPasswordReset from '@/api/auth/performPasswordReset';
 
 import useFlash from '@/plugins/useFlash';
 
 interface Values {
-    email: string;
+    password: string;
+    passwordConfirmation: string;
 }
 
-function ForgotPasswordContainer() {
-    const { clearFlashes, clearAndAddHttpError, addFlash } = useFlash();
+function ResetPasswordContainer() {
+    const [email, setEmail] = useState('');
+    const [token, setToken] = useState('');
 
-    const onSubmit = (values: Values, { setSubmitting, resetForm }: FormikHelpers<Values>) => {
-        clearFlashes();
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { clearFlashes, clearAndAddHttpError } = useFlash();
 
-        let requestData: any = values;
-        if (CaptchaManager.isEnabled()) {
-            const captchaResponse = getCaptchaResponse();
-            const fieldName = CaptchaManager.getProviderInstance().getResponseFieldName();
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const emailParam = params.get('email');
+        const pathToken = location.pathname.split('/').pop() ?? '';
 
-            if (fieldName) {
-                if (captchaResponse) {
-                    requestData = { ...values, [fieldName]: captchaResponse };
-                } else {
-                    clearAndAddHttpError({ error: new Error('Please complete the captcha verification.') });
-                    setSubmitting(false);
-                    return;
-                }
-            }
+        if (!emailParam || !pathToken) {
+            navigate('/auth/login');
+            return;
         }
 
-        http.post('/auth/password', requestData)
+        setEmail(decodeURIComponent(emailParam));
+        setToken(pathToken);
+    }, [location]);
+
+    const onSubmit = (values: Values, { setSubmitting }: FormikHelpers<Values>) => {
+        clearFlashes();
+
+        performPasswordReset(email, { ...values, token })
             .then(() => {
-                resetForm();
-                addFlash({
-                    type: 'success',
-                    title: 'Success',
-                    message: 'A password reset link will be sent to this email if it exists in our system.',
-                });
+                window.location.href = '/';
             })
             .catch((error: any) => {
                 console.error(error);
+                setSubmitting(false);
                 clearAndAddHttpError({ error });
-            })
-            .then(() => setSubmitting(false));
+            });
     };
 
     return (
@@ -189,7 +186,7 @@ function ForgotPasswordContainer() {
                 </div>
             </div>
 
-            {/* RIGHT PANEL — Forgot password form */}
+            {/* RIGHT PANEL — Reset password form */}
             <div className='relative flex w-full lg:w-1/2 items-center justify-center px-6 py-12 bg-[#0c0c12]'>
                 <div className='pointer-events-none absolute inset-0 opacity-[0.04] bg-[radial-gradient(circle_at_1px_1px,#ffffff_1px,transparent_0)] bg-[size:24px_24px]' />
 
@@ -203,30 +200,37 @@ function ForgotPasswordContainer() {
                         </span>
                     </div>
 
-                    <h2 className='text-2xl font-extrabold'>Forgot your password?</h2>
+                    <h2 className='text-2xl font-extrabold'>Reset your password</h2>
                     <p className='mt-1 mb-8 text-sm text-zinc-500'>
-                        Enter your email and we&apos;ll send you a link to reset it.
+                        Resetting password for <span className='text-zinc-300'>{email}</span>
                     </p>
 
                     <Formik
                         onSubmit={onSubmit}
-                        initialValues={{ email: '' }}
+                        initialValues={{ password: '', passwordConfirmation: '' }}
                         validationSchema={object().shape({
-                            email: string().email('A valid email must be provided.').required('A valid email must be provided.'),
+                            password: string().min(8, 'Password must be at least 8 characters.').required('A new password is required.'),
+                            passwordConfirmation: string()
+                                .required('Your new password does not match.')
+                                .oneOf([ref('password'), null], 'Your new password does not match.'),
                         })}
                     >
                         {({ isSubmitting }) => (
                             <div className='flex flex-col gap-5'>
-                                <Field id='email' type='email' label='Email' name='email' disabled={isSubmitting} />
+                                <Field
+                                    id='password'
+                                    type='password'
+                                    label='New Password'
+                                    name='password'
+                                    disabled={isSubmitting}
+                                />
 
-                                <Captcha
-                                    className='mt-1'
-                                    onError={(error) => {
-                                        console.error('Captcha error:', error);
-                                        clearAndAddHttpError({
-                                            error: new Error('Captcha verification failed. Please try again.'),
-                                        });
-                                    }}
+                                <Field
+                                    id='passwordConfirmation'
+                                    type='password'
+                                    label='Confirm New Password'
+                                    name='passwordConfirmation'
+                                    disabled={isSubmitting}
                                 />
 
                                 <Button
@@ -236,15 +240,8 @@ function ForgotPasswordContainer() {
                                     isLoading={isSubmitting}
                                     disabled={isSubmitting}
                                 >
-                                    Send Email
+                                    Reset Password
                                 </Button>
-
-                                <Link
-                                    to='/auth/login'
-                                    className='text-center text-xs tracking-wide text-zinc-500 no-underline hover:text-purple-400'
-                                >
-                                    Back to Login
-                                </Link>
                             </div>
                         )}
                     </Formik>
@@ -302,4 +299,4 @@ function ForgotPasswordContainer() {
     );
 }
 
-export default ForgotPasswordContainer;
+export default ResetPasswordContainer;
