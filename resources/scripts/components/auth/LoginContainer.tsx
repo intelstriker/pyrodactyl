@@ -107,6 +107,50 @@ function LoginContainer() {
                 <div className='absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[260px] h-[320px] rounded-[40%] bg-fuchsia-500/40 blur-3xl animate-pulse-slower' />
                 <div className='absolute left-1/3 top-2/3 w-[200px] h-[200px] rounded-full bg-violet-700/30 blur-2xl animate-drift' />
 
+                {/* Minecraft-style block grid floor */}
+                <div
+                    className='absolute bottom-0 left-0 w-full h-1/2 opacity-20'
+                    style={{
+                        backgroundImage:
+                            'linear-gradient(rgba(168,85,247,0.25) 1px, transparent 1px), linear-gradient(90deg, rgba(168,85,247,0.25) 1px, transparent 1px)',
+                        backgroundSize: '40px 40px',
+                        maskImage: 'linear-gradient(to top, black, transparent)',
+                        WebkitMaskImage: 'linear-gradient(to top, black, transparent)',
+                        transform: 'perspective(400px) rotateX(55deg)',
+                        transformOrigin: 'bottom',
+                    }}
+                />
+
+                {/* Glowing ore veins */}
+                <svg className='absolute inset-0 w-full h-full opacity-40' viewBox='0 0 600 800' preserveAspectRatio='none'>
+                    <path
+                        d='M0,100 C100,150 150,250 250,260 C350,270 380,400 480,420 C540,430 580,500 600,520'
+                        stroke='url(#veinGrad)'
+                        strokeWidth='2'
+                        fill='none'
+                        className='animate-vein'
+                    />
+                    <path
+                        d='M50,800 C120,700 200,680 260,600 C320,520 420,500 460,400 C500,300 560,260 600,200'
+                        stroke='url(#veinGrad2)'
+                        strokeWidth='1.5'
+                        fill='none'
+                        className='animate-vein-rev'
+                    />
+                    <defs>
+                        <linearGradient id='veinGrad' x1='0' y1='0' x2='1' y2='1'>
+                            <stop offset='0%' stopColor='#a855f7' stopOpacity='0' />
+                            <stop offset='50%' stopColor='#d8b4fe' stopOpacity='0.9' />
+                            <stop offset='100%' stopColor='#a855f7' stopOpacity='0' />
+                        </linearGradient>
+                        <linearGradient id='veinGrad2' x1='0' y1='1' x2='1' y2='0'>
+                            <stop offset='0%' stopColor='#7e22ce' stopOpacity='0' />
+                            <stop offset='50%' stopColor='#f0abfc' stopOpacity='0.7' />
+                            <stop offset='100%' stopColor='#7e22ce' stopOpacity='0' />
+                        </linearGradient>
+                    </defs>
+                </svg>
+
                 {/* Floating obsidian blocks (CSS cubes) */}
                 <div className='absolute inset-0'>
                     {[...Array(8)].map((_, i) => (
@@ -146,34 +190,6 @@ function LoginContainer() {
                 {/* Vignette */}
                 <div className='absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/40' />
 
-                {/* Top nav links */}
-                <div className='absolute top-6 right-6 z-20 flex gap-2'>
-                    <a
-                        href='https://obsidianhost.net'
-                        target='_blank'
-                        rel='noreferrer'
-                        className='rounded-full border border-purple-500/30 bg-white/5 px-4 py-1.5 text-xs font-semibold text-zinc-300 no-underline backdrop-blur-sm transition hover:border-purple-400/60 hover:bg-purple-500/10 hover:text-white'
-                    >
-                        Website
-                    </a>
-                    <a
-                        href='https://discord.gg/ubyvnNC4JP'
-                        target='_blank'
-                        rel='noreferrer'
-                        className='rounded-full border border-purple-500/30 bg-white/5 px-4 py-1.5 text-xs font-semibold text-zinc-300 no-underline backdrop-blur-sm transition hover:border-purple-400/60 hover:bg-purple-500/10 hover:text-white'
-                    >
-                        Discord
-                    </a>
-                    <a
-                        href='https://status.obsidianhost.net'
-                        target='_blank'
-                        rel='noreferrer'
-                        className='rounded-full border border-purple-500/30 bg-white/5 px-4 py-1.5 text-xs font-semibold text-zinc-300 no-underline backdrop-blur-sm transition hover:border-purple-400/60 hover:bg-purple-500/10 hover:text-white'
-                    >
-                        Status
-                    </a>
-                </div>
-
                 {/* Branding overlay */}
                 <div className='relative z-10 flex flex-col items-center text-center px-10'>
                     <div className='mb-6 flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-700/80 to-fuchsia-600/80 shadow-[0_0_50px_rgba(168,85,247,0.55)] rotate-3 animate-float-slow p-3'>
@@ -183,23 +199,38 @@ function LoginContainer() {
                         Obsidian<span className='text-purple-400'>Host</span>
                     </h1>
                     <p className='mt-3 max-w-sm text-sm text-zinc-400'>
-                        Premium Minecraft server hosting — instant setup, blazing-fast NVMe performance, and a
-                        rock-solid network forged for your community.
+                        Lag-free Minecraft hosting carved from pure obsidian — instant deploys, NVMe-backed worlds,
+                        and a network built to keep your community online.
                     </p>
 
-                    <div className='mt-10 grid grid-cols-3 gap-4 text-xs text-zinc-400'>
-                        <div className='rounded-lg border border-purple-500/20 bg-white/5 px-4 py-3 backdrop-blur-sm transition hover:border-purple-400/50 hover:bg-purple-500/10'>
-                            <p className='text-lg font-bold text-purple-300'>99.9%</p>
-                            Uptime
-                        </div>
-                        <div className='rounded-lg border border-purple-500/20 bg-white/5 px-4 py-3 backdrop-blur-sm transition hover:border-purple-400/50 hover:bg-purple-500/10'>
-                            <p className='text-lg font-bold text-purple-300'>NVMe</p>
-                            Storage
-                        </div>
-                        <div className='rounded-lg border border-purple-500/20 bg-white/5 px-4 py-3 backdrop-blur-sm transition hover:border-purple-400/50 hover:bg-purple-500/10'>
-                            <p className='text-lg font-bold text-purple-300'>24/7</p>
-                            Support
-                        </div>
+                    <div className='mt-10 grid grid-cols-3 gap-4 text-xs font-semibold text-zinc-300'>
+                        <a
+                            href='https://obsidianhost.net/'
+                            target='_blank'
+                            rel='noreferrer'
+                            className='group rounded-lg border border-purple-500/20 bg-white/5 px-4 py-3 no-underline backdrop-blur-sm transition hover:-translate-y-1 hover:border-purple-400/60 hover:bg-purple-500/10 hover:shadow-[0_0_20px_rgba(168,85,247,0.35)]'
+                        >
+                            <p className='text-lg font-bold text-purple-300 transition group-hover:text-purple-200'>🌐</p>
+                            Website
+                        </a>
+                        <a
+                            href='https://discord.gg/ubyvnNC4JP'
+                            target='_blank'
+                            rel='noreferrer'
+                            className='group rounded-lg border border-purple-500/20 bg-white/5 px-4 py-3 no-underline backdrop-blur-sm transition hover:-translate-y-1 hover:border-purple-400/60 hover:bg-purple-500/10 hover:shadow-[0_0_20px_rgba(168,85,247,0.35)]'
+                        >
+                            <p className='text-lg font-bold text-purple-300 transition group-hover:text-purple-200'>💬</p>
+                            Discord
+                        </a>
+                        <a
+                            href='https://status.obsidianhost.net/'
+                            target='_blank'
+                            rel='noreferrer'
+                            className='group rounded-lg border border-purple-500/20 bg-white/5 px-4 py-3 no-underline backdrop-blur-sm transition hover:-translate-y-1 hover:border-purple-400/60 hover:bg-purple-500/10 hover:shadow-[0_0_20px_rgba(168,85,247,0.35)]'
+                        >
+                            <p className='text-lg font-bold text-purple-300 transition group-hover:text-purple-200'>📈</p>
+                            Status
+                        </a>
                     </div>
                 </div>
             </div>
@@ -329,9 +360,17 @@ function LoginContainer() {
                     50% { transform: translateY(-10px) rotate(-3deg); }
                 }
                 .animate-float-slow { animation: float-slow 6s ease-in-out infinite; }
+
+                @keyframes vein {
+                    0%, 100% { stroke-dasharray: 0 1000; opacity: 0.2; }
+                    50% { stroke-dasharray: 1000 0; opacity: 0.9; }
+                }
+                .animate-vein { stroke-dasharray: 600 600; animation: vein 8s ease-in-out infinite; }
+                .animate-vein-rev { stroke-dasharray: 500 500; animation: vein 11s ease-in-out infinite reverse; }
             `}</style>
         </div>
     );
 }
 
+export default LoginContainer;
 export default LoginContainer;
