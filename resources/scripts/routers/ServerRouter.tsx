@@ -26,6 +26,7 @@ import InstallListener from '@/components/server/InstallListener';
 import ServerSidebarNavItem from '@/components/server/ServerSidebarNavItem';
 import TransferListener from '@/components/server/TransferListener';
 import WebsocketHandler from '@/components/server/WebsocketHandler';
+import StatBlock from '@/components/server/console/StatBlock';   // ← FIXED: Added this import
 import { httpErrorToHuman } from '@/api/http';
 import http from '@/api/http';
 import { getSubdomainInfo } from '@/api/server/network/subdomain';
@@ -87,9 +88,7 @@ const ServerRouter = () => {
     };
 
     useEffect(() => {
-        return () => {
-            clearServerState();
-        };
+        return () => clearServerState();
     }, [clearServerState]);
 
     useEffect(() => {
