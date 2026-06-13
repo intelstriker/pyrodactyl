@@ -1,5 +1,6 @@
 import type { FormikHelpers } from 'formik';
 import { Form, Formik } from 'formik';
+import type { MouseEvent as ReactMouseEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { object, string } from 'yup';
@@ -28,7 +29,7 @@ function LoginContainer() {
     const glowRef = useRef<HTMLDivElement>(null);
     const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
 
-    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const handleClick = (e: ReactMouseEvent<HTMLDivElement>) => {
         const id = Date.now();
         setRipples((prev) => [...prev, { id, x: e.clientX, y: e.clientY }]);
         setTimeout(() => setRipples((prev) => prev.filter((r) => r.id !== id)), 700);
