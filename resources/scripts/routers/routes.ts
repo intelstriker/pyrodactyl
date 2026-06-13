@@ -169,16 +169,6 @@ const routes: Routes = {
             end: true,
         },
         {
-            route: 'network/*',
-            path: 'network',
-            permission: 'allocation.*',
-            name: 'Networking',
-            component: NetworkContainer,
-            icon: BranchesDown,
-            featureLimit: 'network',
-            end: true,
-        },
-        {
             route: 'users/*',
             path: 'users',
             permission: 'user.*',
@@ -242,15 +232,6 @@ const routes: Routes = {
             name: 'Activity',
             component: ServerActivityLogContainer,
             icon: PencilToLine,
-            end: true,
-        },
-        {
-            route: 'shell/*',
-            path: 'shell',
-            permission: 'startup.software',
-            name: 'Software',
-            component: ShellContainer,
-            icon: Box,
             end: true,
         },
         {
