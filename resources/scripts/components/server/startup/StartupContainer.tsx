@@ -230,56 +230,6 @@ const StartupContainer = () => {
                     </p>
                 </MainPageHeader>
 
-                <div className='space-y-6'>
-                    <TitledGreyBox title={'Startup Command'} className='p-6'>
-                        <div className='space-y-4 mb-6'>
-                            <p className='text-sm text-neutral-400 leading-relaxed'>
-                                Configure the command that starts your server. You can edit the raw command or view the
-                                processed version with variables resolved.
-                            </p>
-                        </div>
-                        {editingCommand ? (
-                            <div className='space-y-4'>
-                                <div className='grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6'>
-                                    <div>
-                                        <label className='block text-sm font-medium text-neutral-300 mb-3'>
-                                            Raw Command
-                                        </label>
-                                        <textarea
-                                            className='w-full h-32 sm:h-36 md:h-40 px-3 py-3 sm:px-4 sm:py-4 text-sm sm:text-base font-mono bg-linear-to-b from-[#ffffff12] to-[#ffffff08] border-2 border-blue-500/30 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/60 placeholder:text-neutral-500 transition-all touch-manipulation'
-                                            value={commandValue}
-                                            onChange={(e) => handleCommandChange(e.target.value)}
-                                            placeholder='Enter startup command with variables like {{SERVER_MEMORY}} or {{SERVER_PORT}}...'
-                                            style={{
-                                                wordBreak: 'break-all',
-                                                overflowWrap: 'break-word',
-                                                whiteSpace: 'pre-wrap',
-                                            }}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className='block text-sm font-medium text-neutral-300 mb-3'>
-                                            Live Preview
-                                        </label>
-                                        <CopyOnClick text={liveProcessedCommand}>
-                                            <div className='cursor-pointer group'>
-                                                <div className='w-full h-32 sm:h-36 md:h-40 px-3 py-3 sm:px-4 sm:py-4 font-mono bg-linear-to-b from-[#ffffff06] to-[#ffffff03] border-2 border-green-500/20 rounded-xl text-sm sm:text-base overflow-auto group-hover:border-green-500/40 transition-all'>
-                                                    <span
-                                                        className='break-all text-green-200'
-                                                        style={{
-                                                            wordBreak: 'break-all',
-                                                            overflowWrap: 'break-word',
-                                                            whiteSpace: 'pre-wrap',
-                                                        }}
-                                                    >
-                                                        {liveProcessedCommand ||
-                                                            'Enter a command to see the live preview...'}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </CopyOnClick>
-                                    </div>
-                                </div>
                                 <div className='flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 border-t border-[#ffffff08]'>
                                     <InputSpinner visible={commandLoading}>
                                         <ActionButton
@@ -314,68 +264,6 @@ const StartupContainer = () => {
                                 </div>
                             </div>
                         ) : (
-                            <div className='space-y-5'>
-                                {data.rawStartupCommand && (
-                                    <div className='space-y-3'>
-                                        <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3'>
-                                            <label className='text-sm font-medium text-neutral-300'>Raw Command</label>
-                                            {canEditCommand && (
-                                                <ActionButton
-                                                    variant='secondary'
-                                                    size='sm'
-                                                    onClick={startEditingCommand}
-                                                    className='w-full sm:w-auto'
-                                                >
-                                                    Edit Command
-                                                </ActionButton>
-                                            )}
-                                        </div>
-                                        <CopyOnClick text={data.rawStartupCommand}>
-                                            <div className='cursor-pointer group'>
-                                                <div className='font-mono bg-linear-to-b from-[#ffffff08] to-[#ffffff05] flex flex-row items-center border border-[#ffffff10] rounded-xl py-3 px-3 sm:py-4 sm:px-4 text-sm sm:text-base min-h-[3.5rem] sm:min-h-[4rem] overflow-auto group-hover:border-[#ffffff20] transition-all'>
-                                                    <span
-                                                        className='break-all text-neutral-200'
-                                                        style={{
-                                                            wordBreak: 'break-all',
-                                                            overflowWrap: 'break-word',
-                                                            whiteSpace: 'pre-wrap',
-                                                        }}
-                                                    >
-                                                        {data.rawStartupCommand}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </CopyOnClick>
-                                    </div>
-                                )}
-                                <div className='space-y-3'>
-                                    <div className='flex flex-col items-center sm:flex-row gap-2'>
-                                        <label className='text-sm font-medium text-neutral-300'>
-                                            Processed Command
-                                        </label>
-                                        <span className='text-xs text-neutral-500 rounded w-fit'>Read-only</span>
-                                    </div>
-                                    <CopyOnClick text={data.invocation}>
-                                        <div className='cursor-pointer group'>
-                                            <div className='font-mono bg-linear-to-b from-[#ffffff04] to-[#ffffff02] flex flex-row items-center border border-[#ffffff08] rounded-xl py-3 px-3 sm:py-4 sm:px-4 text-sm sm:text-base min-h-[3.5rem] sm:min-h-[4rem] overflow-auto group-hover:border-[#ffffff15] transition-all'>
-                                                <span
-                                                    className='break-all text-neutral-300'
-                                                    style={{
-                                                        wordBreak: 'break-all',
-                                                        overflowWrap: 'break-word',
-                                                        whiteSpace: 'pre-wrap',
-                                                    }}
-                                                >
-                                                    {data.invocation}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </CopyOnClick>
-                                </div>
-                            </div>
-                        )}
-                    </TitledGreyBox>
-
                     <TitledGreyBox title={'Docker Image'} className='p-6'>
                         <div className='space-y-4 mb-6'>
                             <p className='text-sm text-neutral-400 leading-relaxed'>
