@@ -1,8 +1,11 @@
 import { useEffect } from 'react';
-import { Person, FileText, ShieldCheck } from '@gravity-ui/icons';
+import { useLocation } from 'react-router-dom';
+import MessageBox from '@/components/MessageBox';
+import ConfigureTwoFactorForm from '@/components/dashboard/forms/ConfigureTwoFactorForm';
+import UpdateEmailAddressForm from '@/components/dashboard/forms/UpdateEmailAddressForm';
+import UpdatePasswordForm from '@/components/dashboard/forms/UpdatePasswordForm';
 import ContentBox from '@/components/elements/ContentBox';
-import { useStoreState } from 'easy-peasy';
-import { useFlashKey } from '@/plugins/useFlash';
+import PageContentBlock from '@/components/elements/PageContentBlock';
 import styled from 'styled-components';
 
 const AnimatedCard = styled.div`
@@ -13,67 +16,48 @@ const AnimatedCard = styled.div`
   }
 `;
 
-export default function AccountOverviewContainer() {
-    const user = useStoreState((state) => state.user.data);
-    const { clearFlashes } = useFlashKey('account:overview');
+const AccountOverviewContainer = () => {
+    const { state } = useLocation();
 
     useEffect(() => {
-        clearFlashes();
-    }, [clearFlashes]);
-
-    if (!user) return null;
+        // Clear any flashes on mount
+    }, []);
 
     return (
-        <div className="p-6 max-w-7xl mx-auto">
-            <h1 className="text-4xl font-bold text-white mb-8">Account Overview</h1>
+        <PageContentBlock title="Account Overview">
+            <div className="max-w-7xl mx-auto px-4 py-6">
+                {state?.twoFactorRedirect && (
+                    <MessageBox title="2-Factor Required" type="error" className="mb-6">
+                        Your account must have two-factor authentication enabled in order to continue.
+                    </MessageBox>
+                )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                {/* Account Info */}
-                <AnimatedCard className="lg:col-span-5 bg-[#111827] border border-white/10 rounded-3xl p-8">
-                    <ContentBox title="Account Information" icon={<Person size={28} className="text-purple-400" />}>
-                        <div className="space-y-6 text-white">
-                            <div>
-                                <p className="text-neutral-400">Username</p>
-                                <p className="text-3xl font-semibold mt-1">{user.username}</p>
-                            </div>
-                            <div>
-                                <p className="text-neutral-400">Email</p>
-                                <p className="font-medium break-all">{user.email}</p>
-                            </div>
-                            <div>
-                                <p className="text-neutral-400">Member Since</p>
-                                <p>{new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
-                            </div>
-                        </div>
-                    </ContentBox>
-                </AnimatedCard>
-
-                {/* Stats & Activity */}
-                <div className="lg:col-span-7 space-y-6">
-                    <AnimatedCard className="bg-[#111827] border border-white/10 rounded-3xl p-8">
-                        <ContentBox title="Quick Stats" icon={<ShieldCheck size={28} className="text-emerald-400" />}>
-                            <div className="grid grid-cols-2 gap-8 text-center">
-                                <div>
-                                    <div className="text-5xl font-bold text-cyan-400">12</div>
-                                    <div className="text-neutral-400 mt-2">Servers</div>
-                                </div>
-                                <div>
-                                    <div className="text-5xl font-bold text-purple-400">3</div>
-                                    <div className="text-neutral-400 mt-2">Backups</div>
-                                </div>
-                            </div>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    {/* Account Information */}
+                    <AnimatedCard className="lg:col-span-5 bg-[#111827] border border-white/10 rounded-3xl p-8">
+                        <ContentBox title="Account Information">
+                            <UpdateEmailAddressForm />
                         </ContentBox>
                     </AnimatedCard>
 
-                    <AnimatedCard className="bg-[#111827] border border-white/10 rounded-3xl p-8">
-                        <ContentBox title="Recent Activity" icon={<FileText size={28} className="text-purple-400" />}>
-                            <div className="text-neutral-400 italic py-12 text-center text-lg">
-                                No recent activity. Your account is looking clean!
-                            </div>
-                        </ContentBox>
-                    </AnimatedCard>
+                    {/* Security Settings */}
+                    <div className="lg:col-span-7 space-y-6">
+                        <AnimatedCard className="bg-[#111827] border border-white/10 rounded-3xl p-8">
+                            <ContentBox title="Account Password">
+                                <UpdatePasswordForm />
+                            </ContentBox>
+                        </AnimatedCard>
+
+                        <AnimatedCard className="bg-[#111827] border border-white/10 rounded-3xl p-8">
+                            <ContentBox title="Multi-Factor Authentication">
+                                <ConfigureTwoFactorForm />
+                            </ContentBox>
+                        </AnimatedCard>
+                    </div>
                 </div>
             </div>
-        </div>
+        </PageContentBlock>
     );
-}
+};
+
+export default AccountOverviewContainer;
