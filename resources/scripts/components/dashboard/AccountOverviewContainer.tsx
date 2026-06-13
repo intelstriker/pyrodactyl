@@ -4,6 +4,7 @@ import ContentBox from '@/components/elements/ContentBox';
 import { useStoreState } from 'easy-peasy';
 import { useFlashKey } from '@/plugins/useFlash';
 import styled from 'styled-components';
+import { Ellipsis } from '@gravity-ui/icons';
 
 const AnimatedCard = styled.div`
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
