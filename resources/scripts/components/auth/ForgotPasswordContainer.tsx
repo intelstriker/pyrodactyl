@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { object, string } from 'yup';
 
+import FlashMessageRender from '@/components/FlashMessageRender';
 import obsidianLogo from '@/assets/images/obsidianhostlogo.svg';
 
 import Button from '@/components/elements/Button';
