@@ -115,13 +115,51 @@ const ServerCard = styled(Link)<{
     }
 `;
 
-const ResourceItem = styled.div`
+const ResourceRing = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-width: 78px;
-    font-size: 0.8rem;
-    line-height: 1.1;
+    gap: 4px;
+    min-width: 68px;
+`;
+
+const RingContainer = styled.div`
+    position: relative;
+    width: 52px;
+    height: 52px;
+`;
+
+const Svg = styled.svg`
+    transform: rotate(-90deg);
+    transition: all 400ms ease;
+`;
+
+const CircleBg = styled.circle`
+    fill: none;
+    stroke: rgba(167, 139, 250, 0.15);
+    stroke-width: 5;
+`;
+
+const CircleProgress = styled.circle<{ $alarm?: boolean }>`
+    fill: none;
+    stroke: ${({ $alarm }) => ($alarm ? '#fb923c' : '#a855f7')};
+    stroke-width: 5;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 600ms cubic-bezier(0.4, 0, 0.2, 1);
+`;
+
+const RingLabel = styled.div`
+    font-size: 10px;
+    font-weight: 600;
+    color: #c4b5fd;
+    letter-spacing: 0.5px;
+`;
+
+const RingValue = styled.div<{ $alarm?: boolean }>`
+    font-size: 13px;
+    font-weight: 700;
+    color: ${({ $alarm }) => ($alarm ? '#fb923c' : '#f3e8ff')};
+    line-height: 1;
 `;
 
 const ServerRow = ({ server, className }: ServerRowProps) => {
@@ -152,9 +190,20 @@ const ServerRow = ({ server, className }: ServerRowProps) => {
 
     const defaultAllocation = server.allocations.find(a => a.isDefault);
 
-    const cpuAlarm = stats && server.limits.cpu > 0 && stats.cpuUsagePercent >= server.limits.cpu * 0.9;
-    const memAlarm = stats && isAlarmState(stats.memoryUsageInBytes, server.limits.memory);
-    const diskAlarm = stats && server.limits.disk > 0 && isAlarmState(stats.diskUsageInBytes, server.limits.disk);
+    // Calculate percentages
+    const cpuPercent = stats ? Math.min(Math.max(stats.cpuUsagePercent, 0), 100) : 0;
+    const memPercent = stats && server.limits.memory > 0 
+        ? Math.min((stats.memoryUsageInBytes / (server.limits.memory * 1024 * 1024)) * 100, 100) 
+        : 0;
+    const diskPercent = stats && server.limits.disk > 0 
+        ? Math.min((stats.diskUsageInBytes / (server.limits.disk * 1024 * 1024)) * 100, 100) 
+        : 0;
+
+    const cpuAlarm = cpuPercent >= 90;
+    const memAlarm = memPercent >= 90;
+    const diskAlarm = diskPercent >= 90;
+
+    const circumference = 2 * Math.PI * 22; // radius = 22
 
     return (
         <ServerCard
@@ -191,46 +240,81 @@ const ServerRow = ({ server, className }: ServerRowProps) => {
                         </p>
                     )}
 
-                    {/* Short ID like in your screenshot */}
                     <p className="text-[10px] text-purple-400/60 font-mono mt-1.5 tracking-[1px]">
                         {server.id ? server.id.slice(0, 8) : ''}
                     </p>
                 </div>
             </div>
 
-            {/* Resources - Exact layout from your second screenshot */}
-            <div className="hidden md:flex items-center gap-8 relative z-10">
+            {/* Circular Progress Rings - Like your reference image */}
+            <div className="hidden md:flex items-center gap-6 relative z-10">
                 {!stats || isSuspended || isInstalling ? (
-                    <div className="text-purple-400/70 text-sm italic pr-6">
+                    <div className="text-purple-400/70 text-sm italic pr-8">
                         {isSuspended ? 'Suspended' : isInstalling ? 'Installing...' : 'No data'}
                     </div>
                 ) : (
                     <>
-                        <ResourceItem>
-                            <span className="text-purple-400 text-[10px] font-medium tracking-widest">CPU</span>
-                            <span className={`font-semibold tabular-nums text-base ${cpuAlarm ? 'text-orange-400' : 'text-white'}`}>
-                                {stats.cpuUsagePercent.toFixed(1)}%
-                            </span>
-                        </ResourceItem>
+                        {/* CPU Ring */}
+                        <ResourceRing>
+                            <RingContainer>
+                                <Svg width="52" height="52" viewBox="0 0 52 52">
+                                    <CircleBg cx="26" cy="26" r="22" />
+                                    <CircleProgress 
+                                        cx="26" 
+                                        cy="26" 
+                                        r="22" 
+                                        strokeDasharray={circumference} 
+                                        strokeDashoffset={circumference - (cpuPercent / 100) * circumference}
+                                        $alarm={cpuAlarm}
+                                    />
+                                </Svg>
+                            </RingContainer>
+                            <RingLabel>CPU</RingLabel>
+                            <RingValue $alarm={cpuAlarm}>{cpuPercent.toFixed(1)}%</RingValue>
+                        </ResourceRing>
 
-                        <ResourceItem>
-                            <span className="text-purple-400 text-[10px] font-medium tracking-widest">RAM</span>
-                            <span className={`font-semibold tabular-nums text-base ${memAlarm ? 'text-orange-400' : 'text-white'}`}>
-                                {bytesToString(stats.memoryUsageInBytes)}
-                            </span>
-                        </ResourceItem>
+                        {/* RAM Ring */}
+                        <ResourceRing>
+                            <RingContainer>
+                                <Svg width="52" height="52" viewBox="0 0 52 52">
+                                    <CircleBg cx="26" cy="26" r="22" />
+                                    <CircleProgress 
+                                        cx="26" 
+                                        cy="26" 
+                                        r="22" 
+                                        strokeDasharray={circumference} 
+                                        strokeDashoffset={circumference - (memPercent / 100) * circumference}
+                                        $alarm={memAlarm}
+                                    />
+                                </Svg>
+                            </RingContainer>
+                            <RingLabel>RAM</RingLabel>
+                            <RingValue $alarm={memAlarm}>{bytesToString(stats.memoryUsageInBytes)}</RingValue>
+                        </ResourceRing>
 
-                        <ResourceItem>
-                            <span className="text-purple-400 text-[10px] font-medium tracking-widest">DISK</span>
-                            <span className={`font-semibold tabular-nums text-base ${diskAlarm ? 'text-orange-400' : 'text-white'}`}>
-                                {bytesToString(stats.diskUsageInBytes)}
-                            </span>
-                        </ResourceItem>
+                        {/* DISK Ring */}
+                        <ResourceRing>
+                            <RingContainer>
+                                <Svg width="52" height="52" viewBox="0 0 52 52">
+                                    <CircleBg cx="26" cy="26" r="22" />
+                                    <CircleProgress 
+                                        cx="26" 
+                                        cy="26" 
+                                        r="22" 
+                                        strokeDasharray={circumference} 
+                                        strokeDashoffset={circumference - (diskPercent / 100) * circumference}
+                                        $alarm={diskAlarm}
+                                    />
+                                </Svg>
+                            </RingContainer>
+                            <RingLabel>DISK</RingLabel>
+                            <RingValue $alarm={diskAlarm}>{bytesToString(stats.diskUsageInBytes)}</RingValue>
+                        </ResourceRing>
                     </>
                 )}
             </div>
 
-            {/* Mobile */}
+            {/* Mobile fallback */}
             <div className="md:hidden text-xs text-purple-400/70 font-mono relative z-10">
                 {stats?.status || server.status}
             </div>
