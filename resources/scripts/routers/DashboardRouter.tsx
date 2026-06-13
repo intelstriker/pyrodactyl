@@ -1,4 +1,4 @@
-import { Ellipsis, Gear, House, Key, Lock } from '@gravity-ui/icons';
+<a href="http://"></a>import { Ellipsis, Gear, House, Key, Lock } from '@gravity-ui/icons';
 import { useStoreState } from 'easy-peasy';
 import { Fragment, Suspense, useEffect, useRef, useState } from 'react';
 import { NavLink, Route, Routes, useLocation } from 'react-router-dom';
@@ -199,3 +199,4 @@ const DashboardRouter = () => {
 };
 
 export default DashboardRouter;
+
