@@ -17,8 +17,9 @@ import MainSidebar from '@/components/elements/MainSidebar';
 import MainWrapper from '@/components/elements/MainWrapper';
 import { DashboardMobileMenu } from '@/components/elements/MobileFullScreenMenu';
 import MobileTopBar from '@/components/elements/MobileTopBar';
-import obsidianLogo from '@/assets/images/obsidianhostlogo.svg';
 import { NotFound } from '@/components/elements/ScreenBlock';
+
+import ObsidianLogo from '@/assets/images/obsidianhostlogo.svg';
 
 import http from '@/api/http';
 
@@ -26,16 +27,10 @@ const DashboardRouter = () => {
     const location = useLocation();
     const rootAdmin = useStoreState((state) => state.user.data!.rootAdmin);
 
-    // Mobile menu state
     const [isMobileMenuVisible, setMobileMenuVisible] = useState(false);
 
-    const toggleMobileMenu = () => {
-        setMobileMenuVisible(!isMobileMenuVisible);
-    };
-
-    const closeMobileMenu = () => {
-        setMobileMenuVisible(false);
-    };
+    const toggleMobileMenu = () => setMobileMenuVisible(!isMobileMenuVisible);
+    const closeMobileMenu = () => setMobileMenuVisible(false);
 
     const onTriggerLogout = () => {
         http.post('/auth/logout').finally(() => {
@@ -48,23 +43,17 @@ const DashboardRouter = () => {
         window.open(`/admin`);
     };
 
-    // Define refs for navigation buttons.
     const NavigationHome = useRef(null);
     const NavigationSettings = useRef(null);
     const NavigationApi = useRef(null);
     const NavigationSSH = useRef(null);
 
     const calculateTop = (pathname: string) => {
-        // Get currents of navigation refs.
         const ButtonHome = NavigationHome.current;
         const ButtonSettings = NavigationSettings.current;
         const ButtonApi = NavigationApi.current;
         const ButtonSSH = NavigationSSH.current;
-
-        // Perfectly center the page highlighter with simple math.
-        // Height of navigation links (56) minus highlight height (40) equals 16. 16 devided by 2 is 8.
         const HighlightOffset: number = 8;
-
         if (pathname.endsWith(`/`) && ButtonHome != null) return (ButtonHome as any).offsetTop + HighlightOffset;
         if (pathname.endsWith(`/account`) && ButtonSettings != null)
             return (ButtonSettings as any).offsetTop + HighlightOffset;
@@ -74,7 +63,6 @@ const DashboardRouter = () => {
     };
 
     const top = calculateTop(location.pathname);
-
     const [height, setHeight] = useState('40px');
 
     useEffect(() => {
@@ -85,54 +73,65 @@ const DashboardRouter = () => {
 
     return (
         <Fragment key={'dashboard-router'}>
-            {/* Mobile Top Bar */}
             <MobileTopBar
                 onMenuToggle={toggleMobileMenu}
                 onTriggerLogout={onTriggerLogout}
                 onSelectAdminPanel={onSelectAdminPanel}
                 rootAdmin={rootAdmin}
             />
-
-            {/* Mobile Full Screen Menu */}
             <DashboardMobileMenu isVisible={isMobileMenuVisible} onClose={closeMobileMenu} />
 
             <div className='flex flex-row w-full lg:pt-0 pt-16'>
                 {/* Desktop Sidebar */}
                 <MainSidebar className='hidden lg:flex lg:relative lg:shrink-0 w-[300px]'>
+                    {/* Active nav highlight bar */}
                     <div
-                        className='absolute bg-brand w-[3px] h-10 left-0 rounded-full pointer-events-none '
+                        className='absolute w-[3px] h-10 left-0 rounded-full pointer-events-none'
                         style={{
                             top,
                             height,
+                            background: 'linear-gradient(180deg, #a855f7, #7e22ce)',
                             opacity: top === '0' ? 0 : 1,
                             transition:
                                 'linear(0,0.006,0.025 2.8%,0.101 6.1%,0.539 18.9%,0.721 25.3%,0.849 31.5%,0.937 38.1%,0.968 41.8%,0.991 45.7%,1.006 50.1%,1.015 55%,1.017 63.9%,1.001) 390ms',
                         }}
                     />
                     <div
-                        className='absolute bg-brand w-12 h-10 blur-2xl left-0 rounded-full pointer-events-none'
+                        className='absolute w-12 h-10 blur-2xl left-0 rounded-full pointer-events-none'
                         style={{
                             top,
+                            background: 'rgba(168,85,247,0.4)',
                             opacity: top === '0' ? 0 : 0.5,
                             transition:
                                 'top linear(0,0.006,0.025 2.8%,0.101 6.1%,0.539 18.9%,0.721 25.3%,0.849 31.5%,0.937 38.1%,0.968 41.8%,0.991 45.7%,1.006 50.1%,1.015 55%,1.017 63.9%,1.001) 390ms',
                         }}
                     />
-                    <div className='relative flex flex-row items-center justify-between'>
-                        <NavLink to={'/'} className='flex shrink-0 items-center gap-3 py-2'>
+
+                    {/* Logo area */}
+                    <div className='relative flex flex-row items-center justify-between mb-2'>
+                        <NavLink to={'/'} className='flex flex-col items-center w-full py-2 group'>
                             <img
-                                src={obsidianLogo}
+                                src={ObsidianLogo}
                                 alt='ObsidianHost'
-                                className='h-12 w-12 object-contain drop-shadow-[0_0_10px_rgba(168,85,247,0.5)]'
+                                className='w-24 h-24 object-contain drop-shadow-[0_0_18px_rgba(168,85,247,0.55)] group-hover:drop-shadow-[0_0_28px_rgba(168,85,247,0.85)] transition-all duration-300'
                             />
-                            <span className='text-xl font-extrabold leading-tight tracking-tight text-white'>
-                                Obsidian<span className='text-purple-400'>Host</span>
+                            <span
+                                className='mt-1 text-lg font-bold tracking-widest uppercase'
+                                style={{
+                                    background: 'linear-gradient(135deg, #d8b4fe 0%, #a855f7 50%, #7e22ce 100%)',
+                                    WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                    backgroundClip: 'text',
+                                    letterSpacing: '0.2em',
+                                    textShadow: 'none',
+                                }}
+                            >
+                                ObsidianHost
                             </span>
                         </NavLink>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <button className='w-10 h-10 flex items-center justify-center rounded-md text-white hover:bg-white/10 p-2 cursor-pointer'>
-                                    {' '}
+                                <button className='absolute top-0 right-0 w-10 h-10 flex items-center justify-center rounded-md text-white hover:bg-white/10 p-2 cursor-pointer'>
                                     <Ellipsis fill='currentColor' width={26} height={22} />
                                 </button>
                             </DropdownMenuTrigger>
@@ -150,7 +149,9 @@ const DashboardRouter = () => {
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
-                    <div aria-hidden className='mt-8 mb-4 bg-[#ffffff33] min-h-[1px] w-6'></div>
+
+                    <div aria-hidden className='mb-4 bg-[#a855f733] min-h-[1px] w-full'></div>
+
                     <ul data-pyro-subnav-routes-wrapper='' className='pyro-subnav-routes-wrapper'>
                         <NavLink to={'/'} end className='flex flex-row items-center' ref={NavigationHome}>
                             <House width={22} height={22} fill='currentColor' />
@@ -180,7 +181,6 @@ const DashboardRouter = () => {
                         >
                             <Routes>
                                 <Route path='' element={<DashboardContainer />} />
-
                                 {routes.account.map(({ route, component: Component }) => (
                                     <Route
                                         key={route}
@@ -188,7 +188,6 @@ const DashboardRouter = () => {
                                         element={<Component />}
                                     />
                                 ))}
-
                                 <Route path='*' element={<NotFound />} />
                             </Routes>
                         </main>
