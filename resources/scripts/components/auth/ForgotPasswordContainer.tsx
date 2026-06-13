@@ -1,5 +1,5 @@
 import type { FormikHelpers } from 'formik';
-import { Formik } from 'formik';
+import { Form, Formik } from 'formik';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { object, string } from 'yup';
@@ -272,7 +272,9 @@ function ForgotPasswordContainer() {
                         })}
                     >
                         {({ isSubmitting }) => (
-                            <div className='flex flex-col gap-5'>
+                            <Form className='flex flex-col gap-5'>
+                                <FlashMessageRender className='mb-2' />
+
                                 <Field id='email' type='email' label='Email' name='email' disabled={isSubmitting} />
 
                                 <Captcha
@@ -301,7 +303,7 @@ function ForgotPasswordContainer() {
                                 >
                                     Back to Login
                                 </Link>
-                            </div>
+                            </Form>
                         )}
                     </Formik>
 
