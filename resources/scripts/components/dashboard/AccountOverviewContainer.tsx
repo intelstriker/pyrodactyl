@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Server, User, FileText, Key, Shield } from 'lucide-react';
+import { User, FileText, Shield } from 'lucide-react';
 import ContentBox from '@/components/elements/ContentBox';
 import { useStore } from 'zustand';
 import { useUserStore } from '@/state/user';
@@ -8,11 +8,12 @@ import tw from 'twin.macro';
 import styled from 'styled-components';
 
 const AnimatedCard = styled.div`
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-  }
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    }
 `;
 
 export default function AccountOverviewContainer() {
