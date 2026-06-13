@@ -47,7 +47,6 @@ const ServerCard = styled(Link)<{
         opacity: 0.85;
     }
 
-    /* Animated glow layer */
     &::after {
         content: '';
         position: absolute;
@@ -116,50 +115,60 @@ const ServerCard = styled(Link)<{
 `;
 
 const ResourceRing = styled.div`
+    position: relative;
+    width: 74px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
-    min-width: 68px;
 `;
 
 const RingContainer = styled.div`
     position: relative;
-    width: 52px;
-    height: 52px;
+    width: 62px;
+    height: 62px;
 `;
 
 const Svg = styled.svg`
     transform: rotate(-90deg);
-    transition: all 400ms ease;
 `;
 
 const CircleBg = styled.circle`
     fill: none;
     stroke: rgba(167, 139, 250, 0.15);
-    stroke-width: 5;
+    stroke-width: 6;
 `;
 
 const CircleProgress = styled.circle<{ $alarm?: boolean }>`
     fill: none;
     stroke: ${({ $alarm }) => ($alarm ? '#fb923c' : '#a855f7')};
-    stroke-width: 5;
+    stroke-width: 6;
     stroke-linecap: round;
     transition: stroke-dashoffset 600ms cubic-bezier(0.4, 0, 0.2, 1);
 `;
 
+const RingContent = styled.div`
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 4;
+    pointer-events: none;
+`;
+
 const RingLabel = styled.div`
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 600;
     color: #c4b5fd;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.8px;
+    line-height: 1;
 `;
 
 const RingValue = styled.div<{ $alarm?: boolean }>`
     font-size: 13px;
     font-weight: 700;
     color: ${({ $alarm }) => ($alarm ? '#fb923c' : '#f3e8ff')};
-    line-height: 1;
+    line-height: 1.1;
 `;
 
 const ServerRow = ({ server, className }: ServerRowProps) => {
@@ -190,7 +199,6 @@ const ServerRow = ({ server, className }: ServerRowProps) => {
 
     const defaultAllocation = server.allocations.find(a => a.isDefault);
 
-    // Calculate percentages
     const cpuPercent = stats ? Math.min(Math.max(stats.cpuUsagePercent, 0), 100) : 0;
     const memPercent = stats && server.limits.memory > 0 
         ? Math.min((stats.memoryUsageInBytes / (server.limits.memory * 1024 * 1024)) * 100, 100) 
@@ -203,7 +211,7 @@ const ServerRow = ({ server, className }: ServerRowProps) => {
     const memAlarm = memPercent >= 90;
     const diskAlarm = diskPercent >= 90;
 
-    const circumference = 2 * Math.PI * 22; // radius = 22
+    const circumference = 2 * Math.PI * 26; // radius = 26 for bigger ring
 
     return (
         <ServerCard
@@ -213,10 +221,8 @@ const ServerRow = ({ server, className }: ServerRowProps) => {
             $suspended={isSuspended}
         >
             <div className="flex items-center gap-4 flex-1 min-w-0 relative z-10">
-                {/* Status Dot */}
                 <div className="status-dot" />
 
-                {/* Server Info */}
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-3">
                         <p className="text-[17px] font-semibold text-white tracking-[-0.01em] truncate">
@@ -246,75 +252,80 @@ const ServerRow = ({ server, className }: ServerRowProps) => {
                 </div>
             </div>
 
-            {/* Circular Progress Rings - Like your reference image */}
-            <div className="hidden md:flex items-center gap-6 relative z-10">
+            {/* Circular Rings with Text Inside */}
+            <div className="hidden md:flex items-center gap-5 relative z-10">
                 {!stats || isSuspended || isInstalling ? (
                     <div className="text-purple-400/70 text-sm italic pr-8">
                         {isSuspended ? 'Suspended' : isInstalling ? 'Installing...' : 'No data'}
                     </div>
                 ) : (
                     <>
-                        {/* CPU Ring */}
+                        {/* CPU */}
                         <ResourceRing>
                             <RingContainer>
-                                <Svg width="52" height="52" viewBox="0 0 52 52">
-                                    <CircleBg cx="26" cy="26" r="22" />
+                                <Svg width="62" height="62" viewBox="0 0 62 62">
+                                    <CircleBg cx="31" cy="31" r="26" />
                                     <CircleProgress 
-                                        cx="26" 
-                                        cy="26" 
-                                        r="22" 
+                                        cx="31" 
+                                        cy="31" 
+                                        r="26" 
                                         strokeDasharray={circumference} 
                                         strokeDashoffset={circumference - (cpuPercent / 100) * circumference}
                                         $alarm={cpuAlarm}
                                     />
                                 </Svg>
+                                <RingContent>
+                                    <RingLabel>CPU</RingLabel>
+                                    <RingValue $alarm={cpuAlarm}>{cpuPercent.toFixed(1)}%</RingValue>
+                                </RingContent>
                             </RingContainer>
-                            <RingLabel>CPU</RingLabel>
-                            <RingValue $alarm={cpuAlarm}>{cpuPercent.toFixed(1)}%</RingValue>
                         </ResourceRing>
 
-                        {/* RAM Ring */}
+                        {/* RAM */}
                         <ResourceRing>
                             <RingContainer>
-                                <Svg width="52" height="52" viewBox="0 0 52 52">
-                                    <CircleBg cx="26" cy="26" r="22" />
+                                <Svg width="62" height="62" viewBox="0 0 62 62">
+                                    <CircleBg cx="31" cy="31" r="26" />
                                     <CircleProgress 
-                                        cx="26" 
-                                        cy="26" 
-                                        r="22" 
+                                        cx="31" 
+                                        cy="31" 
+                                        r="26" 
                                         strokeDasharray={circumference} 
                                         strokeDashoffset={circumference - (memPercent / 100) * circumference}
                                         $alarm={memAlarm}
                                     />
                                 </Svg>
+                                <RingContent>
+                                    <RingLabel>RAM</RingLabel>
+                                    <RingValue $alarm={memAlarm}>{bytesToString(stats.memoryUsageInBytes)}</RingValue>
+                                </RingContent>
                             </RingContainer>
-                            <RingLabel>RAM</RingLabel>
-                            <RingValue $alarm={memAlarm}>{bytesToString(stats.memoryUsageInBytes)}</RingValue>
                         </ResourceRing>
 
-                        {/* DISK Ring */}
+                        {/* DISK */}
                         <ResourceRing>
                             <RingContainer>
-                                <Svg width="52" height="52" viewBox="0 0 52 52">
-                                    <CircleBg cx="26" cy="26" r="22" />
+                                <Svg width="62" height="62" viewBox="0 0 62 62">
+                                    <CircleBg cx="31" cy="31" r="26" />
                                     <CircleProgress 
-                                        cx="26" 
-                                        cy="26" 
-                                        r="22" 
+                                        cx="31" 
+                                        cy="31" 
+                                        r="26" 
                                         strokeDasharray={circumference} 
                                         strokeDashoffset={circumference - (diskPercent / 100) * circumference}
                                         $alarm={diskAlarm}
                                     />
                                 </Svg>
+                                <RingContent>
+                                    <RingLabel>DISK</RingLabel>
+                                    <RingValue $alarm={diskAlarm}>{bytesToString(stats.diskUsageInBytes)}</RingValue>
+                                </RingContent>
                             </RingContainer>
-                            <RingLabel>DISK</RingLabel>
-                            <RingValue $alarm={diskAlarm}>{bytesToString(stats.diskUsageInBytes)}</RingValue>
                         </ResourceRing>
                     </>
                 )}
             </div>
 
-            {/* Mobile fallback */}
             <div className="md:hidden text-xs text-purple-400/70 font-mono relative z-10">
                 {stats?.status || server.status}
             </div>
