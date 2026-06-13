@@ -1,6 +1,6 @@
 import type { FormikHelpers } from 'formik';
 import { Formik } from 'formik';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { object, string } from 'yup';
 
@@ -23,6 +23,13 @@ interface Values {
 function ForgotPasswordContainer() {
     const { clearFlashes, clearAndAddHttpError, addFlash } = useFlash();
     const glowRef = useRef<HTMLDivElement>(null);
+    const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
+
+    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        const id = Date.now();
+        setRipples((prev) => [...prev, { id, x: e.clientX, y: e.clientY }]);
+        setTimeout(() => setRipples((prev) => prev.filter((r) => r.id !== id)), 700);
+    };
 
     useEffect(() => {
         const panel = glowRef.current?.parentElement;
@@ -86,7 +93,14 @@ function ForgotPasswordContainer() {
     };
 
     return (
-        <div className='flex min-h-screen w-full bg-[#0a0a0f] text-white overflow-hidden'>
+        <div className='relative flex min-h-screen w-full bg-[#0a0a0f] text-white overflow-hidden' onClick={handleClick}>
+            {ripples.map((r) => (
+                <span
+                    key={r.id}
+                    className='pointer-events-none fixed z-50 rounded-full border border-purple-300/60 animate-click-ripple'
+                    style={{ left: r.x - 20, top: r.y - 20, width: 40, height: 40 }}
+                />
+            ))}
             {/* LEFT PANEL — Animated Obsidian / Minecraft scene */}
             <div className='hidden lg:flex relative w-1/2 items-center justify-center overflow-hidden border-r border-purple-900/40'>
                 <div className='absolute inset-0 bg-gradient-to-br from-[#120016] via-[#1a0a2e] to-[#05010a]' />
@@ -196,9 +210,9 @@ function ForgotPasswordContainer() {
                             href='https://obsidianhost.net/'
                             target='_blank'
                             rel='noreferrer'
-                            className='group flex flex-col items-center gap-2 rounded-lg border border-purple-500/20 bg-white/5 px-4 py-3 no-underline backdrop-blur-sm transition-all duration-200 ease-out hover:-translate-y-1 hover:scale-105 hover:border-purple-400/60 hover:bg-purple-500/10 hover:shadow-[0_0_20px_rgba(168,85,247,0.35)] active:scale-95 active:translate-y-0'
+                            className='group flex flex-col items-center gap-2 rounded-lg border border-purple-500/20 bg-white/5 px-4 py-3 no-underline backdrop-blur-sm transition-all duration-200 ease-out hover:-translate-y-1 hover:scale-105 hover:border-purple-400/60 hover:bg-purple-500/10 hover:shadow-[0_0_20px_rgba(168,85,247,0.35)] active:scale-90 active:translate-y-0 active:shadow-[0_0_25px_rgba(168,85,247,0.6)] active:border-purple-300/70'
                         >
-                            <svg viewBox='0 0 24 24' fill='none' className='h-6 w-6 text-purple-300 transition-transform duration-300 group-hover:text-purple-200 group-hover:rotate-[20deg] group-hover:scale-110'>
+                            <svg viewBox='0 0 24 24' fill='none' className='h-6 w-6 text-purple-300 transition-transform duration-300 group-hover:text-purple-200 group-hover:scale-110 group-hover:drop-shadow-[0_0_6px_rgba(216,180,254,0.8)]'>
                                 <circle cx='12' cy='12' r='9' stroke='currentColor' strokeWidth='1.6' />
                                 <path d='M3 12h18M12 3a13 13 0 0 1 0 18M12 3a13 13 0 0 0 0 18' stroke='currentColor' strokeWidth='1.6' />
                             </svg>
@@ -208,9 +222,9 @@ function ForgotPasswordContainer() {
                             href='https://discord.gg/ubyvnNC4JP'
                             target='_blank'
                             rel='noreferrer'
-                            className='group flex flex-col items-center gap-2 rounded-lg border border-purple-500/20 bg-white/5 px-4 py-3 no-underline backdrop-blur-sm transition-all duration-200 ease-out hover:-translate-y-1 hover:scale-105 hover:border-purple-400/60 hover:bg-purple-500/10 hover:shadow-[0_0_20px_rgba(168,85,247,0.35)] active:scale-95 active:translate-y-0'
+                            className='group flex flex-col items-center gap-2 rounded-lg border border-purple-500/20 bg-white/5 px-4 py-3 no-underline backdrop-blur-sm transition-all duration-200 ease-out hover:-translate-y-1 hover:scale-105 hover:border-purple-400/60 hover:bg-purple-500/10 hover:shadow-[0_0_20px_rgba(168,85,247,0.35)] active:scale-90 active:translate-y-0 active:shadow-[0_0_25px_rgba(168,85,247,0.6)] active:border-purple-300/70'
                         >
-                            <svg viewBox='0 0 24 24' fill='currentColor' className='h-6 w-6 text-purple-300 transition-transform duration-300 group-hover:text-purple-200 group-hover:-rotate-6 group-hover:scale-110'>
+                            <svg viewBox='0 0 24 24' fill='currentColor' className='h-6 w-6 text-purple-300 transition-transform duration-300 group-hover:text-purple-200 group-hover:scale-110 group-active:scale-90'>
                                 <path d='M20.317 4.369A19.79 19.79 0 0 0 15.885 3c-.21.375-.444.875-.608 1.27a18.27 18.27 0 0 0-5.555 0A12.76 12.76 0 0 0 9.114 3a19.74 19.74 0 0 0-4.432 1.369C2.1 8.07 1.5 11.69 1.78 15.255a19.9 19.9 0 0 0 5.993 3.04c.483-.659.913-1.36 1.282-2.098a12.9 12.9 0 0 1-2.02-.973c.17-.125.336-.256.497-.392a14.2 14.2 0 0 0 12.93 0c.163.14.328.27.497.392-.643.382-1.32.71-2.02.974.37.737.8 1.438 1.282 2.097a19.87 19.87 0 0 0 5.994-3.04c.34-4.13-.59-7.72-2.898-10.886ZM8.68 13.06c-.81 0-1.47-.745-1.47-1.66 0-.916.65-1.66 1.47-1.66.83 0 1.49.754 1.47 1.66 0 .915-.65 1.66-1.47 1.66Zm6.64 0c-.81 0-1.47-.745-1.47-1.66 0-.916.65-1.66 1.47-1.66.83 0 1.49.754 1.47 1.66 0 .915-.64 1.66-1.47 1.66Z' />
                             </svg>
                             Discord
@@ -219,7 +233,7 @@ function ForgotPasswordContainer() {
                             href='https://status.obsidianhost.net/'
                             target='_blank'
                             rel='noreferrer'
-                            className='group flex flex-col items-center gap-2 rounded-lg border border-purple-500/20 bg-white/5 px-4 py-3 no-underline backdrop-blur-sm transition-all duration-200 ease-out hover:-translate-y-1 hover:scale-105 hover:border-purple-400/60 hover:bg-purple-500/10 hover:shadow-[0_0_20px_rgba(168,85,247,0.35)] active:scale-95 active:translate-y-0'
+                            className='group flex flex-col items-center gap-2 rounded-lg border border-purple-500/20 bg-white/5 px-4 py-3 no-underline backdrop-blur-sm transition-all duration-200 ease-out hover:-translate-y-1 hover:scale-105 hover:border-purple-400/60 hover:bg-purple-500/10 hover:shadow-[0_0_20px_rgba(168,85,247,0.35)] active:scale-90 active:translate-y-0 active:shadow-[0_0_25px_rgba(168,85,247,0.6)] active:border-purple-300/70'
                         >
                             <svg viewBox='0 0 24 24' fill='none' className='h-6 w-6 text-purple-300 transition-transform duration-300 group-hover:text-purple-200 group-hover:scale-110'>
                                 <path d='M3 17 9 11l4 4 8-8' stroke='currentColor' strokeWidth='1.8' strokeLinecap='round' strokeLinejoin='round' className='transition-all duration-300 group-hover:[stroke-dasharray:30] group-hover:[stroke-dashoffset:0] [stroke-dasharray:30] [stroke-dashoffset:30]' />
@@ -339,6 +353,12 @@ function ForgotPasswordContainer() {
                 }
                 .animate-vein { stroke-dasharray: 600 600; animation: vein 8s ease-in-out infinite; }
                 .animate-vein-rev { stroke-dasharray: 500 500; animation: vein 11s ease-in-out infinite reverse; }
+
+                @keyframes click-ripple {
+                    0% { transform: scale(0.3); opacity: 0.8; }
+                    100% { transform: scale(3); opacity: 0; }
+                }
+                .animate-click-ripple { animation: click-ripple 0.7s ease-out forwards; }
             `}</style>
         </div>
     );
