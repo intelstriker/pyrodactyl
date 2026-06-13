@@ -30,7 +30,7 @@ const SettingsContainer = () => {
             <MainPageHeader direction='column' title={'Settings'}>
                 <p className='text-sm text-neutral-400 leading-relaxed'>
                     Configure your server settings, manage SFTP access, and access debug information. Make changes to
-                    server name and reinstall when needed.
+                    reinstall when needed.
                 </p>
             </MainPageHeader>
             <Can action={'settings.rename'}>
