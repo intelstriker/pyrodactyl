@@ -1,109 +1,188 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { bytesToString } from '@/lib/formatters';
+import { bytesToString, ip } from '@/lib/formatters';
 import { Server } from '@/api/server/getServer';
 import getServerResourceUsage, { ServerPowerState, ServerStats } from '@/api/server/getServerResourceUsage';
 
-const ServerCard = styled.div<{ $status: ServerPowerState }>`
-    position: relative;
+const ServerCard = styled(Link)<{ $status: ServerPowerState }>`
+    background: #1a1a1a;
+    border: 1px solid #ffffff12;
+    border-radius: 16px;
+    padding: 1.25rem 1.75rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1.25rem 2rem;
-    margin-bottom: 12px;
-    border-radius: 16px;
-    background: 
-        linear-gradient(145deg, #1a1033 0%, #120a24 100%);
-    border: 1px solid rgba(168, 85, 247, 0.3);
+    transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    color: inherit;
+    position: relative;
     overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
-
-    /* Diagonal stripe pattern */
-    &::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: repeating-linear-gradient(
-            135deg,
-            transparent,
-            transparent 8px,
-            rgba(168, 85, 247, 0.12) 8px,
-            rgba(168, 85, 247, 0.12) 16px
-        );
-        pointer-events: none;
-    }
 
     &:hover {
-        transform: translateY(-4px);
-        border-color: rgba(168, 85, 247, 0.6);
-        box-shadow: 0 20px 40px rgba(168, 85, 247, 0.25);
+        border-color: #ffffff22;
+        background: #222222;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     }
+
+    .status-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 9999px;
+        transition: all 250ms ease;
+        box-shadow: 0 0 0 3px rgba(255,255,255,0.1);
+    }
+
+    ${({ $status }) => {
+        if (!$status || $status === 'offline') {
+            return `
+                .status-dot {
+                    background: #ef4444;
+                    box-shadow: 0 0 12px 2px #ef4444;
+                }
+            `;
+        }
+        if ($status === 'running') {
+            return `
+                .status-dot {
+                    background: #22c55e;
+                    box-shadow: 0 0 12px 2px #22c55e;
+                }
+            `;
+        }
+        if ($status === 'installing') {
+            return `
+                .status-dot {
+                    background: #3b82f6;
+                    box-shadow: 0 0 12px 2px #3b82f6;
+                }
+            `;
+        }
+        return `
+            .status-dot {
+                background: #eab308;
+                box-shadow: 0 0 12px 2px #eab308;
+            }
+        `;
+    }}
 `;
 
-const ServerRow = ({ server }: { server: Server }) => {
+const ResourceBar = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #a1a1aa;
+`;
+
+const ServerRow = ({ server, className }: { server: Server; className?: string }) => {
+    const interval = useRef<NodeJS.Timeout | null>(null);
     const [stats, setStats] = useState<ServerStats | null>(null);
+    const [isSuspended, setIsSuspended] = useState(server.status === 'suspended');
+    const [isInstalling, setIsInstalling] = useState(server.status === 'installing');
+
+    const getStats = () => {
+        getServerResourceUsage(server.uuid)
+            .then(setStats)
+            .catch(console.error);
+    };
 
     useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const data = await getServerResourceUsage(server.uuid);
-                setStats(data);
-            } catch (e) {
-                console.error('Failed to fetch stats:', e);
-            }
+        setIsSuspended(stats?.isSuspended || server.status === 'suspended');
+        setIsInstalling(stats?.isInstalling || server.status === 'installing');
+    }, [stats, server.status]);
+
+    useEffect(() => {
+        if (isSuspended) return;
+
+        getStats();
+        interval.current = setInterval(getStats, 30000);
+
+        return () => {
+            if (interval.current) clearInterval(interval.current);
         };
+    }, [isSuspended, server.uuid]);
 
-        fetchStats();
-        const interval = setInterval(fetchStats, 20000); // Update every 20s
-        return () => clearInterval(interval);
-    }, [server.uuid]);
+    const defaultAllocation = server.allocations.find(a => a.isDefault);
 
-    const status = stats?.status || 'offline';
-    const cpu = stats?.cpu || 0;
-    const memory = stats?.memory || 0;
-    const disk = stats?.disk || 0;
-
-    const shortId = server.uuid.substring(0, 8);
+    const cpuAlarm = stats && server.limits.cpu > 0 && stats.cpuUsagePercent >= server.limits.cpu * 0.9;
+    const memAlarm = stats && isAlarmState(stats.memoryUsageInBytes, server.limits.memory);
+    const diskAlarm = stats && server.limits.disk > 0 && isAlarmState(stats.diskUsageInBytes, server.limits.disk);
 
     return (
-        <Link to={`/server/${server.uuid}`} className="block">
-            <ServerCard $status={status}>
-                <div className="flex items-center gap-4">
-                    {/* Status Dot */}
-                    <div className={`w-3.5 h-3.5 rounded-full flex-shrink-0 ring-2 ring-offset-2 ring-offset-[#120a24]
-                        ${status === 'running' ? 'bg-emerald-500 ring-emerald-500/50' : 'bg-red-500 ring-red-500/50'}`} 
-                    />
+        <ServerCard
+            to={`/server/${server.id}`}
+            className={className}
+            $status={stats?.status}
+        >
+            <div className="flex items-center gap-4 flex-1 min-w-0">
+                {/* Status Indicator */}
+                <div className="status-dot flex-shrink-0" />
 
-                    <div>
-                        <div className="text-white font-semibold text-xl tracking-tight">
+                {/* Server Info */}
+                <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-3">
+                        <p className="text-lg font-semibold text-white tracking-tight truncate">
                             {server.name}
-                        </div>
-                        <div className="text-zinc-400 font-mono text-sm">
-                            {shortId}
-                        </div>
+                        </p>
+                        {isSuspended && (
+                            <span className="px-2.5 py-0.5 text-xs font-medium bg-red-500/10 text-red-400 rounded-full border border-red-500/20">
+                                SUSPENDED
+                            </span>
+                        )}
                     </div>
-                </div>
 
-                {/* Resources Section */}
-                <div className="flex items-center gap-10 text-sm">
-                    <div className="text-center">
-                        <div className="text-purple-400 text-xs tracking-widest">CPU</div>
-                        <div className="font-medium text-white">{cpu.toFixed(1)}%</div>
-                    </div>
-                    <div className="text-center">
-                        <div className="text-purple-400 text-xs tracking-widest">RAM</div>
-                        <div className="font-medium text-white">{bytesToString(memory)}</div>
-                    </div>
-                    <div className="text-center">
-                        <div className="text-purple-400 text-xs tracking-widest">DISK</div>
-                        <div className="font-medium text-white">{bytesToString(disk)}</div>
-                    </div>
+                    {defaultAllocation && (
+                        <p className="text-sm text-zinc-400 mt-0.5 font-mono">
+                            {defaultAllocation.alias || ip(defaultAllocation.ip)}:{defaultAllocation.port}
+                        </p>
+                    )}
                 </div>
-            </ServerCard>
-        </Link>
+            </div>
+
+            {/* Resource Usage */}
+            <div className="hidden md:flex items-center gap-8 text-sm">
+                {!stats || isSuspended || isInstalling ? (
+                    <div className="text-zinc-400 text-sm italic">
+                        {isSuspended ? 'Suspended' : isInstalling ? 'Installing...' : 'Unavailable'}
+                    </div>
+                ) : (
+                    <>
+                        <ResourceBar>
+                            <span className="font-medium text-zinc-500">CPU</span>
+                            <span className={cpuAlarm ? 'text-orange-400 font-medium' : ''}>
+                                {stats.cpuUsagePercent.toFixed(1)}%
+                            </span>
+                        </ResourceBar>
+
+                        <ResourceBar>
+                            <span className="font-medium text-zinc-500">RAM</span>
+                            <span className={memAlarm ? 'text-orange-400 font-medium' : ''}>
+                                {bytesToString(stats.memoryUsageInBytes)}
+                            </span>
+                        </ResourceBar>
+
+                        <ResourceBar>
+                            <span className="font-medium text-zinc-500">DISK</span>
+                            <span className={diskAlarm ? 'text-orange-400 font-medium' : ''}>
+                                {bytesToString(stats.diskUsageInBytes)}
+                            </span>
+                        </ResourceBar>
+                    </>
+                )}
+            </div>
+
+            {/* Mobile indicator */}
+            <div className="md:hidden text-xs text-zinc-500">
+                {stats?.status || server.status}
+            </div>
+        </ServerCard>
     );
 };
+
+// Helper (kept from original)
+const isAlarmState = (current: number, limit: number): boolean => 
+    limit > 0 && current / (limit * 1024 * 1024) >= 0.9;
 
 export default ServerRow;
