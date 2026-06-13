@@ -21,7 +21,7 @@ import MainWrapper from '@/components/elements/MainWrapper';
 import { ServerMobileMenu } from '@/components/elements/MobileFullScreenMenu';
 import MobileTopBar from '@/components/elements/MobileTopBar';
 import PermissionRoute from '@/components/elements/PermissionRoute';
-import Logo from '@/components/elements/PyroLogo';
+import ObsidianLogo from '@/assets/images/obsidianhostlogo.svg';
 import { NotFound, ServerError } from '@/components/elements/ScreenBlock';
 import CommandMenu from '@/components/elements/commandk/CmdK';
 import ConflictStateRenderer from '@/components/server/ConflictStateRenderer';
@@ -29,7 +29,7 @@ import InstallListener from '@/components/server/InstallListener';
 import ServerSidebarNavItem from '@/components/server/ServerSidebarNavItem';
 import TransferListener from '@/components/server/TransferListener';
 import WebsocketHandler from '@/components/server/WebsocketHandler';
-import StatBlock from '@/components/server/console/StatBlock';
+
 
 import { httpErrorToHuman } from '@/api/http';
 import http from '@/api/http';
@@ -277,14 +277,36 @@ const ServerRouter = () => {
 
                     <div className='flex flex-row w-full lg:pt-0 pt-16'>
                         {/* Desktop Sidebar */}
-                        <MainSidebar className='hidden lg:flex lg:relative lg:shrink-0 w-[300px] bg-[#1a1a1a] flex flex-col h-full'>
-                            <div className='flex flex-row items-center justify-between h-8'>
-                                <NavLink to={'/'} className='flex shrink-0 h-8 w-fit'>
-                                    <Logo uniqueId='server-desktop-sidebar' />
+                        <MainSidebar className='hidden lg:flex lg:relative lg:shrink-0 w-[300px] flex flex-col h-full'>
+                            {/* Logo area — matches dashboard sidebar */}
+                            <div className='relative flex flex-row items-center justify-between mb-2'>
+                                <NavLink to='/' className='flex flex-col items-center w-full py-2 group'>
+                                    <img
+                                        src={ObsidianLogo}
+                                        alt='ObsidianHost'
+                                        className='w-24 h-24 object-contain drop-shadow-[0_0_18px_rgba(168,85,247,0.55)] group-hover:drop-shadow-[0_0_28px_rgba(168,85,247,0.85)] transition-all duration-300'
+                                    />
+                                    <span
+                                        className='mt-1 text-lg font-bold tracking-widest uppercase'
+                                        style={{
+                                            background: 'linear-gradient(135deg, #d8b4fe 0%, #a855f7 50%, #7e22ce 100%)',
+                                            WebkitBackgroundClip: 'text',
+                                            WebkitTextFillColor: 'transparent',
+                                        }}
+                                    >
+                                        ObsidianHost
+                                    </span>
+                                    {/* Server name shown beneath brand name */}
+                                    {serverName && (
+                                        <span className='mt-1 text-sm font-medium tracking-wide text-purple-300/70'>
+                                            {serverName}
+                                        </span>
+                                    )}
                                 </NavLink>
+
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                        <button className='w-10 h-10 flex items-center justify-center rounded-md text-white hover:bg-[#ffffff11] p-2 select-none cursor-pointer'>
+                                        <button className='absolute top-0 right-0 w-10 h-10 flex items-center justify-center rounded-md text-white hover:bg-white/10 p-2 cursor-pointer'>
                                             <Ellipsis fill='currentColor' width={26} height={22} />
                                         </button>
                                     </DropdownMenuTrigger>
@@ -302,7 +324,8 @@ const ServerRouter = () => {
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>
-                            <div aria-hidden className='mt-8 mb-4 bg-[#ffffff33] min-h-[1px] w-6'></div>
+
+                            <div aria-hidden className='mb-4 bg-[#a855f733] min-h-[1px] w-full' />
                             {/* Highlight */}
                             <div
                                 className='absolute bg-brand w-[3px] h-10 left-0 rounded-full pointer-events-none'
@@ -339,15 +362,7 @@ const ServerRouter = () => {
                                     />
                                 ))}
                             </ul>
-                            <div className='shrink-0'>
-                                <div aria-hidden className='mt-8 mb-4 bg-[#ffffff33] min-h-[1px] w-full'></div>
-                                <StatBlock
-                                    title='server'
-                                    className='p-4 bg-[#ffffff09] border-[1px] border-[#ffffff11] shadow-xs rounded-xl text-center hover:cursor-default'
-                                >
-                                    {serverName}
-                                </StatBlock>
-                            </div>
+
                         </MainSidebar>
 
                         <MainWrapper className='w-full'>
