@@ -21,7 +21,7 @@ import MainWrapper from '@/components/elements/MainWrapper';
 import { ServerMobileMenu } from '@/components/elements/MobileFullScreenMenu';
 import MobileTopBar from '@/components/elements/MobileTopBar';
 import PermissionRoute from '@/components/elements/PermissionRoute';
-import Logo from '@/components/elements/PyroLogo';
+import obsidianLogo from '@/assets/images/obsidianhostlogo.svg';
 import { NotFound, ServerError } from '@/components/elements/ScreenBlock';
 import CommandMenu from '@/components/elements/commandk/CmdK';
 import ConflictStateRenderer from '@/components/server/ConflictStateRenderer';
@@ -277,10 +277,17 @@ const ServerRouter = () => {
 
                     <div className='flex flex-row w-full lg:pt-0 pt-16'>
                         {/* Desktop Sidebar */}
-                        <MainSidebar className='hidden lg:flex lg:relative lg:shrink-0 w-[300px] bg-[#1a1a1a] flex flex-col h-full'>
-                            <div className='flex flex-row items-center justify-between h-8'>
-                                <NavLink to={'/'} className='flex shrink-0 h-8 w-fit'>
-                                    <Logo uniqueId='server-desktop-sidebar' />
+                        <MainSidebar className='hidden lg:flex lg:relative lg:shrink-0 w-[300px] flex flex-col h-full'>
+                            <div className='flex flex-row items-center justify-between'>
+                                <NavLink to={'/'} className='flex shrink-0 items-center gap-3 py-2'>
+                                    <img
+                                        src={obsidianLogo}
+                                        alt='ObsidianHost'
+                                        className='h-12 w-12 object-contain drop-shadow-[0_0_10px_rgba(168,85,247,0.5)]'
+                                    />
+                                    <span className='text-xl font-extrabold leading-tight tracking-tight text-white'>
+                                        Obsidian<span className='text-purple-400'>Host</span>
+                                    </span>
                                 </NavLink>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
@@ -390,6 +397,11 @@ const ServerRouter = () => {
                 </>
             )}
         </Fragment>
+    );
+};
+
+export default ServerRouter;
+
     );
 };
 
