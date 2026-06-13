@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { User, FileText, Shield } from '@gravity-ui/icons';
+import { Person, DocumentText, ShieldCheck } from '@gravity-ui/icons';
 import ContentBox from '@/components/elements/ContentBox';
 import { useStoreState } from 'easy-peasy';
 import { useFlashKey } from '@/plugins/useFlash';
@@ -28,7 +28,7 @@ export default function AccountOverviewContainer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Account Information */}
             <AnimatedCard className="col-span-1 md:col-span-2 lg:col-span-1">
-                <ContentBox title="Account Information" icon={<User size={20} />}>
+                <ContentBox title="Account Information" icon={<Person size={20} />}>
                     <div className="space-y-4">
                         <div>
                             <p className="text-sm text-neutral-400">Username</p>
@@ -48,7 +48,7 @@ export default function AccountOverviewContainer() {
 
             {/* Quick Stats */}
             <AnimatedCard>
-                <ContentBox title="Quick Stats" icon={<Shield size={20} />}>
+                <ContentBox title="Quick Stats" icon={<ShieldCheck size={20} />}>
                     <div className="grid grid-cols-2 gap-4 text-center">
                         <div>
                             <div className="text-3xl font-bold text-cyan-400">12</div>
@@ -64,7 +64,7 @@ export default function AccountOverviewContainer() {
 
             {/* Recent Activity */}
             <AnimatedCard className="lg:col-span-2">
-                <ContentBox title="Recent Activity" icon={<FileText size={20} />}>
+                <ContentBox title="Recent Activity" icon={<DocumentText size={20} />}>
                     <div className="text-neutral-400 text-sm italic">
                         No recent activity. Your account is looking clean!
                     </div>
