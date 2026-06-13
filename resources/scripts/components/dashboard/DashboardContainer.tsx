@@ -113,177 +113,125 @@ const DashboardContainer = () => {
 
     return (
         <PageContentBlock title={'Dashboard'} showFlashKey={'dashboard'}>
-            <style>{`
-                @keyframes obsidian-shimmer {
-                    0% { background-position: -200% center; }
-                    100% { background-position: 200% center; }
-                }
-            `}</style>
-
-            <div className='relative w-full min-h-full flex-1 flex flex-col px-2 sm:px-0 overflow-hidden'>
-                {/* === ANIMATED OBSIDIAN BACKGROUND === */}
-                <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden"
-                     style={{
-                         background: '#0a0612',
-                     }}>
-                    {/* Nebula Glows */}
-                    <div className="absolute inset-0"
-                        style={{
-                            background: `
-                                radial-gradient(circle at 20% 30%, rgba(168,85,247,0.18) 0%, transparent 50%),
-                                radial-gradient(circle at 80% 70%, rgba(192,132,252,0.14) 0%, transparent 55%)
-                            `,
-                            animation: 'nebulaDrift 45s ease-in-out infinite alternate',
-                        }} />
-
-                    {/* Wavy Pattern */}
-                    <div className="absolute inset-0"
-                        style={{
-                            background: `repeating-linear-gradient(
-                                135deg,
-                                transparent 0px,
-                                transparent 40px,
-                                rgba(192,132,252,0.04) 40px,
-                                rgba(192,132,252,0.04) 80px
-                            )`,
-                            animation: 'wavyFlow 38s linear infinite',
-                            opacity: 0.6,
-                        }} />
-
-                    {/* Triangle / Geometric Travelers */}
-                    <div className="absolute inset-0"
-                        style={{
-                            backgroundImage: `
-                                radial-gradient(circle, rgba(192,132,252,0.35) 1px, transparent 1px),
-                                linear-gradient(transparent 50%, rgba(147,51,234,0.06) 50%)
-                            `,
-                            backgroundSize: '70px 70px',
-                            animation: 'triTravel 50s linear infinite',
-                            opacity: 0.4,
-                        }} />
-                </div>
-
-                {/* Content Layer */}
-                <div className='relative z-10 flex flex-col flex-1'>
-                    <Tabs
-                        defaultValue={dashboardDisplayOption}
-                        onValueChange={(value) => setDashboardDisplayOption(value)}
-                        className='w-full'
-                    >
-                        {/* Header */}
-                        <div className='transform-gpu skeleton-anim-2 mb-4 sm:mb-6'>
-                            <MainPageHeader
-                                title={getTitle()}
-                                titleChildren={
-                                    <div className='flex gap-3'>
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <button
-                                                    className='inline-flex h-9 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-hidden'
-                                                    style={{
-                                                        background: 'rgba(168,85,247,0.1)',
-                                                        border: '1px solid rgba(168,85,247,0.2)',
-                                                        color: 'rgba(216,180,254,0.9)',
-                                                    }}
-                                                >
-                                                    <SlidersVertical width={16} height={16} color='currentColor' />
-                                                    <div>{getTitle()}</div>
-                                                    <ChevronDown width={12} height={12} color='currentColor' />
-                                                </button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent className='flex flex-col gap-1 z-99999' sideOffset={8}>
+            <div className='w-full min-h-full flex-1 flex flex-col px-2 sm:px-0'>
+                <Tabs
+                    defaultValue={dashboardDisplayOption}
+                    onValueChange={(value) => setDashboardDisplayOption(value)}
+                    className='w-full'
+                >
+                    {/* Header */}
+                    <div className='transform-gpu skeleton-anim-2 mb-4 sm:mb-6'>
+                        <MainPageHeader
+                            title={getTitle()}
+                            titleChildren={
+                                <div className='flex gap-3'>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <button
+                                                className='inline-flex h-9 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-hidden'
+                                                style={{
+                                                    background: 'rgba(168,85,247,0.1)',
+                                                    border: '1px solid rgba(168,85,247,0.2)',
+                                                    color: 'rgba(216,180,254,0.9)',
+                                                }}
+                                            >
+                                                <SlidersVertical width={16} height={16} color='currentColor' />
+                                                <div>{getTitle()}</div>
+                                                <ChevronDown width={12} height={12} color='currentColor' />
+                                            </button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent className='flex flex-col gap-1 z-99999' sideOffset={8}>
+                                            <DropdownMenuItem
+                                                onSelect={() => setServerViewMode('owner')}
+                                                className={serverViewMode === 'owner' ? 'bg-accent/20' : ''}
+                                            >
+                                                Your Servers Only
+                                            </DropdownMenuItem>
+                                            {rootAdmin && (
                                                 <DropdownMenuItem
-                                                    onSelect={() => setServerViewMode('owner')}
-                                                    className={serverViewMode === 'owner' ? 'bg-accent/20' : ''}
+                                                    onSelect={() => setServerViewMode('admin-all')}
+                                                    className={serverViewMode === 'admin-all' ? 'bg-accent/20' : ''}
                                                 >
-                                                    Your Servers Only
+                                                    All Servers (Admin)
                                                 </DropdownMenuItem>
-                                                {rootAdmin && (
-                                                    <DropdownMenuItem
-                                                        onSelect={() => setServerViewMode('admin-all')}
-                                                        className={serverViewMode === 'admin-all' ? 'bg-accent/20' : ''}
+                                            )}
+                                            <DropdownMenuItem
+                                                onSelect={() => setServerViewMode('all')}
+                                                className={serverViewMode === 'all' ? 'bg-accent/20' : ''}
+                                            >
+                                                All Servers
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+
+                                    <TabsList>
+                                        <TabsTrigger aria-label='List layout' value='list'>
+                                            <Bars width={18} height={20} color='white' />
+                                        </TabsTrigger>
+                                        <TabsTrigger aria-label='Grid layout' value='grid'>
+                                            <LayoutCellsLarge width={20} height={20} color='white' />
+                                        </TabsTrigger>
+                                    </TabsList>
+                                </div>
+                            }
+                        />
+                    </div>
+
+                    {/* Server Content */}
+                    {!servers ? (
+                        <LoadingState />
+                    ) : (
+                        <>
+                            <TabsContent value='list'>
+                                <Pagination data={servers} onPageSelect={setPage}>
+                                    {({ items }) =>
+                                        items.length > 0 ? (
+                                            <PageListContainer>
+                                                {items.map((server, index) => (
+                                                    <div
+                                                        key={server.uuid}
+                                                        className='transform-gpu skeleton-anim-2'
+                                                        style={{ animationDelay: `${index * 50 + 50}ms` }}
                                                     >
-                                                        All Servers (Admin)
-                                                    </DropdownMenuItem>
-                                                )}
-                                                <DropdownMenuItem
-                                                    onSelect={() => setServerViewMode('all')}
-                                                    className={serverViewMode === 'all' ? 'bg-accent/20' : ''}
-                                                >
-                                                    All Servers
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
+                                                        <ServerRow className='flex-row' key={server.uuid} server={server} />
+                                                    </div>
+                                                ))}
+                                            </PageListContainer>
+                                        ) : (
+                                            <EmptyState isAdmin={serverViewMode === 'admin-all'} />
+                                        )
+                                    }
+                                </Pagination>
+                            </TabsContent>
 
-                                        <TabsList>
-                                            <TabsTrigger aria-label='List layout' value='list'>
-                                                <Bars width={18} height={20} color='white' />
-                                            </TabsTrigger>
-                                            <TabsTrigger aria-label='Grid layout' value='grid'>
-                                                <LayoutCellsLarge width={20} height={20} color='white' />
-                                            </TabsTrigger>
-                                        </TabsList>
-                                    </div>
-                                }
-                            />
-                        </div>
-
-                        {/* Server Content */}
-                        {!servers ? (
-                            <LoadingState />
-                        ) : (
-                            <>
-                                <TabsContent value='list'>
-                                    <Pagination data={servers} onPageSelect={setPage}>
-                                        {({ items }) =>
-                                            items.length > 0 ? (
-                                                <PageListContainer className="relative z-10">
-                                                    {items.map((server, index) => (
-                                                        <div
+                            <TabsContent value='grid'>
+                                <Pagination data={servers} onPageSelect={setPage}>
+                                    {({ items }) =>
+                                        items.length > 0 ? (
+                                            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                                                {items.map((server, index) => (
+                                                    <div
+                                                        key={server.uuid}
+                                                        className='transform-gpu skeleton-anim-2'
+                                                        style={{ animationDelay: `${index * 50 + 50}ms` }}
+                                                    >
+                                                        <ServerRow
+                                                            className='items-start! flex-col w-full gap-4 [&>div~div]:w-full'
                                                             key={server.uuid}
-                                                            className='transform-gpu skeleton-anim-2'
-                                                            style={{ animationDelay: `${index * 50 + 50}ms` }}
-                                                        >
-                                                            <ServerRow className='flex-row' key={server.uuid} server={server} />
-                                                        </div>
-                                                    ))}
-                                                </PageListContainer>
-                                            ) : (
-                                                <EmptyState isAdmin={serverViewMode === 'admin-all'} />
-                                            )
-                                        }
-                                    </Pagination>
-                                </TabsContent>
-
-                                <TabsContent value='grid'>
-                                    <Pagination data={servers} onPageSelect={setPage}>
-                                        {({ items }) =>
-                                            items.length > 0 ? (
-                                                <div className='grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10'>
-                                                    {items.map((server, index) => (
-                                                        <div
-                                                            key={server.uuid}
-                                                            className='transform-gpu skeleton-anim-2'
-                                                            style={{ animationDelay: `${index * 50 + 50}ms` }}
-                                                        >
-                                                            <ServerRow
-                                                                className='items-start! flex-col w-full gap-4 [&>div~div]:w-full'
-                                                                key={server.uuid}
-                                                                server={server}
-                                                            />
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            ) : (
-                                                <EmptyState isAdmin={serverViewMode === 'admin-all'} />
-                                            )
-                                        }
-                                    </Pagination>
-                                </TabsContent>
-                            </>
-                        )}
-                    </Tabs>
-                </div>
+                                                            server={server}
+                                                        />
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <EmptyState isAdmin={serverViewMode === 'admin-all'} />
+                                        )
+                                    }
+                                </Pagination>
+                            </TabsContent>
+                        </>
+                    )}
+                </Tabs>
             </div>
         </PageContentBlock>
     );
