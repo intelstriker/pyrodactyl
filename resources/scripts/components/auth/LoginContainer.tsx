@@ -1,9 +1,10 @@
 import type { FormikHelpers } from 'formik';
-import { Formik } from 'formik';
+import { Form, Formik } from 'formik';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { object, string } from 'yup';
 
+import FlashMessageRender from '@/components/FlashMessageRender';
 import obsidianLogo from '@/assets/images/obsidianhostlogo.svg';
 
 import Button from '@/components/elements/Button';
@@ -247,8 +248,8 @@ function LoginContainer() {
                         Obsidian<span className='text-purple-400'>Host</span>
                     </h1>
                     <p className='mt-3 max-w-sm text-sm text-zinc-400'>
-                        Lag-free Minecraft hosting carved from pure obsidian, 
-                        instant deploys and a network built to keep your community online.
+                        Lag-free Minecraft hosting carved from pure obsidian — instant deploys, NVMe-backed worlds,
+                        and a network built to keep your community online.
                     </p>
 
                     <div className='mt-10 grid grid-cols-3 gap-4 text-xs font-semibold text-zinc-300'>
@@ -319,7 +320,9 @@ function LoginContainer() {
                         })}
                     >
                         {({ isSubmitting }) => (
-                            <div className='flex flex-col gap-5'>
+                            <Form className='flex flex-col gap-5'>
+                                <FlashMessageRender className='mb-2' />
+
                                 <Field
                                     id='user'
                                     type='text'
@@ -363,7 +366,7 @@ function LoginContainer() {
                                 >
                                     Login
                                 </Button>
-                            </div>
+                            </Form>
                         )}
                     </Formik>
 
