@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
 import { User, FileText, Shield } from '@gravity-ui/icons';
 import ContentBox from '@/components/elements/ContentBox';
-import { useStore } from 'zustand';
-import { useUserStore } from '@/state/user';
+import { useStoreState } from 'easy-peasy';
 import { useFlashKey } from '@/plugins/useFlash';
 import tw from 'twin.macro';
 import styled from 'styled-components';
@@ -17,12 +16,12 @@ const AnimatedCard = styled.div`
 `;
 
 export default function AccountOverviewContainer() {
-    const user = useStore(useUserStore, (state) => state.user);
+    const user = useStoreState((state) => state.user.data);
     const { clearFlashes } = useFlashKey('account:overview');
 
     useEffect(() => {
         clearFlashes();
-    }, []);
+    }, [clearFlashes]);
 
     if (!user) return null;
 
