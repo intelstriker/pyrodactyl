@@ -39,8 +39,8 @@ const Logo = ({ className, uniqueId }: { className?: string; uniqueId?: string }
                     gradientTransform='matrix(0 62.83 -291.711 0 141.607 -1.83)'
                     gradientUnits='userSpaceOnUse'
                 >
-                    <stop stopColor='#FF343C'></stop>
-                    <stop offset='1' stopColor='#F06F53'></stop>
+                    <stop stopColor='#a855f7'></stop>
+                    <stop offset='1' stopColor='#7e22ce'></stop>
                 </radialGradient>
             </defs>
         </svg>
@@ -48,3 +48,4 @@ const Logo = ({ className, uniqueId }: { className?: string; uniqueId?: string }
 };
 
 export default Logo;
+
