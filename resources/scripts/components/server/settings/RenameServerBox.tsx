@@ -22,7 +22,6 @@ const RenameServerForm = () => {
     return (
         <TitledGreyBox title={'Server Details'}>
             <Form className='flex flex-col gap-4'>
-                <Field id={'description'} name={'description'} label={'Server Description'} type={'text'} />
                 <div className={`mt-6 text-right`}>
                     <ActionButton variant='primary' type={'submit'}>
                         Save
