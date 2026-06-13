@@ -27,6 +27,15 @@ const statusLabel = (status: ServerPowerState | undefined) => {
 };
 
 const ObsidianCard = styled.div<{ $status: ServerPowerState }>`
+    @keyframes obsidian-card-hatch {
+        0% { background-position: 0 0, 0 0, 0 0; }
+        100% { background-position: 120px 120px, 0 0, 0 0; }
+    }
+    @keyframes obsidian-card-orb {
+        0%, 100% { transform: scale(1) translate(0, 0); opacity: 0.7; }
+        50% { transform: scale(1.25) translate(-8px, -8px); opacity: 1; }
+    }
+
     position: relative;
     display: flex;
     align-items: center;
@@ -40,6 +49,8 @@ const ObsidianCard = styled.div<{ $status: ServerPowerState }>`
         radial-gradient(120% 140% at 100% 0%, rgba(168, 85, 247, 0.10) 0%, transparent 55%),
         repeating-linear-gradient(135deg, rgba(168, 85, 247, 0.05) 0px, rgba(168, 85, 247, 0.05) 1px, transparent 1px, transparent 22px),
         linear-gradient(135deg, rgba(20, 5, 35, 0.7) 0%, rgba(10, 2, 20, 0.85) 100%);
+    background-size: 120px 120px, 31px 31px, 100% 100%;
+    animation: obsidian-card-hatch 36s linear infinite;
     border: 1px solid rgba(168, 85, 247, 0.15);
 
     &::before {
@@ -61,6 +72,7 @@ const ObsidianCard = styled.div<{ $status: ServerPowerState }>`
         background: radial-gradient(circle, rgba(168,85,247,0.18) 0%, transparent 70%);
         filter: blur(2px);
         pointer-events: none;
+        animation: obsidian-card-orb 7s ease-in-out infinite;
     }
 
     &:hover {
@@ -69,6 +81,7 @@ const ObsidianCard = styled.div<{ $status: ServerPowerState }>`
             radial-gradient(120% 140% at 100% 0%, rgba(168, 85, 247, 0.16) 0%, transparent 55%),
             repeating-linear-gradient(135deg, rgba(168, 85, 247, 0.07) 0px, rgba(168, 85, 247, 0.07) 1px, transparent 1px, transparent 22px),
             linear-gradient(135deg, rgba(30, 8, 50, 0.8) 0%, rgba(15, 4, 30, 0.9) 100%);
+        background-size: 120px 120px, 31px 31px, 100% 100%;
         transform: translateY(-1px);
         box-shadow: 0 8px 32px rgba(168,85,247,0.12), 0 0 0 1px rgba(168,85,247,0.2);
     }
