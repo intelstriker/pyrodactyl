@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { User, FileText, Shield } from 'lucide-react';
+import { User, FileText, Shield } from '@gravity-ui/icons';
 import ContentBox from '@/components/elements/ContentBox';
 import { useStore } from 'zustand';
 import { useUserStore } from '@/state/user';
