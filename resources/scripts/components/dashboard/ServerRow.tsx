@@ -36,7 +36,10 @@ const ObsidianCard = styled.div<{ $status: ServerPowerState }>`
     cursor: pointer;
     transition: all 200ms ease-in-out;
     overflow: hidden;
-    background: linear-gradient(135deg, rgba(20, 5, 35, 0.7) 0%, rgba(10, 2, 20, 0.85) 100%);
+    background:
+        radial-gradient(120% 140% at 100% 0%, rgba(168, 85, 247, 0.10) 0%, transparent 55%),
+        repeating-linear-gradient(135deg, rgba(168, 85, 247, 0.05) 0px, rgba(168, 85, 247, 0.05) 1px, transparent 1px, transparent 22px),
+        linear-gradient(135deg, rgba(20, 5, 35, 0.7) 0%, rgba(10, 2, 20, 0.85) 100%);
     border: 1px solid rgba(168, 85, 247, 0.15);
 
     &::before {
@@ -47,9 +50,25 @@ const ObsidianCard = styled.div<{ $status: ServerPowerState }>`
         pointer-events: none;
     }
 
+    &::after {
+        content: '';
+        position: absolute;
+        width: 140px;
+        height: 140px;
+        right: -50px;
+        bottom: -60px;
+        border-radius: 9999px;
+        background: radial-gradient(circle, rgba(168,85,247,0.18) 0%, transparent 70%);
+        filter: blur(2px);
+        pointer-events: none;
+    }
+
     &:hover {
         border-color: rgba(168, 85, 247, 0.4);
-        background: linear-gradient(135deg, rgba(30, 8, 50, 0.8) 0%, rgba(15, 4, 30, 0.9) 100%);
+        background:
+            radial-gradient(120% 140% at 100% 0%, rgba(168, 85, 247, 0.16) 0%, transparent 55%),
+            repeating-linear-gradient(135deg, rgba(168, 85, 247, 0.07) 0px, rgba(168, 85, 247, 0.07) 1px, transparent 1px, transparent 22px),
+            linear-gradient(135deg, rgba(30, 8, 50, 0.8) 0%, rgba(15, 4, 30, 0.9) 100%);
         transform: translateY(-1px);
         box-shadow: 0 8px 32px rgba(168,85,247,0.12), 0 0 0 1px rgba(168,85,247,0.2);
     }
@@ -186,3 +205,4 @@ const ServerRow = ({ server, className }: { server: Server; className?: string }
 };
 
 export default ServerRow;
+
