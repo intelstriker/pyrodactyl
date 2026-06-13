@@ -7,66 +7,75 @@ import { bytesToString, ip } from '@/lib/formatters';
 import { Server } from '@/api/server/getServer';
 import getServerResourceUsage, { ServerPowerState, ServerStats } from '@/api/server/getServerResourceUsage';
 
-// Determines if the current value is in an alarm threshold so we can show it in red rather
-// than the more faded default style.
 const isAlarmState = (current: number, limit: number): boolean => limit > 0 && current / (limit * 1024 * 1024) >= 0.9;
 
-const StatusIndicatorBox = styled.div<{ $status: ServerPowerState }>`
-    background: #ffffff11;
-    border: 1px solid #ffffff12;
-    transition: all 250ms ease-in-out;
-    padding: 1.75rem 2rem;
-    cursor: pointer;
-    border-radius: 0.75rem;
+// Status glow colors
+const statusGlow = (status: ServerPowerState | undefined) => {
+    if (!status || status === 'offline') return { dot: '#ef4444', glow: 'rgba(239,68,68,0.6)', bg: 'rgba(239,68,68,0.08)' };
+    if (status === 'running') return { dot: '#22c55e', glow: 'rgba(34,197,94,0.6)', bg: 'rgba(34,197,94,0.08)' };
+    if (status === 'installing') return { dot: '#60a5fa', glow: 'rgba(96,165,250,0.6)', bg: 'rgba(96,165,250,0.08)' };
+    return { dot: '#f59e0b', glow: 'rgba(245,158,11,0.6)', bg: 'rgba(245,158,11,0.08)' };
+};
+
+const statusLabel = (status: ServerPowerState | undefined) => {
+    if (!status || status === 'offline') return 'Offline';
+    if (status === 'running') return 'Online';
+    if (status === 'installing') return 'Installing';
+    if (status === 'starting') return 'Starting';
+    if (status === 'stopping') return 'Stopping';
+    return 'Unknown';
+};
+
+const ObsidianCard = styled.div<{ $status: ServerPowerState }>`
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    position: relative;
+    padding: 1.25rem 1.5rem;
+    border-radius: 0.875rem;
+    cursor: pointer;
+    transition: all 200ms ease-in-out;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(20, 5, 35, 0.7) 0%, rgba(10, 2, 20, 0.85) 100%);
+    border: 1px solid rgba(168, 85, 247, 0.15);
 
-    &:hover {
-        border: 1px solid #ffffff19;
-        background: #ffffff19;
-        transition-duration: 0ms;
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(168,85,247,0.04) 0%, transparent 60%);
+        pointer-events: none;
     }
 
-    & .status-bar {
-        width: 12px;
-        height: 12px;
-        min-width: 12px;
-        min-height: 12px;
-        background-color: #ffffff11;
-        z-index: 20;
-        border-radius: 9999px;
-        transition: all 250ms ease-in-out;
+    &:hover {
+        border-color: rgba(168, 85, 247, 0.4);
+        background: linear-gradient(135deg, rgba(30, 8, 50, 0.8) 0%, rgba(15, 4, 30, 0.9) 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 8px 32px rgba(168,85,247,0.12), 0 0 0 1px rgba(168,85,247,0.2);
+    }
 
-        box-shadow: ${({ $status }) => {
-            console.log($status);
-            if (!$status || $status === 'offline') {
-                return '0 0 12px 1px #C74343';
-            } else if ($status === 'running') {
-                return '0 0 12px 1px #43C760';
-            } else if ($status === 'installing') {
-                return '0 0 12px 1px #4381c7'; // Blue color for installing
-            } else {
-                return '0 0 12px 1px #c7aa43'; // Default for other statuses
-            }
-        }};
-
-        background: ${({ $status }) => {
-            if (!$status || $status === 'offline') {
-                return 'linear-gradient(180deg, #C74343 0%, #C74343 100%)';
-            } else if ($status === 'running') {
-                return 'linear-gradient(180deg, #91FFA9 0%, #43C760 100%)';
-            } else if ($status === 'installing') {
-                return 'linear-gradient(180deg, #91c7ff 0%, #4381c7 100%)';
-            } else {
-                return 'linear-gradient(180deg, #c7aa43 0%, #c7aa43 100%)'; // Default for other statuses
-            }
-        }};
+    &:active {
+        transform: translateY(0px);
     }
 `;
 
 type Timer = ReturnType<typeof setInterval>;
+
+const StatPill = ({ label, value, alarm }: { label: string; value: string; alarm: boolean }) => (
+    <div
+        className='flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg'
+        style={{
+            background: alarm ? 'rgba(239,68,68,0.1)' : 'rgba(168,85,247,0.07)',
+            border: `1px solid ${alarm ? 'rgba(239,68,68,0.25)' : 'rgba(168,85,247,0.15)'}`,
+            minWidth: '64px',
+        }}
+    >
+        <span className='text-[10px] font-medium uppercase tracking-wider' style={{ color: alarm ? '#fca5a5' : 'rgba(216,180,254,0.6)' }}>
+            {label}
+        </span>
+        <span className={`text-xs font-bold ${alarm ? 'text-red-300' : 'text-white'}`}>{value}</span>
+    </div>
+);
 
 const ServerRow = ({ server, className }: { server: Server; className?: string }) => {
     const interval = useRef<Timer>(null) as React.MutableRefObject<Timer>;
@@ -88,14 +97,10 @@ const ServerRow = ({ server, className }: { server: Server; className?: string }
     }, [stats?.isInstalling, server.status]);
 
     useEffect(() => {
-        // Don't waste a HTTP request if there is nothing important to show to the user because
-        // the server is suspended.
         if (isSuspended) return;
-
         getStats().then(() => {
             interval.current = setInterval(() => getStats(), 30000);
         });
-
         return () => {
             if (interval.current) clearInterval(interval.current);
         };
@@ -108,88 +113,75 @@ const ServerRow = ({ server, className }: { server: Server; className?: string }
         alarms.disk = server.limits.disk === 0 ? false : isAlarmState(stats.diskUsageInBytes, server.limits.disk);
     }
 
-    // const diskLimit = server.limits.disk !== 0 ? bytesToString(mbToBytes(server.limits.disk)) : 'Unlimited';
-    // const memoryLimit = server.limits.memory !== 0 ? bytesToString(mbToBytes(server.limits.memory)) : 'Unlimited';
-    // const cpuLimit = server.limits.cpu !== 0 ? server.limits.cpu + ' %' : 'Unlimited';
+    const colors = statusGlow(stats?.status);
+
+    const defaultAlloc = server.allocations.filter((a) => a.isDefault);
 
     return (
-        <StatusIndicatorBox as={Link} to={`/server/${server.id}`} className={className} $status={stats?.status}>
-            <div className={`flex items-center`}>
-                <div className='flex flex-col'>
+        <ObsidianCard as={Link} to={`/server/${server.id}`} className={className} $status={stats?.status}>
+            {/* Left: name + address */}
+            <div className='flex items-center gap-4 min-w-0'>
+                {/* Status dot */}
+                <div
+                    className='flex-shrink-0 w-3 h-3 rounded-full'
+                    style={{
+                        background: colors.dot,
+                        boxShadow: `0 0 8px 2px ${colors.glow}`,
+                        animation: stats?.status === 'starting' || stats?.status === 'stopping' ? 'pulse 1.5s ease-in-out infinite' : undefined,
+                    }}
+                />
+
+                <div className='flex flex-col min-w-0'>
                     <div className='flex items-center gap-2'>
-                        <p className={`text-xl tracking-tight font-bold break-words`}>{server.name}</p>{' '}
-                        <div className={'status-bar'} />
+                        <p className='text-base font-bold text-white truncate leading-tight'>{server.name}</p>
+                        {/* Status badge */}
+                        <span
+                            className='hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide flex-shrink-0'
+                            style={{
+                                background: colors.bg,
+                                color: colors.dot,
+                                border: `1px solid ${colors.glow}`,
+                            }}
+                        >
+                            {isSuspended ? 'Suspended' : isInstalling ? 'Installing' : statusLabel(stats?.status)}
+                        </span>
                     </div>
-                    <p className={`text-sm text-[#ffffff66]`}>
-                        {server.allocations
-                            .filter((alloc) => alloc.isDefault)
-                            .map((allocation) => (
-                                <Fragment key={allocation.ip + allocation.port.toString()}>
-                                    {allocation.alias || ip(allocation.ip)}:{allocation.port}
-                                </Fragment>
-                            ))}
+                    <p className='text-xs mt-0.5' style={{ color: 'rgba(168,85,247,0.55)' }}>
+                        {defaultAlloc.map((alloc) => (
+                            <Fragment key={alloc.ip + alloc.port.toString()}>
+                                {alloc.alias || ip(alloc.ip)}:{alloc.port}
+                            </Fragment>
+                        ))}
                     </p>
                 </div>
             </div>
-            <div
-                style={{
-                    background:
-                        'radial-gradient(124.75% 124.75% at 50.01% -10.55%, rgb(36, 36, 36) 0%, rgb(20, 20, 20) 100%)',
-                }}
-                className={`h-full hidden sm:flex items-center justify-center border-[1px] border-[#ffffff12] shadow-md rounded-lg w-fit whitespace-nowrap px-4 py-2 text-sm gap-4`}
-            >
-                {!stats || isSuspended || isInstalling ? (
-                    isSuspended ? (
-                        <div className={`flex-1 text-center`}>
-                            <span className={`text-red-100 text-xs`}>
-                                {server.status === 'suspended' ? 'Suspended' : 'Connection Error'}
-                            </span>
-                        </div>
-                    ) : server.isTransferring || server.status ? (
-                        <div className={`flex-1 text-center`}>
-                            <span className={`text-zinc-100 text-xs`}>
-                                {server.isTransferring
-                                    ? 'Transferring'
-                                    : server.status === 'installing'
-                                      ? 'Installing'
-                                      : server.status === 'restoring_backup'
-                                        ? 'Restoring Backup'
-                                        : 'Unavailable'}
-                            </span>
-                        </div>
-                    ) : (
-                        <div className='text-xs opacity-25'>Sit tight!</div>
-                    )
-                ) : (
+
+            {/* Right: stats pills */}
+            <div className='hidden sm:flex items-center gap-2 flex-shrink-0'>
+                {isSuspended ? (
+                    <span className='text-xs text-red-400 px-3 py-1.5 rounded-lg'
+                        style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}>
+                        Suspended
+                    </span>
+                ) : server.isTransferring || (server.status && !stats) ? (
+                    <span className='text-xs text-zinc-400 px-3 py-1.5 rounded-lg animate-pulse'
+                        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                        {server.isTransferring ? 'Transferring…' : isInstalling ? 'Installing…' : 'Loading…'}
+                    </span>
+                ) : stats ? (
                     <Fragment>
-                        <div className={`sm:flex hidden`}>
-                            <div className={`flex justify-center gap-2 w-fit`}>
-                                <p className='text-xs text-zinc-400 font-medium w-fit whitespace-nowrap'>CPU</p>
-                                <p className='text-xs font-bold w-fit whitespace-nowrap'>
-                                    {stats.cpuUsagePercent.toFixed(2)}%
-                                </p>
-                            </div>
-                        </div>
-                        <div className={`sm:flex hidden`}>
-                            <div className={`flex justify-center gap-2 w-fit`}>
-                                <p className='text-xs text-zinc-400 font-medium w-fit whitespace-nowrap'>RAM</p>
-                                <p className='text-xs font-bold w-fit whitespace-nowrap'>
-                                    {bytesToString(stats.memoryUsageInBytes, 0)}
-                                </p>
-                            </div>
-                        </div>
-                        <div className={`sm:flex hidden`}>
-                            <div className={`flex justify-center gap-2 w-fit`}>
-                                <p className='text-xs text-zinc-400 font-medium w-fit whitespace-nowrap'>Storage</p>
-                                <p className='text-xs font-bold w-fit whitespace-nowrap'>
-                                    {bytesToString(stats.diskUsageInBytes, 0)}
-                                </p>
-                            </div>
-                        </div>
+                        <StatPill label='CPU' value={`${stats.cpuUsagePercent.toFixed(1)}%`} alarm={alarms.cpu} />
+                        <StatPill label='RAM' value={bytesToString(stats.memoryUsageInBytes, 0)} alarm={alarms.memory} />
+                        <StatPill label='Disk' value={bytesToString(stats.diskUsageInBytes, 0)} alarm={alarms.disk} />
                     </Fragment>
+                ) : (
+                    <span className='text-xs text-zinc-600 px-3 py-1.5 rounded-lg'
+                        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        Sit tight…
+                    </span>
                 )}
             </div>
-        </StatusIndicatorBox>
+        </ObsidianCard>
     );
 };
 
