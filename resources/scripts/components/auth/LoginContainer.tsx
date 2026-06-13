@@ -321,7 +321,9 @@ function LoginContainer() {
                     >
                         {({ isSubmitting }) => (
                             <Form className='flex flex-col gap-5'>
-                                <FlashMessageRender className='mb-2' />
+                                <div className='obsidian-flash'>
+                                    <FlashMessageRender />
+                                </div>
 
                                 <Field
                                     id='user'
@@ -432,6 +434,19 @@ function LoginContainer() {
                     100% { transform: scale(3); opacity: 0; }
                 }
                 .animate-click-ripple { animation: click-ripple 0.7s ease-out forwards; }
+
+                .obsidian-flash:empty { display: none; }
+                .obsidian-flash > div {
+                    margin-bottom: 0.5rem;
+                    border-radius: 0.5rem;
+                    border: 1px solid rgba(168, 85, 247, 0.35) !important;
+                    background: rgba(40, 10, 60, 0.55) !important;
+                    color: #f3e8ff !important;
+                    backdrop-filter: blur(6px);
+                    font-size: 0.8rem;
+                }
+                .obsidian-flash > div * { color: inherit !important; }
+                .obsidian-flash svg { color: #d8b4fe !important; }
             `}</style>
         </div>
     );
