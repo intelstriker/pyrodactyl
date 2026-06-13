@@ -10,8 +10,8 @@ const MainSidebar = styled.nav`
     // position: absolute;
     margin-right: 8px;
     user-select: none;
-    background: rgba(0, 0, 0, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(20, 5, 35, 0.55);
+    border: 1px solid rgba(168, 85, 247, 0.15);
 
     & > .pyro-subnav-routes-wrapper {
         display: flex;
