@@ -22,7 +22,15 @@ const options: ChartOptions<'line'> = {
     plugins: {
         legend: { display: false },
         title: { display: false },
-        tooltip: { enabled: false },
+        tooltip: {
+            enabled: true,
+            backgroundColor: 'rgba(20, 20, 24, 0.95)',
+            borderColor: 'rgba(192, 132, 252, 0.4)',
+            borderWidth: 1,
+            titleFont: { size: 11, weight: 600 },
+            bodyFont: { size: 12, weight: 700 },
+            displayColors: false,
+        },
     },
     layout: {
         padding: 0,
