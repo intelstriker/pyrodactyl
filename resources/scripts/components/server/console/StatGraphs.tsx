@@ -152,8 +152,8 @@ const StatGraphs = () => {
         <Tooltip.Provider>
             {/* Resource Metrics header + period buttons */}
             <div className="mb-3 px-1">
-                <div className="font-semibold text-sm tracking-tight text-white mb-2">Resource Metrics</div>
-                <div className="inline-flex rounded-full bg-[#ffffff08] border border-[#ffffff12] p-px text-[10px] font-medium">
+                <div className="font-bold text-lg tracking-tight text-white mb-2">Resource Metrics</div>
+                <div className="inline-flex rounded-full bg-[#ffffff08] border border-[#ffffff12] p-px text-[10px] font-medium mb-3">
                     {(['live', '1h', '24h', '7d', '30d'] as const).map((p) => (
                         <button
                             key={p}
@@ -265,4 +265,3 @@ const StatGraphs = () => {
 };
 
 export default StatGraphs;
-
