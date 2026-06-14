@@ -33,9 +33,8 @@ const SettingsContainer = () => {
             </MainPageHeader>
 
             <div className='flex flex-col gap-8'>
-                <Can action={'settings.rename'}>
-                    <RenameServerBox />
-                </Can>
+                {/* Server overview stats */}
+                <RenameServerBox />
 
                 <Can action={'settings.reinstall'}>
                     <ReinstallServerBox />
