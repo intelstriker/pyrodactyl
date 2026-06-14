@@ -2,7 +2,7 @@ import { Actions, useStoreActions } from 'easy-peasy';
 import { useEffect, useState } from 'react';
 
 import ActionButton from '@/components/elements/ActionButton';
-import TitledGreyBox from '@/components/elements/TitledGreyBox';
+import Spinner from '@/components/elements/Spinner';
 import { Dialog } from '@/components/elements/dialog';
 
 import { httpErrorToHuman } from '@/api/http';
@@ -30,7 +30,6 @@ const ReinstallServerBox = () => {
             })
             .catch((error) => {
                 console.error(error);
-
                 addFlash({ key: 'settings', type: 'error', message: httpErrorToHuman(error) });
             })
             .then(() => {
@@ -44,7 +43,7 @@ const ReinstallServerBox = () => {
     }, []);
 
     return (
-        <TitledGreyBox title={'Reinstall Server'}>
+        <div className='bg-gradient-to-b from-[#ff000008] to-[#ff000005] border-[1px] border-[#ff000020] rounded-xl p-6 shadow-sm'>
             <Dialog.Confirm
                 open={modalVisible}
                 title={'Confirm server reinstallation'}
@@ -56,20 +55,25 @@ const ReinstallServerBox = () => {
                 Your server will be stopped and some files may be deleted or modified during this process, are you sure
                 you wish to continue?
             </Dialog.Confirm>
-            <p className={`text-sm`}>
-                Reinstalling your server will stop it, and then re-run the installation script that initially set it
-                up.&nbsp;
-                <strong className={`font-medium`}>
-                    Some files may be deleted or modified during this process, please back up your data before
-                    continuing.
-                </strong>
-            </p>
-            <div className={`mt-6 text-right`}>
-                <ActionButton variant='danger' onClick={() => setModalVisible(true)}>
-                    Reinstall Server
-                </ActionButton>
+
+            <div className='flex items-start justify-between gap-6'>
+                <div className='flex flex-col gap-2'>
+                    <h3 className='text-xl font-extrabold tracking-tight'>Reinstall Server</h3>
+                    <p className='text-sm text-zinc-400 leading-relaxed max-w-lg'>
+                        Reinstalling will stop your server and re-run the installation script that initially set it up.{' '}
+                        <span className='text-zinc-300 font-medium'>
+                            Some files may be deleted or modified — back up your data before continuing.
+                        </span>
+                    </p>
+                </div>
+                <div className='shrink-0'>
+                    <ActionButton variant='danger' onClick={() => setModalVisible(true)} disabled={loading}>
+                        {loading && <Spinner size='small' />}
+                        Reinstall Server
+                    </ActionButton>
+                </div>
             </div>
-        </TitledGreyBox>
+        </div>
     );
 };
 
