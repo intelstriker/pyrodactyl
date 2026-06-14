@@ -4,6 +4,7 @@ import isEqual from 'react-fast-compare';
 import ErrorBoundary from '@/components/elements/ErrorBoundary';
 import { MainPageHeader } from '@/components/elements/MainPageHeader';
 // import Can from '@/components/elements/Can';
+import Modal from '@/components/elements/Modal';
 import ServerContentBlock from '@/components/elements/ServerContentBlock';
 import Spinner from '@/components/elements/Spinner';
 import { Alert } from '@/components/elements/alert';
@@ -30,8 +31,7 @@ const ServerConsoleContainer = () => {
     const eggFeatures = ServerContext.useStoreState((state) => state.server.data!.eggFeatures, isEqual);
     const isNodeUnderMaintenance = ServerContext.useStoreState((state) => state.server.data!.isNodeUnderMaintenance);
 
-    type Period = 'live' | '1h' | '24h' | '7d' | '30d';
-    const [period, setPeriod] = useState<Period>('live');
+    const [metricsOpen, setMetricsOpen] = useState(false);
 
     useEffect(() => {
         if (!connected || !instance) {
@@ -150,24 +150,23 @@ const ServerConsoleContainer = () => {
                         }}
                     >
                         <div className='bg-gradient-to-b from-[#ffffff08] to-[#ffffff05] border-[1px] border-[#ffffff12] rounded-xl p-3 sm:p-4 hover:border-[#ffffff20] transition-all duration-150 shadow-sm'>
-                            {/* Resource Metrics header - bold, centered, then buttons below, then graphs */}
+                            {/* Resource Metrics - always Live (rolling real-time). Click the button for the detailed popup where you can click points on CPU / RAM / Networking to see exact usage at that moment. */}
                             <div className="text-center mb-3">
-                                <div className="font-bold text-lg tracking-tight text-white">Resource Metrics</div>
-                                <div className="mt-2 inline-flex rounded-full bg-[#ffffff08] border border-[#ffffff12] p-px text-[10px] font-medium">
-                                    {(['live', '1h', '24h', '7d', '30d'] as const).map((p) => (
-                                        <button
-                                            key={p}
-                                            onClick={() => setPeriod(p)}
-                                            className={`px-2.5 py-1 rounded-full transition-all ${period === p ? 'bg-[#c084fc] text-black shadow-sm' : 'text-zinc-300 hover:text-white hover:bg-white/5'}`}
-                                        >
-                                            {p === 'live' ? 'Live' : p === '1h' ? 'Hourly' : p === '24h' ? 'Past Day' : p === '7d' ? 'Weekly' : 'Monthly'}
-                                        </button>
-                                    ))}
+                                <div className="font-bold text-lg tracking-tight text-white flex items-center justify-center gap-2">
+                                    Resource Metrics — Live
+                                    <button
+                                        onClick={() => setMetricsOpen(true)}
+                                        className="text-[10px] px-2 py-0.5 rounded-full border border-[#ffffff22] text-purple-300 hover:text-white hover:border-purple-400/60 active:scale-[0.985] transition"
+                                        title="Open detailed live metrics popup. Click points on any graph (CPU, RAM, Networking) to see exactly how much the server was using at that time."
+                                    >
+                                        Click for popup
+                                    </button>
                                 </div>
+                                <div className="mt-1 text-[10px] text-zinc-400">Live updating • Click points in the popup for values at that moment</div>
                             </div>
                             <div className={'grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4'}>
                                 <Spinner.Suspense>
-                                    <StatGraphs period={period} />
+                                    <StatGraphs period="live" />
                                 </Spinner.Suspense>
                             </div>
                         </div>
@@ -186,6 +185,29 @@ const ServerConsoleContainer = () => {
                         </ErrorBoundary>
                     </div>
                 </div>
+
+                {/* Detailed live metrics popup: larger charts. Click points on CPU, RAM or Networking to see exactly how much the server was using at that moment. */}
+                <Modal
+                    visible={metricsOpen}
+                    onDismissed={() => setMetricsOpen(false)}
+                    title="Live Resource Metrics — Detailed View"
+                    closeButton
+                    dismissable
+                >
+                <div className="px-1 pb-2">
+                    <div className="mb-2 text-sm text-zinc-300">
+                        Live updating. Click any point on the <span className="text-white">CPU</span>, <span className="text-white">RAM</span> or <span className="text-white">Networking</span> graphs to see the exact usage values at that time.
+                    </div>
+                    <div className="grid grid-cols-1 gap-3">
+                        <Spinner.Suspense>
+                            <StatGraphs period="live" expanded />
+                        </Spinner.Suspense>
+                    </div>
+                    <div className="mt-3 text-[10px] text-center text-zinc-500">
+                        Click points anywhere on the three graphs. The inspector shows the precise values at the selected moment in the live data.
+                    </div>
+                </div>
+            </Modal>
             </div>
         </ServerContentBlock>
     );
