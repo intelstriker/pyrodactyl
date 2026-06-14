@@ -296,6 +296,14 @@ class Server extends Model
     }
 
     /**
+     * Gets historical resource metrics recorded for this server.
+     */
+    public function metrics(): HasMany
+    {
+        return $this->hasMany(ServerMetric::class, 'server_id');
+    }
+
+    /**
      * Gets information for the nest associated with this server.
      */
     public function nest(): BelongsTo
