@@ -1,4 +1,4 @@
-import { memo, useEffect } from 'react';
+import { memo, useEffect, useState } from 'react';
 import isEqual from 'react-fast-compare';
 
 import ErrorBoundary from '@/components/elements/ErrorBoundary';
@@ -29,6 +29,9 @@ const ServerConsoleContainer = () => {
     const instance = ServerContext.useStoreState((state) => state.socket.instance);
     const eggFeatures = ServerContext.useStoreState((state) => state.server.data!.eggFeatures, isEqual);
     const isNodeUnderMaintenance = ServerContext.useStoreState((state) => state.server.data!.isNodeUnderMaintenance);
+
+    type Period = 'live' | '1h' | '24h' | '7d' | '30d';
+    const [period, setPeriod] = useState<Period>('live');
 
     useEffect(() => {
         if (!connected || !instance) {
@@ -147,9 +150,24 @@ const ServerConsoleContainer = () => {
                         }}
                     >
                         <div className='bg-gradient-to-b from-[#ffffff08] to-[#ffffff05] border-[1px] border-[#ffffff12] rounded-xl p-3 sm:p-4 hover:border-[#ffffff20] transition-all duration-150 shadow-sm'>
+                            {/* Resource Metrics header - bold, centered, then buttons below, then graphs */}
+                            <div className="text-center mb-3">
+                                <div className="font-bold text-lg tracking-tight text-white">Resource Metrics</div>
+                                <div className="mt-2 inline-flex rounded-full bg-[#ffffff08] border border-[#ffffff12] p-px text-[10px] font-medium">
+                                    {(['live', '1h', '24h', '7d', '30d'] as const).map((p) => (
+                                        <button
+                                            key={p}
+                                            onClick={() => setPeriod(p)}
+                                            className={`px-2.5 py-1 rounded-full transition-all ${period === p ? 'bg-[#c084fc] text-black shadow-sm' : 'text-zinc-300 hover:text-white hover:bg-white/5'}`}
+                                        >
+                                            {p === 'live' ? 'Live' : p === '1h' ? 'Hourly' : p === '24h' ? 'Past Day' : p === '7d' ? 'Weekly' : 'Monthly'}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
                             <div className={'grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4'}>
                                 <Spinner.Suspense>
-                                    <StatGraphs />
+                                    <StatGraphs period={period} />
                                 </Spinner.Suspense>
                             </div>
                         </div>
