@@ -73,6 +73,7 @@ Route::group([
 ], function () {
     Route::get('/', [Client\ServerController::class, 'index'])->name('api.client.servers.daemonType');
     Route::get('/resources', [Client\ServerController::class, 'resources'])->name('api.client.servers.resources');
+    Route::get('/metrics', [Client\ServerMetricsController::class, 'index'])->name('api.client.servers.metrics');
 
     Route::group(['prefix' => '/subdomain'], function () {
         Route::get('/', [Elytra\SubdomainController::class, 'index']);
