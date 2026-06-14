@@ -72,34 +72,32 @@ const PowerButtons = ({ className }: PowerButtonProps) => {
                     style={
                         status === 'offline'
                             ? {
-                                  background:
-                                      'radial-gradient(109.26% 109.26% at 49.83% 13.37%, #FF343C 0%, #F06F53 100%)',
+                                  background: 'linear-gradient(145deg, #c084fc 0%, #a855f7 100%)',
+                                  boxShadow: '0 4px 14px rgba(192, 132, 252, 0.35)',
                                   opacity: 1,
                               }
                             : {
-                                  background:
-                                      'radial-gradient(124.75% 124.75% at 50.01% -10.55%, rgb(36, 36, 36) 0%, rgb(20, 20, 20) 100%)',
-                                  opacity: 0.5,
+                                  background: 'radial-gradient(124.75% 124.75% at 50.01% -10.55%, #2a2a32 0%, #16161c 100%)',
+                                  opacity: 0.45,
                               }
                     }
-                    className='px-8 py-3 border-[1px] border-[#ffffff12] rounded-l-full rounded-r-md text-sm font-bold shadow-md cursor-pointer'
+                    className='px-7 py-2.5 border border-[#ffffff14] hover:border-[#c084fc33] rounded-l-2xl rounded-r-lg text-xs sm:text-sm font-semibold tracking-wider uppercase shadow-sm transition-all active:scale-[0.985] cursor-pointer text-white'
                     disabled={status !== 'offline'}
                     onClick={onButtonClick.bind(this, 'start')}
                 >
-                    Start
+                    ▶ Start
                 </button>
             </Can>
             <Can action={'control.restart'}>
                 <button
                     style={{
-                        background:
-                            'radial-gradient(124.75% 124.75% at 50.01% -10.55%, rgb(36, 36, 36) 0%, rgb(20, 20, 20) 100%)',
+                        background: 'radial-gradient(124.75% 124.75% at 50.01% -10.55%, #2a2a32 0%, #16161c 100%)',
                     }}
-                    className='px-8 py-3 border-[1px] border-[#ffffff12] rounded-none text-sm font-bold shadow-md cursor-pointer'
+                    className='px-7 py-2.5 border border-[#ffffff14] hover:border-[#c084fc33] rounded-none text-xs sm:text-sm font-semibold tracking-wider uppercase shadow-sm transition-all active:scale-[0.985] cursor-pointer text-white/90 hover:text-white'
                     disabled={!status}
                     onClick={onButtonClick.bind(this, 'restart')}
                 >
-                    Restart
+                    ⟳ Restart
                 </button>
             </Can>
             <Can action={'control.stop'}>
@@ -107,21 +105,20 @@ const PowerButtons = ({ className }: PowerButtonProps) => {
                     style={
                         status === 'offline'
                             ? {
-                                  background:
-                                      'radial-gradient(124.75% 124.75% at 50.01% -10.55%, rgb(36, 36, 36) 0%, rgb(20, 20, 20) 100%)',
-                                  opacity: 0.5,
+                                  background: 'radial-gradient(124.75% 124.75% at 50.01% -10.55%, #2a2a32 0%, #16161c 100%)',
+                                  opacity: 0.45,
                               }
                             : {
-                                  background:
-                                      'radial-gradient(109.26% 109.26% at 49.83% 13.37%, #FF343C 0%, #F06F53 100%)',
+                                  background: 'linear-gradient(145deg, #f87171 0%, #ef4444 100%)',
+                                  boxShadow: '0 4px 14px rgba(248, 113, 113, 0.3)',
                                   opacity: 1,
                               }
                     }
-                    className='px-8 py-3 border-[1px] border-[#ffffff12] rounded-r-full rounded-l-md text-sm font-bold shadow-md transition-all cursor-pointer'
+                    className='px-7 py-2.5 border border-[#ffffff14] hover:border-[#c084fc33] rounded-r-2xl rounded-l-lg text-xs sm:text-sm font-semibold tracking-wider uppercase shadow-sm transition-all active:scale-[0.985] cursor-pointer text-white'
                     disabled={status === 'offline'}
                     onClick={onButtonClick.bind(this, killable ? 'kill' : 'stop')}
                 >
-                    {killable ? 'Kill' : 'Stop'}
+                    {killable ? '⏹ Kill' : '⏹ Stop'}
                 </button>
             </Can>
         </div>
