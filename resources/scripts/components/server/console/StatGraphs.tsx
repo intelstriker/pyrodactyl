@@ -13,7 +13,6 @@ import { hexToRgba } from '@/lib/helpers';
 import { ServerContext } from '@/state/server';
 
 import useWebsocketEvent from '@/plugins/useWebsocketEvent';
-import getServerMetrics, { ServerMetric, MetricPeriod } from '@/api/server/getServerMetrics';
 
 type Period = 'live' | '1h' | '24h' | '7d' | '30d';
 
@@ -30,14 +29,7 @@ const StatGraphs = ({ period, expanded = false }: { period: Period; expanded?: b
     const limits = ServerContext.useStoreState((state) => state.server.data!.limits);
     const previous = useRef<Record<'tx' | 'rx', number>>({ tx: -1, rx: -1 });
 
-    const maxPoints = period === 'live' ? 45 : period === '1h' ? 180 : period === '24h' ? 360 : 720;
-
-    const serverUuid = ServerContext.useStoreState((state) => state.server.data!.uuid);
-
-    // Historical metrics loaded from backend (for non-live periods)
-    const isHistorical = period !== 'live';
-    const [historical, setHistorical] = useState<ServerMetric[] | null>(null);
-    const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+    const maxPoints = 60; // always live rolling buffer, bigger for more visibility
 
     // For expanded popup: support clicking points to inspect values
     const cpuRef = useRef<any>(null);
@@ -47,45 +39,7 @@ const StatGraphs = ({ period, expanded = false }: { period: Period; expanded?: b
 
     useEffect(() => {
         setSelectedIndex(null);
-    }, [period]);
-
-    // Fetch (and periodically refresh) real saved metrics when viewing a historical period
-    useEffect(() => {
-        if (!isHistorical) {
-            setHistorical(null);
-            return;
-        }
-
-        let cancelled = false;
-        const load = async () => {
-            if (cancelled) return;
-            setIsLoadingHistory(true);
-            try {
-                const resp = await getServerMetrics(serverUuid, period as MetricPeriod);
-                if (!cancelled) {
-                    setHistorical(resp.data || []);
-                    setSelectedIndex(null);
-                }
-            } catch (e) {
-                if (!cancelled) {
-                    setHistorical([]);
-                    setSelectedIndex(null);
-                }
-            } finally {
-                if (!cancelled) setIsLoadingHistory(false);
-            }
-        };
-
-        load();
-
-        // Refresh while the user is looking at historical data so it "updates"
-        const iv = setInterval(load, 45000);
-
-        return () => {
-            cancelled = true;
-            clearInterval(iv);
-        };
-    }, [isHistorical, period, serverUuid]);
+    }, []); // reset on mount only (pure live now)
 
     const cpu = useChart('CPU', {
         sets: 1,
@@ -191,273 +145,24 @@ const StatGraphs = ({ period, expanded = false }: { period: Period; expanded?: b
         previous.current = { tx: values.network.tx_bytes, rx: values.network.rx_bytes };
     });
 
-    // ===================== HISTORICAL HELPERS (real saved data) =====================
-    const displayMetrics = (() => {
-        if (!historical || historical.length === 0) return [];
-        // Downsample for chart rendering performance while keeping the full array for clicks/inspector
-        if (historical.length <= 420) return historical;
-        const step = Math.ceil(historical.length / 380);
-        const out: ServerMetric[] = [];
-        for (let i = 0; i < historical.length; i += step) out.push(historical[i]);
-        return out;
-    })();
-
-    const getHistoricalValue = (metric: ServerMetric | undefined, key: 'cpu' | 'mem' | 'rx' | 'tx') => {
-        if (!metric) return 0;
-        if (key === 'cpu') return metric.cpu_absolute || 0;
-        if (key === 'mem') return Math.floor((metric.memory_bytes || 0) / 1024 / 1024);
-        if (key === 'rx') return metric.network_rx_bytes || 0;
-        return metric.network_tx_bytes || 0;
-    };
-
-    const formatShortTime = (iso: string) => {
-        try {
-            const d = new Date(iso);
-            return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        } catch {
-            return '';
-        }
-    };
-
-    // Build a ready-to-use chart.js data + options object for historical periods
-    const buildHistoricalChart = (which: 'cpu' | 'memory' | 'network') => {
-        const points = displayMetrics;
-        const labels = points.map((m) => formatShortTime(m.timestamp));
-
-        let borderColor = '#fa4e49';
-        let bg = hexToRgba('#fa4e49', 0.09);
-        let label = 'CPU';
-        let data: number[];
-        let tickFormatter: (v: any) => string = (v) => `${Number(v).toFixed(0)}%`;
-        let tooltipFormatter = (raw: any) => `${Number(raw).toFixed(1)}%`;
-
-        if (which === 'memory') {
-            borderColor = '#60a5fa';
-            bg = hexToRgba('#60a5fa', 0.09);
-            label = 'Memory';
-            data = points.map((m) => getHistoricalValue(m, 'mem'));
-            tickFormatter = (v) => `${v} MiB`;
-            tooltipFormatter = (raw) => `${Number(raw).toFixed(0)} MiB`;
-        } else if (which === 'network') {
-            // For network we return a special structure (2 lines)
-            const rxData = points.map((m) => getHistoricalValue(m, 'rx'));
-            const txData = points.map((m) => getHistoricalValue(m, 'tx'));
-            return {
-                labels,
-                isNetwork: true,
-                rxData,
-                txData,
-            } as const;
-        } else {
-            data = points.map((m) => getHistoricalValue(m, 'cpu'));
-        }
-
-        const pointRadius = expanded ? 3.5 : 1.5;
-        const pointHover = expanded ? 7 : 3;
-
-        const chartData = {
-            labels,
-            datasets: [
-                {
-                    label,
-                    data,
-                    fill: true,
-                    borderColor,
-                    backgroundColor: bg,
-                    borderWidth: 1.5,
-                    pointRadius,
-                    pointHoverRadius: pointHover,
-                    tension: 0.2,
-                },
-            ],
-        };
-
-        const options: any = {
-            maintainAspectRatio: false,
-            animation: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    enabled: true,
-                    backgroundColor: 'rgba(20, 20, 24, 0.95)',
-                    borderColor: 'rgba(192, 132, 252, 0.4)',
-                    borderWidth: 1,
-                    callbacks: {
-                        title: (ctx: any) => {
-                            const idx = ctx[0]?.dataIndex ?? 0;
-                            const m = points[idx];
-                            return m ? new Date(m.timestamp).toLocaleString() : '';
-                        },
-                        label: (ctx: any) => tooltipFormatter(ctx.raw),
-                    },
-                },
-            },
-            scales: {
-                x: {
-                    grid: { display: false },
-                    ticks: { display: false, maxTicksLimit: 6 },
-                },
-                y: {
-                    min: 0,
-                    grid: { display: false },
-                    ticks: {
-                        display: true,
-                        count: 3,
-                        font: { size: 11, weight: 600 },
-                        callback: tickFormatter,
-                    },
-                },
-            },
-            elements: {
-                line: { tension: 0.15 },
-                point: { radius: pointRadius, hoverRadius: pointHover, hitRadius: 14 },
-            },
-        };
-
-        return { data: chartData, options, pointsRef: points };
-    };
-
-    // Robust click handler that works for CPU, RAM, and Networking in the popup.
-    // Uses the chart ref + getElementsAtEventForMode so you can click near points (or anywhere for nearest).
-    const handleChartPointClick = (chartRef: any, evt: any) => {
+    // Simple click handler for the expanded live popup (works on CPU, RAM and Networking)
+    const handleLivePointClick = (chartRef: any, evt: any) => {
         if (!expanded) return;
         const chartInstance = chartRef?.current;
         if (!chartInstance) return;
-
         const ev = evt?.nativeEvent || evt;
         try {
             const active = chartInstance.getElementsAtEventForMode(ev, 'nearest', { intersect: false }, false);
             if (active && active.length > 0) {
-                const dispIdx = active[0].index;
-
-                if (isHistorical && historical && historical.length > 0) {
-                    // Map display (possibly downsampled) index to the real sample in historical
-                    const hLen = historical.length;
-                    const dLen = displayMetrics.length || 1;
-                    const realIdx = Math.min(Math.floor((dispIdx / Math.max(1, dLen - 1)) * (hLen - 1)), hLen - 1);
-                    setSelectedIndex(realIdx);
-                } else {
-                    // Live mode - just use the display index
-                    setSelectedIndex(dispIdx);
-                }
+                setSelectedIndex(active[0].index);
             }
         } catch {
-            // fallback: ignore bad events
+            /* ignore */
         }
     };
 
-    // ===================== RENDER =====================
+    // ===================== RENDER (pure live only) =====================
     const renderChartContent = (chart: any, label: string, which: 'cpu' | 'memory' | 'network') => {
-        // HISTORICAL PATH - uses persisted DB samples
-        if (isHistorical) {
-            if (isLoadingHistory && (!historical || historical.length === 0)) {
-                return (
-                    <div className="h-40 sm:h-48 flex items-center justify-center text-xs text-zinc-400">
-                        Loading metrics...
-                    </div>
-                );
-            }
-            if (!historical || historical.length === 0) {
-                return (
-                    <div className="h-40 sm:h-48 flex flex-col items-center justify-center text-center px-4 text-xs text-zinc-400">
-                        <div className="mb-1 opacity-70">No saved metrics for {periodLabels[period]} yet.</div>
-                        <div className="text-[10px] opacity-60">Collection runs every ~2 minutes.<br />Switch to Live or wait for the first samples.</div>
-                    </div>
-                );
-            }
-
-            const built = buildHistoricalChart(which);
-            const ref = which === 'cpu' ? cpuRef : which === 'memory' ? memoryRef : networkRef;
-            const wrapperClass = expanded ? 'cursor-pointer' : '';
-
-            if ((built as any).isNetwork) {
-                // Network two-line chart for historical (In + Out) - now fully clickable like CPU and RAM
-                const netData = {
-                    labels: (built as any).labels,
-                    datasets: [
-                        {
-                            label: 'Network In',
-                            data: (built as any).rxData,
-                            borderColor: '#facc15',
-                            backgroundColor: hexToRgba('#facc15', 0.09),
-                            fill: true,
-                            borderWidth: 1.5,
-                            pointRadius: expanded ? 3.5 : 1.5,
-                            pointHoverRadius: expanded ? 7 : 3,
-                            tension: 0.2,
-                        },
-                        {
-                            label: 'Network Out',
-                            data: (built as any).txData,
-                            borderColor: '#60a5fa',
-                            backgroundColor: hexToRgba('#60a5fa', 0.09),
-                            fill: true,
-                            borderWidth: 1.5,
-                            pointRadius: expanded ? 3.5 : 1.5,
-                            pointHoverRadius: expanded ? 7 : 3,
-                            tension: 0.2,
-                        },
-                    ],
-                };
-                const netOptions: any = {
-                    maintainAspectRatio: false,
-                    animation: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                title: (ctx: any) => {
-                                    const idx = ctx[0]?.dataIndex ?? 0;
-                                    const m = (built as any).pointsRef?.[idx] || historical![idx];
-                                    return m ? new Date(m.timestamp).toLocaleString() : '';
-                                },
-                                label: (ctx: any) => bytesToString(Number(ctx.raw)),
-                            },
-                        },
-                    },
-                    scales: {
-                        x: { grid: { display: false }, ticks: { display: false } },
-                        y: { min: 0, grid: { display: false }, ticks: { display: true, count: 3, font: { size: 11, weight: 600 }, callback: (v: any) => bytesToString(typeof v === 'string' ? parseInt(v) : v) } },
-                    },
-                    elements: { point: { radius: expanded ? 3.5 : 1.5, hoverRadius: expanded ? 7 : 3, hitRadius: 14 } },
-                };
-
-                const netLine = (
-                    <Line
-                        aria-label={label}
-                        role="img"
-                        ref={ref}
-                        data={netData}
-                        options={netOptions}
-                    />
-                );
-
-                return expanded ? (
-                    <div className={wrapperClass} onClick={(e) => handleChartPointClick(ref, e)}>
-                        {netLine}
-                    </div>
-                ) : netLine;
-            }
-
-            // CPU / Memory single series - wrapped for reliable clicks on the whole graph (not just the dot)
-            const singleLine = (
-                <Line
-                    aria-label={label}
-                    role="img"
-                    ref={ref}
-                    data={(built as any).data}
-                    options={(built as any).options}
-                />
-            );
-
-            return expanded ? (
-                <div className={wrapperClass} onClick={(e) => handleChartPointClick(ref, e)}>
-                    {singleLine}
-                </div>
-            ) : singleLine;
-        }
-
-        // LIVE PATH (original rolling buffer behavior)
         const len = chart.props.data?.datasets?.[0]?.data?.length || 1;
         const baseOptions = chart.props.options || {};
         const pointOpts = expanded ? { radius: 3, hoverRadius: 6, hitRadius: 12 } : { radius: 0 };
@@ -480,8 +185,7 @@ const StatGraphs = ({ period, expanded = false }: { period: Period; expanded?: b
         };
         const ref = which === 'cpu' ? cpuRef : which === 'memory' ? memoryRef : networkRef;
 
-        // Use the shared robust handler so CPU / RAM / Networking all behave the same when clicking in the popup
-        const liveClickHandler = expanded ? (evt: any) => handleChartPointClick(ref, evt) : undefined;
+        const clickHandler = expanded ? (evt: any) => handleLivePointClick(ref, evt) : undefined;
 
         const lineEl = (
             <Line
@@ -490,11 +194,11 @@ const StatGraphs = ({ period, expanded = false }: { period: Period; expanded?: b
                 ref={ref}
                 {...chart.props}
                 options={dynamicOptions}
-                onClick={liveClickHandler}
+                onClick={clickHandler}
             />
         );
         return expanded ? (
-            <div className="cursor-pointer" onClick={(e) => handleChartPointClick(ref, e)}>
+            <div className="cursor-pointer" onClick={(e) => handleLivePointClick(ref, e)}>
                 {lineEl}
             </div>
         ) : lineEl;
@@ -511,7 +215,7 @@ const StatGraphs = ({ period, expanded = false }: { period: Period; expanded?: b
                 }}
             >
                 <ChartBlock
-                    title={isHistorical ? `CPU (${periodLabels[period]})` : 'CPU'}
+                    title="CPU"
                     contentClassName={expanded ? 'z-10 overflow-hidden rounded-lg h-64 sm:h-72' : undefined}
                 >
                     {renderChartContent(cpu, 'CPU Usage', 'cpu')}
@@ -526,7 +230,7 @@ const StatGraphs = ({ period, expanded = false }: { period: Period; expanded?: b
                 }}
             >
                 <ChartBlock
-                    title={isHistorical ? `RAM (${periodLabels[period]})` : 'RAM'}
+                    title="RAM"
                     contentClassName={expanded ? 'z-10 overflow-hidden rounded-lg h-64 sm:h-72' : undefined}
                 >
                     {renderChartContent(memory, 'Memory Usage', 'memory')}
@@ -541,9 +245,9 @@ const StatGraphs = ({ period, expanded = false }: { period: Period; expanded?: b
                 }}
             >
                 <ChartBlock
-                    title={isHistorical ? `Network (${periodLabels[period]})` : 'Network Activity'}
+                    title="Network Activity"
                     legend={
-                        !isHistorical || expanded ? (
+                        expanded ? (
                             <div className='flex gap-2'>
                                 <Tooltip.Root delayDuration={200}>
                                     <Tooltip.Trigger asChild>
@@ -599,33 +303,13 @@ const StatGraphs = ({ period, expanded = false }: { period: Period; expanded?: b
 
             {expanded && (
                 <div className="mt-3 text-xs border border-[#ffffff12] rounded-lg bg-[#ffffff05] p-3 text-zinc-300">
-                    <div className="font-semibold text-zinc-100 mb-1.5">Click anywhere on the <span className="text-[#fa4e49]">CPU</span>, <span className="text-[#60a5fa]">RAM</span>, or <span className="text-[#facc15]">Networking</span> graphs to see exactly how much the server was using at that time</div>
+                    <div className="font-semibold text-zinc-100 mb-1.5">
+                        Click anywhere on the <span className="text-[#fa4e49]">CPU</span>, <span className="text-[#60a5fa]">RAM</span>, or <span className="text-[#facc15]">Networking</span> graph to see exactly how much the server was using at that time
+                    </div>
 
-                    {selectedIndex !== null && historical && historical[selectedIndex] ? (
-                        // Historical (persisted) - full usage at the clicked real timestamp
-                        (() => {
-                            const m = historical[selectedIndex];
-                            const t = new Date(m.timestamp);
-                            return (
-                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 bg-black/30 rounded px-2 py-1">
-                                    <span className="font-mono text-purple-200 text-[11px]">{t.toLocaleString()}</span>
-                                    <span><span className="text-zinc-400">CPU:</span> <span className="font-mono font-semibold text-white">{(m.cpu_absolute || 0).toFixed(1)}%</span></span>
-                                    <span><span className="text-zinc-400">RAM:</span> <span className="font-mono font-semibold text-white">{Math.floor((m.memory_bytes || 0) / 1024 / 1024)} MiB</span></span>
-                                    <span><span className="text-zinc-400">Net In:</span> <span className="font-mono font-semibold text-yellow-300">{bytesToString(m.network_rx_bytes || 0)}</span></span>
-                                    <span><span className="text-zinc-400">Net Out:</span> <span className="font-mono font-semibold text-blue-300">{bytesToString(m.network_tx_bytes || 0)}</span></span>
-                                    <button
-                                        className="ml-auto text-[10px] px-1.5 py-px rounded bg-white/10 hover:bg-white/20 text-zinc-300 hover:text-white"
-                                        onClick={() => setSelectedIndex(null)}
-                                    >
-                                        clear
-                                    </button>
-                                </div>
-                            );
-                        })()
-                    ) : selectedIndex !== null ? (
-                        // Live rolling buffer - pull current values from all three charts at the selected index
+                    {selectedIndex !== null ? (
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 bg-black/30 rounded px-2 py-1">
-                            <span className="text-zinc-400">At point #{selectedIndex}:</span>
+                            <span className="text-zinc-400">At point #{selectedIndex} in live window:</span>
                             <span><span className="text-zinc-400">CPU:</span> <span className="font-mono font-semibold text-white">{getValueAt(cpu, selectedIndex)}%</span></span>
                             <span><span className="text-zinc-400">RAM:</span> <span className="font-mono font-semibold text-white">{getValueAt(memory, selectedIndex)} MiB</span></span>
                             <span><span className="text-zinc-400">Net In:</span> <span className="font-mono font-semibold text-yellow-300">{bytesToString(Number(getValueAt(network, selectedIndex, 0)) || 0)}</span></span>
@@ -638,13 +322,11 @@ const StatGraphs = ({ period, expanded = false }: { period: Period; expanded?: b
                             </button>
                         </div>
                     ) : (
-                        <div className="text-zinc-400">Click any point (or near the line) on the <span className="text-white">CPU</span>, <span className="text-white">RAM</span>, or <span className="text-white">Networking</span> graph above. The exact usage numbers at that moment will appear here.</div>
+                        <div className="text-zinc-400">Click any point (or near the line) on any of the three graphs above. The exact usage numbers at that moment in the live data will appear here.</div>
                     )}
 
                     <div className="text-[10px] text-zinc-500 mt-1.5">
-                        {isHistorical
-                            ? 'Data comes from saved metrics (refreshes automatically). Click CPU, RAM or Network graphs — all three now support clicking.'
-                            : 'Live data. Click points on any of the three graphs to inspect the values.'}
+                        Pure live rolling data. All three graphs (CPU, RAM, Networking) support clicking in the popup.
                     </div>
                 </div>
             )}
