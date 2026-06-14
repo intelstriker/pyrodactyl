@@ -11,6 +11,8 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Pterodactyl\Console\Commands\Schedule\ProcessRunnableCommand;
 use Pterodactyl\Console\Commands\Maintenance\PruneOrphanedBackupsCommand;
 use Pterodactyl\Console\Commands\Maintenance\CleanServiceBackupFilesCommand;
+use Pterodactyl\Console\Commands\Server\CollectServerMetricsCommand;
+use Pterodactyl\Models\ServerMetric;
 
 class Kernel extends ConsoleKernel
 {
@@ -32,6 +34,15 @@ class Kernel extends ConsoleKernel
 
         $schedule->command(ProcessRunnableCommand::class)->everyMinute()->withoutOverlapping();
         $schedule->command(CleanServiceBackupFilesCommand::class)->daily();
+
+        // Collect resource metrics for historical graphs (hourly, daily, etc).
+        // Run frequently enough for good 1h resolution but not excessively.
+        $schedule->command(CollectServerMetricsCommand::class)->everyTwoMinutes()->withoutOverlapping();
+
+        // Prune old metrics (keep ~35 days of raw samples).
+        $schedule->call(function () {
+            ServerMetric::where('timestamp', '<', now()->subDays(35))->delete();
+        })->daily();
 
         if (config('backups.prune_age')) {
             $schedule->command(PruneOrphanedBackupsCommand::class)->everyThirtyMinutes();
