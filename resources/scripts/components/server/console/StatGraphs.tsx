@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 
 import ChartBlock from '@/components/server/console/ChartBlock';
-import { useChart, useChartTickLabel } from '@/components/server/console/chart';
+import { useChart } from '@/components/server/console/chart';
 import { SocketEvent } from '@/components/server/events';
 
 import { bytesToString } from '@/lib/formatters';
@@ -31,8 +31,52 @@ const StatGraphs = () => {
     const previous = useRef<Record<'tx' | 'rx', number>>({ tx: -1, rx: -1 });
     const [period, setPeriod] = useState<Period>('live');
 
-    const cpu = useChartTickLabel('CPU', limits.cpu, '%', 2);
-    const memory = useChartTickLabel('Memory', limits.memory, 'MiB');
+    const cpu = useChart('CPU', {
+        sets: 1,
+        options: {
+            scales: {
+                y: {
+                    suggestedMax: limits.cpu || 100,
+                    ticks: {
+                        callback(value) {
+                            return `${Number(value).toFixed(0)}%`;
+                        },
+                    },
+                },
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => `${Number(ctx.raw).toFixed(1)}%`,
+                    },
+                },
+            },
+        },
+    });
+
+    const memory = useChart('Memory', {
+        sets: 1,
+        options: {
+            scales: {
+                y: {
+                    suggestedMax: limits.memory || 4096,
+                    ticks: {
+                        callback(value) {
+                            return `${value} MiB`;
+                        },
+                    },
+                },
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => `${Number(ctx.raw).toFixed(0)} MiB`,
+                    },
+                },
+            },
+        },
+    });
+
     const network = useChart('Network', {
         sets: 2,
         options: {
@@ -42,6 +86,13 @@ const StatGraphs = () => {
                         callback(value) {
                             return bytesToString(typeof value === 'string' ? parseInt(value, 10) : value);
                         },
+                    },
+                },
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => bytesToString(Number(ctx.raw)),
                     },
                 },
             },
@@ -99,9 +150,9 @@ const StatGraphs = () => {
 
     return (
         <Tooltip.Provider>
-            {/* Obsidian-themed time period selector for extending the metrics view */}
-            <div className="mb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1">
-                <div className="text-[10px] uppercase tracking-[1.5px] font-semibold text-purple-300/70">Resource Metrics (CPU / RAM / Network)</div>
+            {/* Resource Metrics header + period buttons */}
+            <div className="mb-3 px-1">
+                <div className="font-semibold text-sm tracking-tight text-white mb-2">Resource Metrics</div>
                 <div className="inline-flex rounded-full bg-[#ffffff08] border border-[#ffffff12] p-px text-[10px] font-medium">
                     {(['live', '1h', '24h', '7d', '30d'] as const).map((p) => (
                         <button
@@ -214,3 +265,4 @@ const StatGraphs = () => {
 };
 
 export default StatGraphs;
+
