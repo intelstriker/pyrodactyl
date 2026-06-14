@@ -38,4 +38,3 @@ const StatBlock = ({ title, copyOnClick, className, children }: StatBlockProps) 
 };
 
 export default StatBlock;
-
