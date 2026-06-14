@@ -252,8 +252,8 @@ const StatGraphs = ({ period, expanded = false }: { period: Period; expanded?: b
             data = points.map((m) => getHistoricalValue(m, 'cpu'));
         }
 
-        const pointRadius = expanded ? 3 : 1.5;
-        const pointHover = expanded ? 6 : 3;
+        const pointRadius = expanded ? 3.5 : 1.5;
+        const pointHover = expanded ? 7 : 3;
 
         const chartData = {
             labels,
@@ -310,19 +310,40 @@ const StatGraphs = ({ period, expanded = false }: { period: Period; expanded?: b
             },
             elements: {
                 line: { tension: 0.15 },
-                point: { radius: pointRadius, hoverRadius: pointHover, hitRadius: 10 },
-            },
-            onClick: (event: any, elements: any[]) => {
-                if (!expanded || !elements || elements.length === 0) return;
-                const dispIdx = elements[0].index;
-                const hLen = historical?.length || 1;
-                const dLen = displayMetrics.length || 1;
-                const realIdx = Math.min(Math.floor((dispIdx / Math.max(1, dLen - 1)) * (hLen - 1)), hLen - 1);
-                setSelectedIndex(realIdx);
+                point: { radius: pointRadius, hoverRadius: pointHover, hitRadius: 14 },
             },
         };
 
         return { data: chartData, options, pointsRef: points };
+    };
+
+    // Robust click handler that works for CPU, RAM, and Networking in the popup.
+    // Uses the chart ref + getElementsAtEventForMode so you can click near points (or anywhere for nearest).
+    const handleChartPointClick = (chartRef: any, evt: any) => {
+        if (!expanded) return;
+        const chartInstance = chartRef?.current;
+        if (!chartInstance) return;
+
+        const ev = evt?.nativeEvent || evt;
+        try {
+            const active = chartInstance.getElementsAtEventForMode(ev, 'nearest', { intersect: false }, false);
+            if (active && active.length > 0) {
+                const dispIdx = active[0].index;
+
+                if (isHistorical && historical && historical.length > 0) {
+                    // Map display (possibly downsampled) index to the real sample in historical
+                    const hLen = historical.length;
+                    const dLen = displayMetrics.length || 1;
+                    const realIdx = Math.min(Math.floor((dispIdx / Math.max(1, dLen - 1)) * (hLen - 1)), hLen - 1);
+                    setSelectedIndex(realIdx);
+                } else {
+                    // Live mode - just use the display index
+                    setSelectedIndex(dispIdx);
+                }
+            }
+        } catch {
+            // fallback: ignore bad events
+        }
     };
 
     // ===================== RENDER =====================
@@ -347,9 +368,10 @@ const StatGraphs = ({ period, expanded = false }: { period: Period; expanded?: b
 
             const built = buildHistoricalChart(which);
             const ref = which === 'cpu' ? cpuRef : which === 'memory' ? memoryRef : networkRef;
+            const wrapperClass = expanded ? 'cursor-pointer' : '';
 
             if ((built as any).isNetwork) {
-                // Network two-line chart for historical
+                // Network two-line chart for historical (In + Out) - now fully clickable like CPU and RAM
                 const netData = {
                     labels: (built as any).labels,
                     datasets: [
@@ -360,8 +382,8 @@ const StatGraphs = ({ period, expanded = false }: { period: Period; expanded?: b
                             backgroundColor: hexToRgba('#facc15', 0.09),
                             fill: true,
                             borderWidth: 1.5,
-                            pointRadius: expanded ? 3 : 1.5,
-                            pointHoverRadius: expanded ? 6 : 3,
+                            pointRadius: expanded ? 3.5 : 1.5,
+                            pointHoverRadius: expanded ? 7 : 3,
                             tension: 0.2,
                         },
                         {
@@ -371,8 +393,8 @@ const StatGraphs = ({ period, expanded = false }: { period: Period; expanded?: b
                             backgroundColor: hexToRgba('#60a5fa', 0.09),
                             fill: true,
                             borderWidth: 1.5,
-                            pointRadius: expanded ? 3 : 1.5,
-                            pointHoverRadius: expanded ? 6 : 3,
+                            pointRadius: expanded ? 3.5 : 1.5,
+                            pointHoverRadius: expanded ? 7 : 3,
                             tension: 0.2,
                         },
                     ],
@@ -397,18 +419,10 @@ const StatGraphs = ({ period, expanded = false }: { period: Period; expanded?: b
                         x: { grid: { display: false }, ticks: { display: false } },
                         y: { min: 0, grid: { display: false }, ticks: { display: true, count: 3, font: { size: 11, weight: 600 }, callback: (v: any) => bytesToString(typeof v === 'string' ? parseInt(v) : v) } },
                     },
-                    elements: { point: { radius: expanded ? 3 : 1.5, hoverRadius: expanded ? 6 : 3, hitRadius: 10 } },
-                    onClick: (evt: any, elems: any[]) => {
-                        if (!expanded || !elems?.length) return;
-                        const dispIdx = elems[0].index;
-                        // Map from (possibly downsampled) display index back into the full historical array proportionally
-                        const hLen = historical?.length || 1;
-                        const dLen = displayMetrics.length || 1;
-                        const realIdx = Math.min(Math.floor((dispIdx / Math.max(1, dLen - 1)) * (hLen - 1)), hLen - 1);
-                        setSelectedIndex(realIdx);
-                    },
+                    elements: { point: { radius: expanded ? 3.5 : 1.5, hoverRadius: expanded ? 7 : 3, hitRadius: 14 } },
                 };
-                return (
+
+                const netLine = (
                     <Line
                         aria-label={label}
                         role="img"
@@ -417,10 +431,16 @@ const StatGraphs = ({ period, expanded = false }: { period: Period; expanded?: b
                         options={netOptions}
                     />
                 );
+
+                return expanded ? (
+                    <div className={wrapperClass} onClick={(e) => handleChartPointClick(ref, e)}>
+                        {netLine}
+                    </div>
+                ) : netLine;
             }
 
-            // CPU / Memory single series
-            return (
+            // CPU / Memory single series - wrapped for reliable clicks on the whole graph (not just the dot)
+            const singleLine = (
                 <Line
                     aria-label={label}
                     role="img"
@@ -429,12 +449,18 @@ const StatGraphs = ({ period, expanded = false }: { period: Period; expanded?: b
                     options={(built as any).options}
                 />
             );
+
+            return expanded ? (
+                <div className={wrapperClass} onClick={(e) => handleChartPointClick(ref, e)}>
+                    {singleLine}
+                </div>
+            ) : singleLine;
         }
 
         // LIVE PATH (original rolling buffer behavior)
         const len = chart.props.data?.datasets?.[0]?.data?.length || 1;
         const baseOptions = chart.props.options || {};
-        const pointOpts = expanded ? { radius: 2.5, hoverRadius: 5, hitRadius: 8 } : { radius: 0 };
+        const pointOpts = expanded ? { radius: 3, hoverRadius: 6, hitRadius: 12 } : { radius: 0 };
         const dynamicOptions = {
             ...baseOptions,
             scales: {
@@ -453,21 +479,9 @@ const StatGraphs = ({ period, expanded = false }: { period: Period; expanded?: b
             },
         };
         const ref = which === 'cpu' ? cpuRef : which === 'memory' ? memoryRef : networkRef;
-        const onChartClick = expanded
-            ? (evt: any) => {
-                  const c = (ref as any).current;
-                  if (!c) return;
-                  const ev = evt?.nativeEvent || evt;
-                  try {
-                      const active = c.getElementsAtEventForMode(ev, 'nearest', { intersect: false }, false);
-                      if (active && active.length) {
-                          setSelectedIndex(active[0].index);
-                      }
-                  } catch {
-                      /* ignore */
-                  }
-              }
-            : undefined;
+
+        // Use the shared robust handler so CPU / RAM / Networking all behave the same when clicking in the popup
+        const liveClickHandler = expanded ? (evt: any) => handleChartPointClick(ref, evt) : undefined;
 
         const lineEl = (
             <Line
@@ -476,10 +490,14 @@ const StatGraphs = ({ period, expanded = false }: { period: Period; expanded?: b
                 ref={ref}
                 {...chart.props}
                 options={dynamicOptions}
-                onClick={onChartClick}
+                onClick={liveClickHandler}
             />
         );
-        return expanded ? <div onClick={onChartClick}>{lineEl}</div> : lineEl;
+        return expanded ? (
+            <div className="cursor-pointer" onClick={(e) => handleChartPointClick(ref, e)}>
+                {lineEl}
+            </div>
+        ) : lineEl;
     };
 
     return (
@@ -581,25 +599,22 @@ const StatGraphs = ({ period, expanded = false }: { period: Period; expanded?: b
 
             {expanded && (
                 <div className="mt-3 text-xs border border-[#ffffff12] rounded-lg bg-[#ffffff05] p-3 text-zinc-300">
-                    <div className="font-medium text-zinc-200 mb-1">Point inspector</div>
+                    <div className="font-semibold text-zinc-100 mb-1.5">Click anywhere on the <span className="text-[#fa4e49]">CPU</span>, <span className="text-[#60a5fa]">RAM</span>, or <span className="text-[#facc15]">Networking</span> graphs to see exactly how much the server was using at that time</div>
+
                     {selectedIndex !== null && historical && historical[selectedIndex] ? (
-                        // Historical (persisted) selection - show real timestamp + values
+                        // Historical (persisted) - full usage at the clicked real timestamp
                         (() => {
                             const m = historical[selectedIndex];
                             const t = new Date(m.timestamp);
                             return (
-                                <div className="flex flex-wrap gap-x-4 gap-y-1">
-                                    <span className="font-mono text-white">{t.toLocaleString()}</span>
-                                    <span>CPU: <span className="font-mono text-white">{(m.cpu_absolute || 0).toFixed(1)}%</span></span>
-                                    <span>RAM: <span className="font-mono text-white">{Math.floor((m.memory_bytes || 0) / 1024 / 1024)} MiB</span></span>
-                                    <span>
-                                        Net In: <span className="font-mono text-yellow-300">{bytesToString(m.network_rx_bytes || 0)}</span>
-                                    </span>
-                                    <span>
-                                        Net Out: <span className="font-mono text-blue-300">{bytesToString(m.network_tx_bytes || 0)}</span>
-                                    </span>
+                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 bg-black/30 rounded px-2 py-1">
+                                    <span className="font-mono text-purple-200 text-[11px]">{t.toLocaleString()}</span>
+                                    <span><span className="text-zinc-400">CPU:</span> <span className="font-mono font-semibold text-white">{(m.cpu_absolute || 0).toFixed(1)}%</span></span>
+                                    <span><span className="text-zinc-400">RAM:</span> <span className="font-mono font-semibold text-white">{Math.floor((m.memory_bytes || 0) / 1024 / 1024)} MiB</span></span>
+                                    <span><span className="text-zinc-400">Net In:</span> <span className="font-mono font-semibold text-yellow-300">{bytesToString(m.network_rx_bytes || 0)}</span></span>
+                                    <span><span className="text-zinc-400">Net Out:</span> <span className="font-mono font-semibold text-blue-300">{bytesToString(m.network_tx_bytes || 0)}</span></span>
                                     <button
-                                        className="ml-auto underline text-[10px] text-zinc-400 hover:text-white"
+                                        className="ml-auto text-[10px] px-1.5 py-px rounded bg-white/10 hover:bg-white/20 text-zinc-300 hover:text-white"
                                         onClick={() => setSelectedIndex(null)}
                                     >
                                         clear
@@ -608,31 +623,28 @@ const StatGraphs = ({ period, expanded = false }: { period: Period; expanded?: b
                             );
                         })()
                     ) : selectedIndex !== null ? (
-                        // Live selection (rolling buffer)
-                        <div className="flex flex-wrap gap-x-4 gap-y-1">
-                            <span>Index in window: <span className="font-mono text-white">{selectedIndex}</span></span>
-                            <span>CPU: <span className="font-mono text-white">{getValueAt(cpu, selectedIndex)}%</span></span>
-                            <span>RAM: <span className="font-mono text-white">{getValueAt(memory, selectedIndex)} MiB</span></span>
-                            <span>
-                                Net In: <span className="font-mono text-yellow-300">{bytesToString(Number(getValueAt(network, selectedIndex, 0)) || 0)}</span>
-                            </span>
-                            <span>
-                                Net Out: <span className="font-mono text-blue-300">{bytesToString(Number(getValueAt(network, selectedIndex, 1)) || 0)}</span>
-                            </span>
+                        // Live rolling buffer - pull current values from all three charts at the selected index
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 bg-black/30 rounded px-2 py-1">
+                            <span className="text-zinc-400">At point #{selectedIndex}:</span>
+                            <span><span className="text-zinc-400">CPU:</span> <span className="font-mono font-semibold text-white">{getValueAt(cpu, selectedIndex)}%</span></span>
+                            <span><span className="text-zinc-400">RAM:</span> <span className="font-mono font-semibold text-white">{getValueAt(memory, selectedIndex)} MiB</span></span>
+                            <span><span className="text-zinc-400">Net In:</span> <span className="font-mono font-semibold text-yellow-300">{bytesToString(Number(getValueAt(network, selectedIndex, 0)) || 0)}</span></span>
+                            <span><span className="text-zinc-400">Net Out:</span> <span className="font-mono font-semibold text-blue-300">{bytesToString(Number(getValueAt(network, selectedIndex, 1)) || 0)}</span></span>
                             <button
-                                className="ml-auto underline text-[10px] text-zinc-400 hover:text-white"
+                                className="ml-auto text-[10px] px-1.5 py-px rounded bg-white/10 hover:bg-white/20 text-zinc-300 hover:text-white"
                                 onClick={() => setSelectedIndex(null)}
                             >
                                 clear
                             </button>
                         </div>
                     ) : (
-                        <div>Click points on the graphs above to see exact metrics at that position in the current window.</div>
+                        <div className="text-zinc-400">Click any point (or near the line) on the <span className="text-white">CPU</span>, <span className="text-white">RAM</span>, or <span className="text-white">Networking</span> graph above. The exact usage numbers at that moment will appear here.</div>
                     )}
-                    <div className="text-[10px] text-zinc-500 mt-1">
+
+                    <div className="text-[10px] text-zinc-500 mt-1.5">
                         {isHistorical
-                            ? 'Real stored metrics. Click any point for the exact recorded values + timestamp. Data refreshes automatically.'
-                            : 'Larger windows (Hourly/Monthly) let you scroll further back through collected samples. Data is live-updating.'}
+                            ? 'Data comes from saved metrics (refreshes automatically). Click CPU, RAM or Network graphs — all three now support clicking.'
+                            : 'Live data. Click points on any of the three graphs to inspect the values.'}
                     </div>
                 </div>
             )}
