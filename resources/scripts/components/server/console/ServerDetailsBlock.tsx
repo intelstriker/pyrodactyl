@@ -37,7 +37,7 @@ const Limit = ({ limit, children }: { limit: string | null; children: React.Reac
 
 const ResourceRing = styled.div`
     position: relative;
-    width: 128px;
+    width: 100px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -46,27 +46,27 @@ const ResourceRing = styled.div`
 
 const RingContainer = styled.div`
     position: relative;
-    width: 118px;
-    height: 118px;
+    width: 96px;
+    height: 96px;
 `;
 
 const Svg = styled.svg`
     transform: rotate(-90deg);
-    filter: drop-shadow(0 4px 12px rgba(192, 132, 252, 0.15));
+    filter: drop-shadow(0 3px 8px rgba(192, 132, 252, 0.12));
 `;
 
 const CircleBg = styled.circle`
     fill: none;
     stroke: rgba(147, 51, 234, 0.18);
-    stroke-width: 11;
+    stroke-width: 9;
 `;
 
 const CircleProgress = styled.circle<{ $alarm?: boolean }>`
     fill: none;
     stroke: ${({ $alarm }) => ($alarm ? '#fb923c' : '#c084fc')};
-    stroke-width: 11;
+    stroke-width: 9;
     stroke-linecap: round;
-    transition: stroke-dashoffset 650ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: stroke-dashoffset 600ms cubic-bezier(0.4, 0, 0.2, 1);
 `;
 
 const RingContent = styled.div`
@@ -80,29 +80,20 @@ const RingContent = styled.div`
 `;
 
 const RingLabel = styled.div`
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 700;
     color: #c084fc;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
     line-height: 1;
     text-transform: uppercase;
 `;
 
 const RingValue = styled.div<{ $alarm?: boolean }>`
-    font-size: 20px;
+    font-size: 17px;
     font-weight: 800;
     color: ${({ $alarm }) => ($alarm ? '#fb923c' : '#f3e8ff')};
     line-height: 1;
     font-variant-numeric: tabular-nums;
-`;
-
-const RingSub = styled.div`
-    margin-top: 6px;
-    font-size: 10px;
-    font-weight: 600;
-    color: #a5a5b0;
-    text-align: center;
-    line-height: 1.1;
 `;
 
 const ServerDetailsBlock = ({ className }: { className?: string }) => {
@@ -195,45 +186,46 @@ const ServerDetailsBlock = ({ className }: { className?: string }) => {
     const memAlarm = memPercent >= 90;
     const diskAlarm = diskPercent >= 90;
 
-    // Larger radius for bigger gauges
-    const circumference = 2 * Math.PI * 52;
+    const circumference = 2 * Math.PI * 42; // r=42 for the 96px gauges
 
     const formatLimit = (val: number | null | undefined, unit: string) =>
         val && val > 0 ? `${val}${unit}` : '∞';
 
     return (
-        <div className={clsx('space-y-4', className)}>
-            {/* Header info row - IP and Uptime, obsidian theme */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 justify-between">
-                <div className="flex items-center gap-3 min-w-0">
-                    <CopyOnClick text={displayAddress}>
-                        <div className="group cursor-pointer">
-                            <div className="text-[10px] uppercase tracking-[1.5px] text-purple-300/70 font-semibold mb-0.5">IP ADDRESS</div>
-                            <div className="font-mono text-sm sm:text-[15px] text-white group-hover:text-[#c084fc] transition-colors truncate max-w-[260px] border-b border-white/10 pb-px">
-                                {displayAddress}
-                            </div>
+        <div className={clsx('flex flex-col md:flex-row gap-5 md:gap-8', className)}>
+            {/* Left side: IP + Uptime stacked */}
+            <div className="flex-shrink-0 md:w-[240px] space-y-3">
+                <CopyOnClick text={displayAddress}>
+                    <div className="group cursor-pointer">
+                        <div className="text-[10px] font-semibold tracking-[1.5px] text-purple-300/70 uppercase mb-1">
+                            IP ADDRESS
                         </div>
-                    </CopyOnClick>
-                </div>
+                        <div className="font-mono text-base sm:text-lg font-medium text-white group-hover:text-[#c084fc] transition-colors truncate">
+                            {displayAddress}
+                        </div>
+                    </div>
+                </CopyOnClick>
 
-                <div className="flex items-center gap-2 sm:gap-3 text-sm">
-                    <div className="px-3 py-1 rounded-full border border-white/10 bg-white/[0.015] text-xs uppercase tracking-widest text-purple-200/80">UPTIME</div>
-                    <div className="font-semibold tabular-nums text-white/95 text-base">
+                <div>
+                    <div className="text-[10px] font-semibold tracking-[1.5px] text-purple-300/70 uppercase mb-1">
+                        UPTIME
+                    </div>
+                    <div className="font-semibold text-lg tabular-nums text-white/95">
                         {stats.uptime > 0 ? <UptimeDuration uptime={stats.uptime} /> : '—'}
                     </div>
                 </div>
             </div>
 
-            {/* Big radial gauges - redesigned spacious layout for obsidian theme */}
-            <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-10 py-2">
-                {/* CPU Gauge */}
+            {/* Right side: CPU / RAM / DISK radial gauges */}
+            <div className="flex-1 flex flex-col sm:flex-row items-center justify-end gap-5 sm:gap-6 md:gap-8">
+                {/* CPU */}
                 <div className="flex flex-col items-center">
                     <ResourceRing>
                         <RingContainer>
-                            <Svg width="118" height="118" viewBox="0 0 118 118">
-                                <CircleBg cx="59" cy="59" r="52" />
+                            <Svg width="96" height="96" viewBox="0 0 96 96">
+                                <CircleBg cx="48" cy="48" r="42" />
                                 <CircleProgress
-                                    cx="59" cy="59" r="52"
+                                    cx="48" cy="48" r="42"
                                     strokeDasharray={circumference}
                                     strokeDashoffset={circumference - (cpuPercent / 100) * circumference}
                                     $alarm={cpuAlarm}
@@ -245,19 +237,19 @@ const ServerDetailsBlock = ({ className }: { className?: string }) => {
                             </RingContent>
                         </RingContainer>
                     </ResourceRing>
-                    <RingSub>
-                        {isOffline ? 'Server offline' : `${cpuPercent.toFixed(1)}% of ${formatLimit(limits.cpu, '')}`}
-                    </RingSub>
+                    <div className="mt-1.5 text-center text-[10px] font-medium text-zinc-400">
+                        {isOffline ? 'Offline' : `${cpuPercent.toFixed(1)}% / ${formatLimit(limits.cpu, '')}`}
+                    </div>
                 </div>
 
-                {/* RAM Gauge */}
+                {/* RAM */}
                 <div className="flex flex-col items-center">
                     <ResourceRing>
                         <RingContainer>
-                            <Svg width="118" height="118" viewBox="0 0 118 118">
-                                <CircleBg cx="59" cy="59" r="52" />
+                            <Svg width="96" height="96" viewBox="0 0 96 96">
+                                <CircleBg cx="48" cy="48" r="42" />
                                 <CircleProgress
-                                    cx="59" cy="59" r="52"
+                                    cx="48" cy="48" r="42"
                                     strokeDasharray={circumference}
                                     strokeDashoffset={circumference - (memPercent / 100) * circumference}
                                     $alarm={memAlarm}
@@ -269,19 +261,19 @@ const ServerDetailsBlock = ({ className }: { className?: string }) => {
                             </RingContent>
                         </RingContainer>
                     </ResourceRing>
-                    <RingSub>
-                        {isOffline ? 'Server offline' : `${memPercent.toFixed(1)}% of ${textLimits.memory || '∞'}`}
-                    </RingSub>
+                    <div className="mt-1.5 text-center text-[10px] font-medium text-zinc-400">
+                        {isOffline ? 'Offline' : `${memPercent.toFixed(1)}% / ${textLimits.memory || '∞'}`}
+                    </div>
                 </div>
 
-                {/* DISK / Storage Gauge */}
+                {/* DISK */}
                 <div className="flex flex-col items-center">
                     <ResourceRing>
                         <RingContainer>
-                            <Svg width="118" height="118" viewBox="0 0 118 118">
-                                <CircleBg cx="59" cy="59" r="52" />
+                            <Svg width="96" height="96" viewBox="0 0 96 96">
+                                <CircleBg cx="48" cy="48" r="42" />
                                 <CircleProgress
-                                    cx="59" cy="59" r="52"
+                                    cx="48" cy="48" r="42"
                                     strokeDasharray={circumference}
                                     strokeDashoffset={circumference - (diskPercent / 100) * circumference}
                                     $alarm={diskAlarm}
@@ -293,9 +285,9 @@ const ServerDetailsBlock = ({ className }: { className?: string }) => {
                             </RingContent>
                         </RingContainer>
                     </ResourceRing>
-                    <RingSub>
-                        {isOffline ? 'Server offline' : `${diskPercent.toFixed(1)}% of ${textLimits.disk || '∞'}`}
-                    </RingSub>
+                    <div className="mt-1.5 text-center text-[10px] font-medium text-zinc-400">
+                        {isOffline ? 'Offline' : `${diskPercent.toFixed(1)}% / ${textLimits.disk || '∞'}`}
+                    </div>
                 </div>
             </div>
         </div>
