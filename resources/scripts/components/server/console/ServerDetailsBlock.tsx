@@ -200,7 +200,7 @@ const ServerDetailsBlock = ({ className }: { className?: string }) => {
                         <div className="text-[10px] font-semibold tracking-[1.5px] text-purple-300/70 uppercase mb-1">
                             IP ADDRESS
                         </div>
-                        <div className="font-mono text-base sm:text-lg font-medium text-white group-hover:text-[#c084fc] transition-colors truncate">
+                        <div className="font-mono text-lg sm:text-xl font-medium text-white group-hover:text-[#c084fc] transition-colors truncate">
                             {displayAddress}
                         </div>
                     </div>
@@ -210,7 +210,7 @@ const ServerDetailsBlock = ({ className }: { className?: string }) => {
                     <div className="text-[10px] font-semibold tracking-[1.5px] text-purple-300/70 uppercase mb-1">
                         UPTIME
                     </div>
-                    <div className="font-semibold text-lg tabular-nums text-white/95">
+                    <div className="font-semibold text-xl sm:text-2xl tabular-nums text-white/95">
                         {stats.uptime > 0 ? <UptimeDuration uptime={stats.uptime} /> : '—'}
                     </div>
                 </div>
