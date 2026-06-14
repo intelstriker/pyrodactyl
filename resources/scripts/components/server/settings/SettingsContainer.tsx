@@ -2,13 +2,11 @@ import { useStoreState } from 'easy-peasy';
 import isEqual from 'react-fast-compare';
 
 import FlashMessageRender from '@/components/FlashMessageRender';
-import ActionButton from '@/components/elements/ActionButton';
 import Can from '@/components/elements/Can';
 import CopyOnClick from '@/components/elements/CopyOnClick';
 import Label from '@/components/elements/Label';
 import { MainPageHeader } from '@/components/elements/MainPageHeader';
 import ServerContentBlock from '@/components/elements/ServerContentBlock';
-import TitledGreyBox from '@/components/elements/TitledGreyBox';
 import ReinstallServerBox from '@/components/server/settings/ReinstallServerBox';
 
 import { ip } from '@/lib/formatters';
@@ -33,61 +31,75 @@ const SettingsContainer = () => {
                     reinstall when needed.
                 </p>
             </MainPageHeader>
-            <Can action={'settings.rename'}>
-                <div className={`mb-6 md:mb-10`}>
-                    <RenameServerBox />
-                </div>
-            </Can>
 
-            <div className='w-full h-full flex flex-col gap-8'>
+            <div className='flex flex-col gap-8'>
+                <Can action={'settings.rename'}>
+                    <RenameServerBox />
+                </Can>
+
                 <Can action={'settings.reinstall'}>
                     <ReinstallServerBox />
                 </Can>
-                <TitledGreyBox title={'Debug Information'}>
-                    <div className={`flex items-center justify-between text-sm`}>
-                        <p>Node</p>
-                        <code className={`font-mono bg-zinc-900 rounded-sm py-1 px-2`}>{node}</code>
+
+                {/* Debug Information */}
+                <div className='bg-gradient-to-b from-[#ffffff08] to-[#ffffff05] border-[1px] border-[#ffffff12] rounded-xl p-6 shadow-sm'>
+                    <h3 className='text-xl font-extrabold tracking-tight mb-6'>Debug Information</h3>
+                    <div className='flex flex-col gap-3'>
+                        <div className='flex items-center justify-between'>
+                            <span className='text-sm text-zinc-400'>Node</span>
+                            <code className='font-mono text-sm bg-[#ffffff0d] border border-[#ffffff12] rounded-lg px-3 py-1.5'>
+                                {node}
+                            </code>
+                        </div>
+                        <div className='h-px bg-[#ffffff08]' />
+                        <CopyOnClick text={uuid}>
+                            <div className='flex items-center justify-between cursor-pointer group'>
+                                <span className='text-sm text-zinc-400'>Server ID</span>
+                                <code className='font-mono text-sm bg-[#ffffff0d] border border-[#ffffff12] rounded-lg px-3 py-1.5 group-hover:border-[#ffffff25] transition-colors'>
+                                    {uuid}
+                                </code>
+                            </div>
+                        </CopyOnClick>
                     </div>
-                    <CopyOnClick text={uuid}>
-                        <div className={`flex items-center justify-between mt-2 text-sm`}>
-                            <p>Server ID</p>
-                            <code className={`font-mono bg-zinc-900 rounded-sm py-1 px-2`}>{uuid}</code>
-                        </div>
-                    </CopyOnClick>
-                </TitledGreyBox>
+                </div>
+
+                {/* SFTP Details */}
                 <Can action={'file.sftp'}>
-                    <TitledGreyBox title={'SFTP Details'} className={`mb-6 md:mb-10`}>
-                        <div className={`flex items-center justify-between text-sm`}>
-                            <Label>Server Address</Label>
-                            <CopyOnClick text={`sftp://${ip(sftp.ip)}:${sftp.port}`}>
-                                <code
-                                    className={`font-mono bg-zinc-900 rounded-sm py-1 px-2`}
-                                >{`sftp://${ip(sftp.ip)}:${sftp.port}`}</code>
-                            </CopyOnClick>
-                        </div>
-                        <div className={`mt-2 flex items-center justify-between text-sm`}>
-                            <Label>Username</Label>
-                            <CopyOnClick text={`${username}.${id}`}>
-                                <code
-                                    className={`font-mono bg-zinc-900 rounded-sm py-1 px-2`}
-                                >{`${username}.${id}`}</code>
-                            </CopyOnClick>
-                        </div>
-                        <div className={`mt-6 flex items-center`}>
-                            <div className={`flex-1`}>
-                                <div className={`border-l-4 border-brand p-3`}>
-                                    <p className={`text-xs text-zinc-200`}>
-                                        Your SFTP password is the same as the password you use to access this panel.
-                                    </p>
-                                </div>
+                    <div className='bg-gradient-to-b from-[#ffffff08] to-[#ffffff05] border-[1px] border-[#ffffff12] rounded-xl p-6 shadow-sm'>
+                        <h3 className='text-xl font-extrabold tracking-tight mb-6'>SFTP Details</h3>
+                        <div className='flex flex-col gap-3'>
+                            <div className='flex items-center justify-between'>
+                                <Label className='text-sm text-zinc-400'>Server Address</Label>
+                                <CopyOnClick text={`sftp://${ip(sftp.ip)}:${sftp.port}`}>
+                                    <code className='font-mono text-sm bg-[#ffffff0d] border border-[#ffffff12] rounded-lg px-3 py-1.5 cursor-pointer hover:border-[#ffffff25] transition-colors'>
+                                        {`sftp://${ip(sftp.ip)}:${sftp.port}`}
+                                    </code>
+                                </CopyOnClick>
                             </div>
-                            <div className={`ml-4`}>
-                                <a href={`sftp://${username}.${id}@${ip(sftp.ip)}:${sftp.port}`}>
-                                    <ActionButton variant='secondary'>Launch SFTP</ActionButton>
-                                </a>
+                            <div className='h-px bg-[#ffffff08]' />
+                            <div className='flex items-center justify-between'>
+                                <Label className='text-sm text-zinc-400'>Username</Label>
+                                <CopyOnClick text={`${username}.${id}`}>
+                                    <code className='font-mono text-sm bg-[#ffffff0d] border border-[#ffffff12] rounded-lg px-3 py-1.5 cursor-pointer hover:border-[#ffffff25] transition-colors'>
+                                        {`${username}.${id}`}
+                                    </code>
+                                </CopyOnClick>
                             </div>
                         </div>
-                    </TitledGreyBox>
+
+                        <div className='mt-6 flex items-center justify-between gap-4'>
+                            <div className='border-l-4 border-brand pl-3 py-1'>
+                                <p className='text-xs text-zinc-300'>
+                                    Your SFTP password is the same as the password you use to access this panel.
+                                </p>
+                            </div>
+                            <a href={`sftp://${username}.${id}@${ip(sftp.ip)}:${sftp.port}`} className='shrink-0'>
+                                <button className='px-4 py-2 text-sm font-medium rounded-lg bg-[#ffffff12] border border-[#ffffff15] hover:bg-[#ffffff1a] hover:border-[#ffffff25] transition-all'>
+                                    Launch SFTP
+                                </button>
+                            </a>
+                        </div>
+                    </div>
                 </Can>
             </div>
         </ServerContentBlock>
