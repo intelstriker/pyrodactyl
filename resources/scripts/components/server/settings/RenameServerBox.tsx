@@ -5,7 +5,6 @@ import { object, string } from 'yup';
 
 import ActionButton from '@/components/elements/ActionButton';
 import Field from '@/components/elements/Field';
-import TitledGreyBox from '@/components/elements/TitledGreyBox';
 
 import { httpErrorToHuman } from '@/api/http';
 import renameServer from '@/api/server/renameServer';
@@ -20,15 +19,26 @@ interface Values {
 
 const RenameServerForm = () => {
     return (
-        <TitledGreyBox title={'Server Details'}>
+        <div className='bg-gradient-to-b from-[#ffffff08] to-[#ffffff05] border-[1px] border-[#ffffff12] rounded-xl p-6 shadow-sm'>
+            <h3 className='text-xl font-extrabold tracking-tight mb-6'>Server Details</h3>
             <Form className='flex flex-col gap-4'>
-                <div className={`mt-6 text-right`}>
-                    <ActionButton variant='primary' type={'submit'}>
-                        Save
+                <Field
+                    name='name'
+                    label='Server Name'
+                    description='The name used to identify your server in the panel.'
+                />
+                <Field
+                    name='description'
+                    label='Description'
+                    description='A short description of your server (optional).'
+                />
+                <div className='flex justify-end pt-2'>
+                    <ActionButton variant='primary' type='submit'>
+                        Save Changes
                     </ActionButton>
                 </div>
             </Form>
-        </TitledGreyBox>
+        </div>
     );
 };
 
