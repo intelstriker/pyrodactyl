@@ -9,9 +9,10 @@ interface Props {
     className?: string;
     pagination: PaginationDataSet;
     onPageSelect: (page: number) => void;
+    variant?: 'default' | 'compact';
 }
 
-const PaginationFooter = ({ pagination, className, onPageSelect }: Props) => {
+const PaginationFooter = ({ pagination, className, onPageSelect, variant = 'default' }: Props) => {
     const start = (pagination.currentPage - 1) * pagination.perPage;
     const end = (pagination.currentPage - 1) * pagination.perPage + pagination.count;
 
@@ -31,15 +32,19 @@ const PaginationFooter = ({ pagination, className, onPageSelect }: Props) => {
         return null;
     }
 
+    const isCompact = variant === 'compact';
+
     return (
-        <div className={clsx('flex items-center justify-between my-2', className)}>
-            <p className={'text-sm text-zinc-500'}>
-                Showing&nbsp;
-                <span className={'font-semibold text-zinc-400'}>{Math.max(start, Math.min(pagination.total, 1))}</span>
-                &nbsp;to&nbsp;
-                <span className={'font-semibold text-zinc-400'}>{end}</span> of&nbsp;
-                <span className={'font-semibold text-zinc-400'}>{pagination.total}</span> results.
-            </p>
+        <div className={clsx(isCompact ? 'flex justify-end' : 'flex items-center justify-between my-2', className)}>
+            {!isCompact && (
+                <p className={'text-sm text-zinc-500'}>
+                    Showing&nbsp;
+                    <span className={'font-semibold text-zinc-400'}>{Math.max(start, Math.min(pagination.total, 1))}</span>
+                    &nbsp;to&nbsp;
+                    <span className={'font-semibold text-zinc-400'}>{end}</span> of&nbsp;
+                    <span className={'font-semibold text-zinc-400'}>{pagination.total}</span> results.
+                </p>
+            )}
             {pagination.totalPages > 1 && (
                 <div className={'flex space-x-1'}>
                     <ActionButton
