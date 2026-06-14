@@ -1,7 +1,6 @@
 import { ArrowDownToLine, ArrowUpToLine } from '@gravity-ui/icons';
 import * as Tooltip from '@radix-ui/react-tooltip';
-import clsx from 'clsx';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Line } from 'react-chartjs-2';
 
 import ChartBlock from '@/components/server/console/ChartBlock';
@@ -25,11 +24,10 @@ const periodLabels: Record<Period, string> = {
     '30d': 'Monthly',
 };
 
-const StatGraphs = () => {
+const StatGraphs = ({ period }: { period: Period }) => {
     const status = ServerContext.useStoreState((state) => state.status.value);
     const limits = ServerContext.useStoreState((state) => state.server.data!.limits);
     const previous = useRef<Record<'tx' | 'rx', number>>({ tx: -1, rx: -1 });
-    const [period, setPeriod] = useState<Period>('live');
 
     const cpu = useChart('CPU', {
         sets: 1,
@@ -150,27 +148,6 @@ const StatGraphs = () => {
 
     return (
         <Tooltip.Provider>
-            {/* Resource Metrics header + period buttons */}
-            <div className="mb-3 px-1">
-                <div className="font-bold text-lg tracking-tight text-white mb-2">Resource Metrics</div>
-                <div className="inline-flex rounded-full bg-[#ffffff08] border border-[#ffffff12] p-px text-[10px] font-medium mb-3">
-                    {(['live', '1h', '24h', '7d', '30d'] as const).map((p) => (
-                        <button
-                            key={p}
-                            onClick={() => setPeriod(p)}
-                            className={clsx(
-                                'px-2.5 py-1 rounded-full transition-all',
-                                period === p
-                                    ? 'bg-[#c084fc] text-black shadow-sm'
-                                    : 'text-zinc-300 hover:text-white hover:bg-white/5'
-                            )}
-                        >
-                            {periodLabels[p]}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
             <div
                 className='transform-gpu skeleton-anim-2'
                 style={{
