@@ -313,20 +313,30 @@ const ServerActivityLogContainer = () => {
                     }}
                 >
                     <div className='bg-gradient-to-b from-[#ffffff08] to-[#ffffff05] border-[1px] border-[#ffffff12] rounded-xl p-4 hover:border-[#ffffff20] transition-all duration-150 shadow-sm'>
-                        <div className='flex items-center gap-2 mb-4'>
-                            <div className='w-5 h-5 rounded-lg bg-[#ffffff11] flex items-center justify-center'>
-                                <ClockArrowRotateLeft
-                                    width={22}
-                                    height={22}
-                                    className=' text-zinc-400'
-                                    fill='currentColor'
-                                />
+                        <div className='flex items-center justify-between mb-4'>
+                            <div className='flex items-center gap-2'>
+                                <div className='w-5 h-5 rounded-lg bg-[#ffffff11] flex items-center justify-center'>
+                                    <ClockArrowRotateLeft
+                                        width={22}
+                                        height={22}
+                                        className=' text-zinc-400'
+                                        fill='currentColor'
+                                    />
+                                </div>
+                                <h3 className='text-base font-semibold text-zinc-100'>Events</h3>
+                                {filteredData?.items && (
+                                    <span className='text-sm text-zinc-400'>
+                                        ({filteredData.items.length} {filteredData.items.length === 1 ? 'event' : 'events'})
+                                    </span>
+                                )}
                             </div>
-                            <h3 className='text-base font-semibold text-zinc-100'>Events</h3>
-                            {filteredData?.items && (
-                                <span className='text-sm text-zinc-400'>
-                                    ({filteredData.items.length} {filteredData.items.length === 1 ? 'event' : 'events'})
-                                </span>
+                            {data && data.pagination.totalPages > 1 && (
+                                <PaginationFooter
+                                    pagination={data.pagination}
+                                    onPageSelect={(page) => setFilters((value) => ({ ...value, page }))}
+                                    variant="compact"
+                                    className="my-0"
+                                />
                             )}
                         </div>
 
@@ -363,14 +373,7 @@ const ServerActivityLogContainer = () => {
                             </div>
                         )}
 
-                        {data && (
-                            <div className='mt-4'>
-                                <PaginationFooter
-                                    pagination={data.pagination}
-                                    onPageSelect={(page) => setFilters((value) => ({ ...value, page }))}
-                                />
-                            </div>
-                        )}
+                        {/* Pagination arrows placed in the top-right of the Events header to fit the requested layout. Summary info is shown via the event count badge. */}
                     </div>
                 </div>
             </div>
