@@ -235,8 +235,6 @@ const StatGraphs = ({ period }: { period: Period }) => {
                     {renderChartContent(network, 'Network Activity')}
                 </ChartBlock>
             </div>
-
-            <div className="text-[10px] text-center text-zinc-400/60 pt-1">Disk current usage is in the large gauges above. Historical periods for CPU/RAM/Network show live data only when available.</div>
         </Tooltip.Provider>
     );
 };
