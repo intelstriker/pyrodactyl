@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import { useEffect, useMemo, useState } from 'react';
+import styled from 'styled-components';
 
 import StatBlock from '@/components/server/console/StatBlock';
 import { SocketEvent, SocketRequest } from '@/components/server/events';
@@ -30,6 +31,63 @@ type Stats = Record<'memory' | 'cpu' | 'disk' | 'uptime' | 'rx' | 'tx', number>;
 // @ts-expect-error - Unused parameter in component definition
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Limit = ({ limit, children }: { limit: string | null; children: React.ReactNode }) => <>{children}</>;
+
+const ResourceRing = styled.div`
+    position: relative;
+    width: 68px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+`;
+
+const RingContainer = styled.div`
+    position: relative;
+    width: 60px;
+    height: 60px;
+`;
+
+const Svg = styled.svg`
+    transform: rotate(-90deg);
+`;
+
+const CircleBg = styled.circle`
+    fill: none;
+    stroke: rgba(147, 51, 234, 0.22);
+    stroke-width: 6;
+`;
+
+const CircleProgress = styled.circle<{ $alarm?: boolean }>`
+    fill: none;
+    stroke: ${({ $alarm }) => ($alarm ? '#fb923c' : '#c084fc')};
+    stroke-width: 6;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 600ms cubic-bezier(0.4, 0, 0.2, 1);
+`;
+
+const RingContent = styled.div`
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 4;
+    pointer-events: none;
+`;
+
+const RingLabel = styled.div`
+    font-size: 8px;
+    font-weight: 700;
+    color: #c084fc;
+    letter-spacing: 0.5px;
+    line-height: 1;
+`;
+
+const RingValue = styled.div<{ $alarm?: boolean }>`
+    font-size: 12px;
+    font-weight: 700;
+    color: ${({ $alarm }) => ($alarm ? '#fb923c' : '#f3e8ff')};
+    line-height: 1;
+`;
 
 const ServerDetailsBlock = ({ className }: { className?: string }) => {
     const [stats, setStats] = useState<Stats>({ memory: 0, cpu: 0, disk: 0, uptime: 0, tx: 0, rx: 0 });
@@ -108,6 +166,21 @@ const ServerDetailsBlock = ({ className }: { className?: string }) => {
         });
     });
 
+    const isOffline = status === 'offline';
+    const cpuPercent = isOffline ? 0 : Math.min(Math.max(stats.cpu || 0, 0), 100);
+    const memPercent = !isOffline && limits.memory > 0
+        ? Math.min(((stats.memory || 0) / (limits.memory * 1024 * 1024)) * 100, 100)
+        : 0;
+    const diskPercent = !isOffline && limits.disk > 0
+        ? Math.min(((stats.disk || 0) / (limits.disk * 1024 * 1024)) * 100, 100)
+        : 0;
+
+    const cpuAlarm = cpuPercent >= 90;
+    const memAlarm = memPercent >= 90;
+    const diskAlarm = diskPercent >= 90;
+
+    const circumference = 2 * Math.PI * 24; // for r=24 in the 60px viewBox
+
     return (
         <div className={clsx('grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4', className)}>
             <div
@@ -131,10 +204,27 @@ const ServerDetailsBlock = ({ className }: { className?: string }) => {
                 }}
             >
                 <StatBlock title={'CPU'}>
-                    {status === 'offline' ? (
+                    {isOffline ? (
                         <span className={'text-zinc-400'}>Offline</span>
                     ) : (
-                        <Limit limit={textLimits.cpu}>{stats.cpu.toFixed(2)}%</Limit>
+                        <div className="flex justify-center pt-1">
+                            <ResourceRing>
+                                <RingContainer>
+                                    <Svg width="60" height="60" viewBox="0 0 60 60">
+                                        <CircleBg cx="30" cy="30" r="24" />
+                                        <CircleProgress
+                                            cx="30" cy="30" r="24"
+                                            strokeDasharray={circumference}
+                                            strokeDashoffset={circumference - (cpuPercent / 100) * circumference}
+                                            $alarm={cpuAlarm}
+                                        />
+                                    </Svg>
+                                    <RingContent>
+                                        <RingValue $alarm={cpuAlarm}>{cpuPercent.toFixed(0)}%</RingValue>
+                                    </RingContent>
+                                </RingContainer>
+                            </ResourceRing>
+                        </div>
                     )}
                 </StatBlock>
             </div>
@@ -147,10 +237,27 @@ const ServerDetailsBlock = ({ className }: { className?: string }) => {
                 }}
             >
                 <StatBlock title={'RAM'}>
-                    {status === 'offline' ? (
+                    {isOffline ? (
                         <span className={'text-zinc-400'}>Offline</span>
                     ) : (
-                        <Limit limit={textLimits.memory}>{bytesToString(stats.memory)}</Limit>
+                        <div className="flex justify-center pt-1">
+                            <ResourceRing>
+                                <RingContainer>
+                                    <Svg width="60" height="60" viewBox="0 0 60 60">
+                                        <CircleBg cx="30" cy="30" r="24" />
+                                        <CircleProgress
+                                            cx="30" cy="30" r="24"
+                                            strokeDasharray={circumference}
+                                            strokeDashoffset={circumference - (memPercent / 100) * circumference}
+                                            $alarm={memAlarm}
+                                        />
+                                    </Svg>
+                                    <RingContent>
+                                        <RingValue $alarm={memAlarm}>{bytesToString(stats.memory)}</RingValue>
+                                    </RingContent>
+                                </RingContainer>
+                            </ResourceRing>
+                        </div>
                     )}
                 </StatBlock>
             </div>
@@ -163,7 +270,28 @@ const ServerDetailsBlock = ({ className }: { className?: string }) => {
                 }}
             >
                 <StatBlock title={'Storage'}>
-                    <Limit limit={textLimits.disk}>{bytesToString(stats.disk)}</Limit>
+                    {isOffline ? (
+                        <span className={'text-zinc-400'}>Offline</span>
+                    ) : (
+                        <div className="flex justify-center pt-1">
+                            <ResourceRing>
+                                <RingContainer>
+                                    <Svg width="60" height="60" viewBox="0 0 60 60">
+                                        <CircleBg cx="30" cy="30" r="24" />
+                                        <CircleProgress
+                                            cx="30" cy="30" r="24"
+                                            strokeDasharray={circumference}
+                                            strokeDashoffset={circumference - (diskPercent / 100) * circumference}
+                                            $alarm={diskAlarm}
+                                        />
+                                    </Svg>
+                                    <RingContent>
+                                        <RingValue $alarm={diskAlarm}>{bytesToString(stats.disk)}</RingValue>
+                                    </RingContent>
+                                </RingContainer>
+                            </ResourceRing>
+                        </div>
+                    )}
                 </StatBlock>
             </div>
         </div>
