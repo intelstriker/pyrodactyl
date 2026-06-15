@@ -21,18 +21,23 @@ const MobileFullScreenMenu = ({ isVisible, onClose, children }: MobileFullScreen
     if (!isVisible) return null;
 
     return (
-        <div className='lg:hidden fixed inset-0 z-9999 bg-[#1a1a1a] pt-16'>
+        <div className='lg:hidden fixed inset-0 z-9999 pt-16 bg-[rgba(10,2,18,0.98)] backdrop-blur-md border-t border-[rgba(168,85,247,0.12)]'>
+            <div className='pointer-events-none absolute inset-0 overflow-hidden'>
+                <div className='absolute -top-24 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-purple-600/20 blur-[80px]' />
+                <div className='absolute bottom-0 right-0 h-48 w-48 rounded-full bg-fuchsia-600/10 blur-[60px]' />
+            </div>
+
             {/* Close button */}
             <button
                 onClick={onClose}
-                className='absolute top-4 right-4 p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200'
+                className='absolute top-4 right-4 p-2 text-[#d8b4fe]/70 hover:text-[#d8b4fe] hover:bg-purple-500/10 rounded-lg transition-all duration-200'
                 aria-label='Close menu'
             >
                 <Xmark width={22} height={22} fill='currentColor' />
             </button>
 
             {/* Full screen navigation menu */}
-            <div className='h-full overflow-y-auto'>
+            <div className='relative h-full overflow-y-auto'>
                 <div className='p-6'>
                     {/* Menu items */}
                     <nav className='space-y-2'>{children}</nav>
@@ -57,8 +62,8 @@ const NavigationItem = ({ to, icon: Icon, children, end = false, onClick }: Navi
         className={({ isActive }) =>
             `flex items-center gap-4 p-4 rounded-md transition-all duration-200 ${
                 isActive
-                    ? 'bg-gradient-to-r from-brand/20 to-brand/10 border-l-4 border-brand text-white'
-                    : 'text-white/80 hover:text-white hover:bg-[#ffffff11] border-l-4 border-transparent'
+                    ? 'bg-gradient-to-r from-purple-600/20 to-fuchsia-600/10 border-l-4 border-purple-500 text-[#d8b4fe]'
+                    : 'text-[rgba(216,180,254,0.55)] hover:text-[rgba(216,180,254,0.9)] hover:bg-purple-500/10 border-l-4 border-transparent'
             }`
         }
         onClick={onClick}
