@@ -247,16 +247,28 @@ function ForgotPasswordContainer() {
                 </div>
             </div>
 
+            {/* Mobile ambient background */}
+            <div className='lg:hidden pointer-events-none absolute inset-0 overflow-hidden'>
+                <div className='absolute inset-0 bg-gradient-to-br from-[#0d0014] via-[#1a0a2e] to-[#000005]' />
+                <div className='absolute left-1/2 top-0 -translate-x-1/2 h-72 w-72 rounded-full bg-purple-600/25 blur-[90px]' />
+                <div className='absolute right-0 bottom-1/4 h-48 w-48 rounded-full bg-fuchsia-500/20 blur-[70px]' />
+                <div className='absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30' />
+            </div>
+
             {/* RIGHT PANEL — Forgot password form */}
-            <div className='relative flex w-full lg:w-1/2 items-center justify-center px-6 py-12 bg-[#0c0c12]'>
+            <div className='relative flex w-full lg:w-1/2 items-center justify-center px-6 py-12 bg-transparent lg:bg-[#0c0c12]'>
                 <div className='pointer-events-none absolute inset-0 opacity-[0.04] bg-[radial-gradient(circle_at_1px_1px,#ffffff_1px,transparent_0)] bg-[size:24px_24px]' />
 
                 <div className='relative z-10 w-full max-w-sm'>
-                    <div className='mb-8 flex items-center gap-3 lg:hidden'>
-                        <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-700 to-fuchsia-600 font-black'>
-                            O
+                    <div className='mb-8 flex flex-col items-center gap-3 text-center lg:hidden'>
+                        <div className='flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-700/80 to-fuchsia-600/80 p-3 shadow-[0_0_30px_rgba(168,85,247,0.45)]'>
+                            <img
+                                src={obsidianLogo}
+                                alt='ObsidianHost'
+                                className='h-full w-full object-contain drop-shadow-[0_0_12px_rgba(216,180,254,0.6)]'
+                            />
                         </div>
-                        <span className='text-xl font-extrabold'>
+                        <span className='text-2xl font-extrabold tracking-tight'>
                             Obsidian<span className='text-purple-400'>Host</span>
                         </span>
                     </div>
