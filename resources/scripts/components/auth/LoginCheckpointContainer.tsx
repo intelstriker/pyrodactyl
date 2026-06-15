@@ -15,7 +15,7 @@ import type { FlashStore } from '@/state/flashes';
 
 import useFlash from '@/plugins/useFlash';
 
-import Logo from '../elements/PyroLogo';
+import obsidianLogo from '@/assets/images/obsidianhostlogo.svg';
 
 interface Values {
     code: string;
@@ -33,16 +33,24 @@ function LoginCheckpointForm() {
     const [isMissingDevice, setIsMissingDevice] = useState(false);
 
     return (
-        <ContentBox className='p-12 bg-[#ffffff09] border-[1px] border-[#ffffff11] shadow-xs rounded-xl'>
+        <ContentBox className='p-8 sm:p-12 bg-[rgba(14,3,26,0.85)] border border-[rgba(168,85,247,0.2)] shadow-[0_0_40px_rgba(168,85,247,0.12)] rounded-xl backdrop-blur-md'>
             <LoginFormContainer className={`w-full flex`}>
-                <Link to='/'>
-                    <div className='flex h-12 mb-4 items-center w-full'>
-                        <Logo />
+                <Link to='/' className='flex flex-col items-center w-full mb-2'>
+                    <div className='flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-700/80 to-fuchsia-600/80 p-3 shadow-[0_0_30px_rgba(168,85,247,0.45)]'>
+                        <img
+                            src={obsidianLogo}
+                            alt='ObsidianHost'
+                            className='h-full w-full object-contain drop-shadow-[0_0_12px_rgba(216,180,254,0.6)]'
+                        />
                     </div>
+                    <span className='mt-3 text-lg font-bold tracking-widest uppercase'>
+                        <span className='text-white'>Obsidian</span>
+                        <span className='text-purple-400'>Host</span>
+                    </span>
                 </Link>
-                <div aria-hidden className='my-8 bg-[#ffffff33] min-h-[1px]'></div>
-                <h2 className='text-xl font-extrabold mb-2'>Two Factor Authentication</h2>
-                <div className='text-sm mb-6'>Check device linked with your account for code.</div>
+                <div aria-hidden className='my-8 bg-[rgba(168,85,247,0.2)] min-h-[1px]'></div>
+                <h2 className='text-xl font-extrabold mb-2 text-white'>Two Factor Authentication</h2>
+                <div className='text-sm mb-6 text-zinc-400'>Check device linked with your account for code.</div>
 
                 <div className={`mt-6`}>
                     <Field
@@ -61,7 +69,7 @@ function LoginCheckpointForm() {
                 </div>
                 <div className={`mt-6`}>
                     <Button
-                        className='w-full mt-4 rounded-full bg-brand border-0 ring-0 outline-hidden capitalize font-bold text-sm py-2'
+                        className='w-full mt-4 rounded-full border-0 bg-gradient-to-r from-purple-600 to-fuchsia-600 ring-0 outline-hidden capitalize font-bold text-sm py-2 shadow-[0_0_24px_rgba(168,85,247,0.35)] hover:from-purple-500 hover:to-fuchsia-500'
                         size={'xlarge'}
                         type={'submit'}
                         disabled={isSubmitting}
@@ -70,7 +78,7 @@ function LoginCheckpointForm() {
                         Login
                     </Button>
                 </div>
-                <div aria-hidden className='my-8 bg-[#ffffff33] min-h-[1px]'></div>
+                <div aria-hidden className='my-8 bg-[rgba(168,85,247,0.2)] min-h-[1px]'></div>
 
                 <div
                     className={`mt-6 text-center w-full rounded-t-lg border-0 ring-0 outline-hidden capitalize font-bold text-sm py-2 mb-2 hover:cursor-pointer `}
