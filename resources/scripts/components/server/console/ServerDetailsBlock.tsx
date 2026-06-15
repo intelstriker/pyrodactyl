@@ -119,7 +119,7 @@ const ServerDetailsBlock = ({ className }: { className?: string }) => {
     const allocation = ServerContext.useStoreState((state) => {
         const match = state.server.data!.allocations.find((allocation) => allocation.isDefault);
 
-        return !match ? 'n/a' : `${match.alias || ip(match.ip)}:${match.port}`;
+        return !match ? 'n/a' : `${match.alias || ip(match.ip)}`;
     });
 
     // Get display address (subdomain if available and active, otherwise IP)
