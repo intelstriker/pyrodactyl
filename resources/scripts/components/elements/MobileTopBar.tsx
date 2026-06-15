@@ -8,7 +8,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/elements/DropdownMenu';
-import Logo from '@/components/elements/PyroLogo';
+import ObsidianLogo from '@/assets/images/obsidianhostlogo.svg';
 
 interface MobileTopBarProps {
     onMenuToggle: () => void;
@@ -49,17 +49,30 @@ const MobileTopBar = ({ onMenuToggle, onTriggerLogout, onSelectAdminPanel, rootA
     };
 
     return (
-        <div className='lg:hidden fixed top-0 left-0 right-0 z-50 bg-[#1a1a1a] border-b border-[#ffffff08] h-16 flex items-center justify-between px-4'>
-            {/* Logo */}
-            <NavLink to={'/'} className='flex shrink-0 h-8 w-fit'>
-                <Logo uniqueId='mobile-topbar' />
+        <div className='lg:hidden fixed top-0 left-0 right-0 z-50 h-16 flex items-center justify-between px-4 bg-[rgba(14,3,26,0.95)] border-b border-[rgba(168,85,247,0.15)] backdrop-blur-md shadow-[0_4px_24px_rgba(168,85,247,0.08)]'>
+            <NavLink to={'/'} className='flex items-center gap-2.5 shrink-0'>
+                <img
+                    src={ObsidianLogo}
+                    alt='ObsidianHost'
+                    className='h-9 w-9 object-contain drop-shadow-[0_0_12px_rgba(168,85,247,0.55)]'
+                />
+                <span
+                    className='text-sm font-bold tracking-wider uppercase'
+                    style={{
+                        background: 'linear-gradient(135deg, #d8b4fe 0%, #a855f7 50%, #7e22ce 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                    }}
+                >
+                    ObsidianHost
+                </span>
             </NavLink>
 
             <div className='flex items-center gap-2'>
                 {/* User Menu */}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <button className='w-10 h-10 flex items-center justify-center rounded-md text-white hover:bg-[#ffffff11] p-2 cursor-pointer'>
+                        <button className='w-10 h-10 flex items-center justify-center rounded-md text-[#d8b4fe] hover:bg-purple-500/10 p-2 cursor-pointer'>
                             <svg
                                 xmlns='http://www.w3.org/2000/svg'
                                 width='16'
@@ -89,7 +102,7 @@ const MobileTopBar = ({ onMenuToggle, onTriggerLogout, onSelectAdminPanel, rootA
                 {/* Menu Toggle Button */}
                 <button
                     onClick={handleMenuToggle}
-                    className='w-10 h-10 flex items-center justify-center rounded-md text-white hover:bg-[#ffffff11] p-2 cursor-pointer'
+                    className='w-10 h-10 flex items-center justify-center rounded-md text-[#d8b4fe] hover:bg-purple-500/10 p-2 cursor-pointer'
                     aria-label='Toggle navigation menu'
                 >
                     <BarsPlay width={22} height={22} fill='currentColor' />
