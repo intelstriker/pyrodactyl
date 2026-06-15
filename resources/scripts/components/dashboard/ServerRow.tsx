@@ -260,7 +260,7 @@ const ServerRow = ({ server, className }: ServerRowProps) => {
 
                     {defaultAllocation && (
                         <p className="text-sm text-purple-300/80 font-mono mt-1 tracking-tight">
-                            {defaultAllocation.alias || ip(defaultAllocation.ip)}:{defaultAllocation.port}
+                            {defaultAllocation.alias || ip(defaultAllocation.ip)}
                         </p>
                     )}
                 </div>
